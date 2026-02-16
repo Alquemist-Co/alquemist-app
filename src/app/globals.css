@@ -37,6 +37,13 @@
 
   /* Overlay */
   --color-overlay: oklch(0.15 0.01 250 / 0.25);
+
+  /* Layout */
+  --width-sidebar-collapsed: 64px;
+  --width-sidebar-expanded: 240px;
+  --height-topbar: 56px;
+  --height-topbar-mobile: 48px;
+  --height-bottombar: 64px;
 }
 
 @keyframes shimmer {
