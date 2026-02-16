@@ -13,14 +13,14 @@ Creacion completa del schema de base de datos en Supabase: SQL de las 43 tablas 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-003-001 | Crear helper functions de auth para RLS | S | P0 | Planned |
-| US-003-002 | SQL de tablas del dominio Sistema y Produccion | M | P0 | Planned |
-| US-003-003 | SQL de tablas del dominio Areas e Inventario | M | P0 | Planned |
-| US-003-004 | SQL de tablas del dominio Actividades | L | P0 | Planned |
-| US-003-005 | SQL de tablas de Nexo, Ordenes, Calidad y Operaciones | M | P0 | Planned |
-| US-003-006 | Configurar RLS policies tipo A, B, C y D | L | P0 | Planned |
-| US-003-007 | Generar Drizzle schema y configurar drizzle-kit | M | P0 | Planned |
-| US-003-008 | Seed data de ejemplo | M | P1 | Planned |
+| US-003-001 | Crear helper functions de auth para RLS | S | P0 | Done |
+| US-003-002 | SQL de tablas del dominio Sistema y Produccion | M | P0 | Done |
+| US-003-003 | SQL de tablas del dominio Areas e Inventario | M | P0 | Done |
+| US-003-004 | SQL de tablas del dominio Actividades | L | P0 | Done |
+| US-003-005 | SQL de tablas de Nexo, Ordenes, Calidad y Operaciones | M | P0 | Done |
+| US-003-006 | Configurar RLS policies tipo A, B, C y D | L | P0 | Done |
+| US-003-007 | Generar Drizzle schema y configurar drizzle-kit | M | P0 | Done |
+| US-003-008 | Seed data de ejemplo | M | P1 | Done |
 
 ---
 
