@@ -28,7 +28,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-002 Design system | Done | 2026-02-16 |
 | F-003 Database schema | Done | 2026-02-16 |
 | F-004 Auth y middleware | Done | 2026-02-16 |
-| F-005 Layout principal | Planned | |
+| F-005 Layout principal | In Progress | |
 | F-006 PWA basica | Planned | |
 | F-007 Provisioning basico de usuarios | Planned | |
 
