@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { LogoutButton } from "@/components/shared/logout-button";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -27,6 +28,7 @@ export default async function DashboardPage() {
         <div className="rounded-badge bg-brand-light px-4 py-2 text-sm font-medium text-brand-dark">
           Rol: {role}
         </div>
+        <LogoutButton />
       </main>
     </div>
   );
