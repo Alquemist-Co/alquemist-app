@@ -181,6 +181,35 @@ Ejemplos: `feat/batch-phase-advance`, `fix/sync-queue-retry`, `docs/prd-inventor
 - Resumen de cambios en el body
 - Checklist de verificación (lint, build, tests si aplican)
 
+## Desarrollo local
+
+### Supabase local (Docker)
+
+```bash
+npm run db:start    # Levanta Postgres, Auth, Storage, Studio via Docker
+npm run db:stop     # Detiene todos los contenedores
+npm run db:reset    # Borra la DB, re-aplica migraciones + seed
+npm run db:status   # Muestra estado y URLs de los servicios
+```
+
+**URLs locales:**
+| Servicio | URL |
+|----------|-----|
+| API (PostgREST) | http://127.0.0.1:54321 |
+| Base de datos | postgresql://postgres:postgres@127.0.0.1:54322/postgres |
+| Studio | http://127.0.0.1:54323 |
+| Mailpit (emails) | http://127.0.0.1:54324 |
+
+**Variables de entorno:**
+- `.env.local` apunta a Supabase local por defecto (keys generadas por `supabase start`)
+- Para producción: descomentar las credenciales de Supabase Cloud en `.env.local`
+- `.env.example` tiene el template con URLs locales
+
+**Migraciones:**
+- Archivos en `supabase/migrations/` con formato `{timestamp}_nombre.sql`
+- Seed data en `supabase/seed.sql` (se ejecuta automáticamente con `db:reset`)
+- Para agregar una nueva migración: `npx supabase migration new nombre_descriptivo`
+
 ## Verificación
 
 Ejecutar **antes** de considerar cualquier tarea completa:
