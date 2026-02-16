@@ -14,7 +14,7 @@ Implementacion del catalogo de componentes base reutilizables del design system 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-002-001 | Componente Button (primary, secondary, ghost) | S | P0 | Planned |
+| US-002-001 | Componente Button (primary, secondary, ghost) | S | P0 | Done |
 | US-002-002 | Componente Card y Stat Card | S | P0 | Planned |
 | US-002-003 | Componente Input Field y Toggle | M | P0 | Planned |
 | US-002-004 | Componente Badge y Status Badge | S | P1 | Planned |
