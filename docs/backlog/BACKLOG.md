@@ -4,17 +4,17 @@
 
 ## Summary
 
-- **Total features**: 47
-- **Total stories**: 215
+- **Total features**: 48
+- **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 189 | **In Progress**: 0 | **Done**: 26
+- **Planned**: 192 | **In Progress**: 0 | **Done**: 26
 
 ## Resumen por Fase
 
 | Fase | Nombre | Semanas | Features | Stories | Dependencias |
 |------|--------|---------|----------|---------|--------------|
-| 0 | Fundacion | 1-2 | 6 | 35 | Ninguna |
+| 0 | Fundacion | 1-2 | 7 | 38 | Ninguna |
 | 1 | Core Loop (Produccion) | 3-7 | 12 | 55 | Fase 0 |
 | 2 | Inventario y Calidad | 8-11 | 10 | 37 | F-016, F-017, F-022 (Fase 1) |
 | 3 | Operaciones y Offline | 12-16 | 10 | 42 | Fases 0-1 + F-026 (Fase 2) |
@@ -34,6 +34,7 @@
 | F-004 | Autenticacion y middleware de roles | 4 | P0 - Critical | Done | [F-004](./done/F-004-auth-middleware.md) |
 | F-005 | Layout principal responsive | 5 | P0 - Critical | Planned | [F-005](./planned/F-005-main-layout.md) |
 | F-006 | PWA basica | 4 | P0 - Critical | Planned | [F-006](./planned/F-006-pwa-basic.md) |
+| F-007 | Provisioning basico de usuarios | 3 | P0 - Critical | Planned | [F-007](./planned/F-007-basic-user-provisioning.md) |
 
 ---
 

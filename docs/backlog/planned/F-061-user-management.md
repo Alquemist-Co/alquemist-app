@@ -70,6 +70,7 @@ Modulo de administracion de usuarios accesible solo para el rol admin. Permite l
 - Estado: toggle visual activo/inactivo
 
 ## Dependencies
+- Requiere F-007 (provisioning basico) — hereda `admin.ts` y `createUser` como base
 - Requiere tabla `users` con datos (Fase 0)
 - Requiere componente `DataTable` (Fase 0)
 

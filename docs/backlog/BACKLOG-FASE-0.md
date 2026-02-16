@@ -10,9 +10,9 @@
 **Dependencias cross-fase:** Ninguna (esta es la fase base)
 
 ## Summary
-- **Total features**: 6
-- **Total stories**: 34
-- **Planned**: 8 | **In Progress**: 0 | **Done**: 26
+- **Total features**: 7
+- **Total stories**: 37
+- **Planned**: 11 | **In Progress**: 0 | **Done**: 26
 
 ## Features
 
@@ -24,6 +24,7 @@
 | F-004 | Autenticacion y middleware de roles | 4 | P0 - Critical | Done | [F-004](./done/F-004-auth-middleware.md) |
 | F-005 | Layout principal responsive | 5 | P0 - Critical | Planned | [F-005](./planned/F-005-main-layout.md) |
 | F-006 | PWA basica | 4 | P0 - Critical | Planned | [F-006](./planned/F-006-pwa-basic.md) |
+| F-007 | Provisioning basico de usuarios | 3 | P0 - Critical | Planned | [F-007](./planned/F-007-basic-user-provisioning.md) |
 
 ## Indice de Stories
 
@@ -92,6 +93,14 @@
 | US-006-003 | App instalable en Android e iOS | S | P0 |
 | US-006-004 | Indicador permanente de estado de conexion | M | P1 |
 
+### F-007: Provisioning basico de usuarios
+
+| ID | Story | Size | Priority |
+|----|-------|------|----------|
+| US-007-001 | Supabase Admin client helper | S | P0 |
+| US-007-002 | Server Action createUser | S | P0 |
+| US-007-003 | Pagina minima de creacion de usuario | S | P0 |
+
 ## Orden de Implementacion Sugerido
 
 Las features pueden trabajarse en paralelo pero existen dependencias internas:
@@ -106,6 +115,7 @@ Semana 2:                                                            │
   F-004 (auth + middleware) ◄── F-001, F-003                        │
   F-005 (layout principal) ◄── F-002, F-004 ◄───────────────────────┘
   F-006 (PWA - instalable, offline banner) ◄── F-005
+  F-007 (user provisioning) ◄── F-004
 ```
 
 **Camino critico:** F-001 -> F-003 (RLS + seed) -> F-004 (auth) -> F-005 (layout) -> F-006 (PWA completa)
