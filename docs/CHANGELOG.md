@@ -2,6 +2,15 @@
 
 ## 2026-02-16
 
+### Deploy a produccion (Supabase Cloud + Vercel)
+- Supabase Cloud project linked (ref: `bavpxtnwxvemqmntfnmd`)
+- `uuid_generate_v4()` reemplazado por `gen_random_uuid()` nativo en 4 archivos de migracion (~40 ocurrencias) — la extension `uuid-ossp` no esta disponible en el schema `extensions` de Cloud
+- Extension `uuid-ossp` removida (CREATE EXTENSION queda como no-op comment)
+- 10 migraciones aplicadas a Cloud via `npx supabase db reset --linked`
+- Variables de entorno configuradas en Vercel (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`)
+- `seed.sql` es solo local — usa `pgcrypto` para hash de passwords, no disponible en Cloud auth schema
+- **Commits**: b4e0ebc, 0bf16a1
+
 ### F-004: Autenticacion y middleware de roles — Done
 - US-004-001: Pantalla de login con Supabase Auth (RHF + Zod + signInWithPassword)
 - US-004-002: Middleware de proteccion de rutas por rol (getUser, route-access matrix, header injection)

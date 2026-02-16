@@ -215,6 +215,65 @@ npm run db:status   # Muestra estado y URLs de los servicios
 - Token columns en `auth.users` (`confirmation_token`, `recovery_token`, etc.) deben ser `''`, no NULL (GoTrue scan error)
 - En WSL2 + Docker Desktop: si los contenedores quedan ghost después de `supabase stop`, verificar puertos con `ss -tlnp | grep 5432` y matar shims si es necesario
 
+## Produccion (Supabase Cloud + Vercel)
+
+### Supabase Cloud
+
+- **Project ref**: `bavpxtnwxvemqmntfnmd`
+- **Link**: `npx supabase link --project-ref bavpxtnwxvemqmntfnmd`
+- **Push migraciones**: `npx supabase db push` (aplica migraciones nuevas sin resetear)
+- **Reset completo**: `npx supabase db reset --linked` (destructivo: borra todo y re-aplica)
+
+### Vercel
+
+- Deploy automatico en push a `main`
+- Env vars configuradas: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `DATABASE_URL`
+- Pendiente: `SUPABASE_SERVICE_ROLE_KEY` (necesario para F-007)
+
+### Runbook: crear primer admin en Cloud
+
+Si la DB de produccion esta vacia (sin usuarios), crear el primer admin via SQL Editor en Supabase Dashboard:
+
+```sql
+-- 1. Crear usuario en auth.users
+INSERT INTO auth.users (
+  id, instance_id, email, encrypted_password,
+  email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+  role, aud, confirmation_token, recovery_token,
+  email_change_token_new, email_change_token_current,
+  created_at, updated_at
+) VALUES (
+  gen_random_uuid(), '00000000-0000-0000-0000-000000000000',
+  'admin@tuempresa.com',
+  crypt('password-temporal-seguro', gen_salt('bf')),
+  now(),
+  '{"provider":"email","providers":["email"],"role":"admin","company_id":"<COMPANY_UUID>"}',
+  '{"full_name":"Nombre Admin"}',
+  'authenticated', 'authenticated', '', '', '', '',
+  now(), now()
+);
+
+-- 2. Crear fila en public.users (usar el UUID generado arriba)
+INSERT INTO public.users (id, company_id, email, full_name, role)
+VALUES ('<AUTH_USER_UUID>', '<COMPANY_UUID>', 'admin@tuempresa.com', 'Nombre Admin', 'admin');
+
+-- 3. Crear identity (requerida para signInWithPassword)
+INSERT INTO auth.identities (id, user_id, provider_id, provider, identity_data, last_sign_in_at, created_at, updated_at)
+VALUES (gen_random_uuid(), '<AUTH_USER_UUID>', 'admin@tuempresa.com', 'email',
+  jsonb_build_object('sub', '<AUTH_USER_UUID>', 'email', 'admin@tuempresa.com'),
+  now(), now(), now());
+```
+
+> **Nota**: Este proceso manual sera reemplazado por F-007 (provisioning basico de usuarios).
+
+### Pendientes para produccion completa
+
+- [ ] `SUPABASE_SERVICE_ROLE_KEY` en Vercel (para admin API)
+- [ ] SMTP configurado en Supabase para emails de invitacion
+- [ ] Custom domain (Vercel + Supabase)
+- [ ] Sentry para monitoreo de errores
+- [ ] Rate limiting en Server Actions
+
 ## Verificación
 
 Ejecutar **antes** de considerar cualquier tarea completa:
