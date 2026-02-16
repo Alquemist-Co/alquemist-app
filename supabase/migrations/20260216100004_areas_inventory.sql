@@ -8,7 +8,7 @@
 -- ============================================================
 
 CREATE TABLE facilities (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   company_id              UUID NOT NULL REFERENCES companies(id),
   name                    VARCHAR NOT NULL,
   type                    facility_type NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE facilities (
 );
 
 CREATE TABLE zones (
-  id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id               UUID NOT NULL REFERENCES facilities(id),
   name                      VARCHAR NOT NULL,
   purpose                   zone_purpose NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE zones (
 );
 
 CREATE TABLE zone_structures (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   zone_id             UUID NOT NULL REFERENCES zones(id),
   name                VARCHAR NOT NULL,
   type                structure_type NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE zone_structures (
 );
 
 CREATE TABLE plant_positions (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   zone_id           UUID NOT NULL REFERENCES zones(id),
   structure_id      UUID REFERENCES zone_structures(id),
   level_number      INT,
@@ -83,7 +83,7 @@ CREATE TABLE plant_positions (
 -- ============================================================
 
 CREATE TABLE resource_categories (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   parent_id             UUID REFERENCES resource_categories(id),
   name                  VARCHAR NOT NULL,
   code                  VARCHAR NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE resource_categories (
 );
 
 CREATE TABLE units_of_measure (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code            VARCHAR NOT NULL,
   name            VARCHAR NOT NULL,
   dimension       dimension_type NOT NULL,
@@ -114,7 +114,7 @@ CREATE TABLE units_of_measure (
 );
 
 CREATE TABLE suppliers (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   company_id      UUID NOT NULL REFERENCES companies(id),
   name            VARCHAR NOT NULL,
   contact_info    JSONB NOT NULL DEFAULT '{}',
@@ -127,7 +127,7 @@ CREATE TABLE suppliers (
 );
 
 CREATE TABLE products (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sku                     VARCHAR NOT NULL UNIQUE,
   name                    VARCHAR NOT NULL,
   category_id             UUID NOT NULL REFERENCES resource_categories(id),
@@ -152,7 +152,7 @@ CREATE TABLE products (
 );
 
 CREATE TABLE inventory_items (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   product_id            UUID NOT NULL REFERENCES products(id),
   zone_id               UUID REFERENCES zones(id),
   quantity_available    DECIMAL NOT NULL DEFAULT 0,
@@ -172,7 +172,7 @@ CREATE TABLE inventory_items (
 );
 
 CREATE TABLE inventory_transactions (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type                    transaction_type NOT NULL,
   inventory_item_id       UUID NOT NULL REFERENCES inventory_items(id),
   quantity                DECIMAL NOT NULL,
@@ -195,7 +195,7 @@ CREATE TABLE inventory_transactions (
 );
 
 CREATE TABLE recipes (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name                VARCHAR NOT NULL,
   code                VARCHAR NOT NULL,
   output_product_id   UUID NOT NULL REFERENCES products(id),
@@ -210,7 +210,7 @@ CREATE TABLE recipes (
 );
 
 CREATE TABLE recipe_executions (
-  id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   recipe_id                 UUID NOT NULL REFERENCES recipes(id),
   executed_by               UUID NOT NULL REFERENCES users(id),
   scale_factor              DECIMAL NOT NULL DEFAULT 1,

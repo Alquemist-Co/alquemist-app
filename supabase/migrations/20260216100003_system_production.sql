@@ -8,7 +8,7 @@
 -- ============================================================
 
 CREATE TABLE companies (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          VARCHAR NOT NULL,
   legal_id      VARCHAR,
   country       CHAR(2) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE companies (
 );
 
 CREATE TABLE users (
-  id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   company_id           UUID NOT NULL REFERENCES companies(id),
   email                VARCHAR NOT NULL UNIQUE,
   full_name            VARCHAR NOT NULL,
@@ -49,7 +49,7 @@ ALTER TABLE companies
 -- ============================================================
 
 CREATE TABLE crop_types (
-  id                   UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code                 VARCHAR NOT NULL UNIQUE,
   name                 VARCHAR NOT NULL,
   scientific_name      VARCHAR,
@@ -64,7 +64,7 @@ CREATE TABLE crop_types (
 );
 
 CREATE TABLE cultivars (
-  id                          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   crop_type_id                UUID NOT NULL REFERENCES crop_types(id),
   code                        VARCHAR NOT NULL UNIQUE,
   name                        VARCHAR NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE cultivars (
 );
 
 CREATE TABLE production_phases (
-  id                     UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   crop_type_id           UUID NOT NULL REFERENCES crop_types(id),
   code                   VARCHAR NOT NULL,
   name                   VARCHAR NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE production_phases (
 );
 
 CREATE TABLE phase_product_flows (
-  id                            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   phase_id                      UUID NOT NULL REFERENCES production_phases(id),
   direction                     flow_direction NOT NULL,
   product_role                  product_role NOT NULL,
@@ -128,7 +128,7 @@ CREATE TABLE phase_product_flows (
 );
 
 CREATE TABLE cultivar_products (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cultivar_id   UUID NOT NULL REFERENCES cultivars(id),
   product_id    UUID, -- FK added later (products doesn't exist yet)
   phase_id      UUID REFERENCES production_phases(id),

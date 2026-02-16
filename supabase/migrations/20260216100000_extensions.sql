@@ -1,4 +1,2 @@
 -- 00_extensions.sql
--- Enable required PostgreSQL extensions
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- No extensions needed — gen_random_uuid() is native PostgreSQL 13+

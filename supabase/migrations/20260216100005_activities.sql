@@ -8,7 +8,7 @@
 -- ============================================================
 
 CREATE TABLE activity_types (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        VARCHAR NOT NULL,
   category    VARCHAR,
   is_active   BOOLEAN NOT NULL DEFAULT true,
@@ -19,7 +19,7 @@ CREATE TABLE activity_types (
 );
 
 CREATE TABLE activity_templates (
-  id                          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code                        VARCHAR NOT NULL UNIQUE,
   activity_type_id            UUID NOT NULL REFERENCES activity_types(id),
   name                        VARCHAR NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE activity_templates (
 );
 
 CREATE TABLE activity_template_phases (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   template_id   UUID NOT NULL REFERENCES activity_templates(id),
   phase_id      UUID NOT NULL REFERENCES production_phases(id),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -47,7 +47,7 @@ CREATE TABLE activity_template_phases (
 );
 
 CREATE TABLE activity_template_resources (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   template_id     UUID NOT NULL REFERENCES activity_templates(id),
   product_id      UUID NOT NULL REFERENCES products(id),
   quantity        DECIMAL NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE activity_template_resources (
 );
 
 CREATE TABLE activity_template_checklist (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   template_id     UUID NOT NULL REFERENCES activity_templates(id),
   step_order      INT NOT NULL,
   instruction     TEXT NOT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE activity_template_checklist (
 );
 
 CREATE TABLE cultivation_schedules (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          VARCHAR NOT NULL,
   cultivar_id   UUID NOT NULL REFERENCES cultivars(id),
   total_days    INT NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE cultivation_schedules (
 );
 
 CREATE TABLE scheduled_activities (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   schedule_id             UUID NOT NULL REFERENCES cultivation_schedules(id),
   template_id             UUID NOT NULL REFERENCES activity_templates(id),
   batch_id                UUID, -- FK added later (batches doesn't exist yet)
@@ -107,7 +107,7 @@ CREATE TABLE scheduled_activities (
 );
 
 CREATE TABLE activities (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   activity_type_id        UUID NOT NULL REFERENCES activity_types(id),
   template_id             UUID REFERENCES activity_templates(id),
   scheduled_activity_id   UUID REFERENCES scheduled_activities(id),
@@ -132,7 +132,7 @@ ALTER TABLE scheduled_activities
   ADD CONSTRAINT fk_sa_completed_activity FOREIGN KEY (completed_activity_id) REFERENCES activities(id);
 
 CREATE TABLE activity_resources (
-  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   activity_id         UUID NOT NULL REFERENCES activities(id),
   product_id          UUID NOT NULL REFERENCES products(id),
   inventory_item_id   UUID REFERENCES inventory_items(id),
@@ -148,7 +148,7 @@ CREATE TABLE activity_resources (
 );
 
 CREATE TABLE activity_observations (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   activity_id       UUID NOT NULL REFERENCES activities(id),
   type              observation_type NOT NULL,
   severity          severity_level NOT NULL DEFAULT 'info',

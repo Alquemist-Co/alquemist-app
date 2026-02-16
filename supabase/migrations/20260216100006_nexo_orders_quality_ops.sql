@@ -6,7 +6,7 @@
 -- ============================================================
 
 CREATE TABLE production_orders (
-  id                          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code                        VARCHAR NOT NULL UNIQUE,
   company_id                  UUID NOT NULL REFERENCES companies(id),
   cultivar_id                 UUID NOT NULL REFERENCES cultivars(id),
@@ -35,7 +35,7 @@ CREATE TABLE production_orders (
 -- ============================================================
 
 CREATE TABLE batches (
-  id                        UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   code                      VARCHAR NOT NULL UNIQUE,
   cultivar_id               UUID NOT NULL REFERENCES cultivars(id),
   zone_id                   UUID NOT NULL REFERENCES zones(id),
@@ -61,7 +61,7 @@ CREATE TABLE batches (
 );
 
 CREATE TABLE batch_lineage (
-  id                      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   operation               lineage_operation NOT NULL,
   parent_batch_id         UUID NOT NULL REFERENCES batches(id),
   child_batch_id          UUID NOT NULL REFERENCES batches(id),
@@ -78,7 +78,7 @@ CREATE TABLE batch_lineage (
 -- ============================================================
 
 CREATE TABLE production_order_phases (
-  id                    UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id              UUID NOT NULL REFERENCES production_orders(id),
   phase_id              UUID NOT NULL REFERENCES production_phases(id),
   sort_order            INT NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE production_order_phases (
 -- ============================================================
 
 CREATE TABLE quality_tests (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   batch_id        UUID NOT NULL REFERENCES batches(id),
   phase_id        UUID REFERENCES production_phases(id),
   test_type       VARCHAR NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE quality_tests (
 );
 
 CREATE TABLE quality_test_results (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   test_id         UUID NOT NULL REFERENCES quality_tests(id),
   parameter       VARCHAR NOT NULL,
   value           VARCHAR NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE quality_test_results (
 -- ============================================================
 
 CREATE TABLE overhead_costs (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   facility_id       UUID NOT NULL REFERENCES facilities(id),
   zone_id           UUID REFERENCES zones(id),
   cost_type         cost_type NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE overhead_costs (
 );
 
 CREATE TABLE sensors (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   zone_id           UUID NOT NULL REFERENCES zones(id),
   type              sensor_type NOT NULL,
   brand_model       VARCHAR,
@@ -173,7 +173,7 @@ CREATE TABLE sensors (
 );
 
 CREATE TABLE environmental_readings (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sensor_id   UUID NOT NULL REFERENCES sensors(id),
   zone_id     UUID NOT NULL REFERENCES zones(id),
   parameter   reading_parameter NOT NULL,
@@ -183,7 +183,7 @@ CREATE TABLE environmental_readings (
 );
 
 CREATE TABLE alerts (
-  id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   type              alert_type NOT NULL,
   severity          alert_severity NOT NULL DEFAULT 'info',
   entity_type       VARCHAR NOT NULL,
@@ -199,7 +199,7 @@ CREATE TABLE alerts (
 );
 
 CREATE TABLE attachments (
-  id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   entity_type     VARCHAR NOT NULL,
   entity_id       UUID NOT NULL,
   file_url        TEXT NOT NULL,
