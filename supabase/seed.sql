@@ -133,6 +133,35 @@ VALUES
   )
 ON CONFLICT DO NOTHING;
 
+-- Auth identities (required by Supabase Auth for signInWithPassword)
+INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+VALUES
+  (
+    '22222222-2222-2222-2222-222222222201',
+    '22222222-2222-2222-2222-222222222201',
+    'admin@agrotech.co',
+    '{"sub": "22222222-2222-2222-2222-222222222201", "email": "admin@agrotech.co", "email_verified": true, "phone_verified": false}',
+    'email',
+    now(), now(), now()
+  ),
+  (
+    '22222222-2222-2222-2222-222222222202',
+    '22222222-2222-2222-2222-222222222202',
+    'supervisor@agrotech.co',
+    '{"sub": "22222222-2222-2222-2222-222222222202", "email": "supervisor@agrotech.co", "email_verified": true, "phone_verified": false}',
+    'email',
+    now(), now(), now()
+  ),
+  (
+    '22222222-2222-2222-2222-222222222203',
+    '22222222-2222-2222-2222-222222222203',
+    'operator@agrotech.co',
+    '{"sub": "22222222-2222-2222-2222-222222222203", "email": "operator@agrotech.co", "email_verified": true, "phone_verified": false}',
+    'email',
+    now(), now(), now()
+  )
+ON CONFLICT DO NOTHING;
+
 -- ============================================================
 -- 3. Public users
 -- ============================================================
