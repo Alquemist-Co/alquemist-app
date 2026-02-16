@@ -13,10 +13,10 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 | Documento | Contenido |
 |---|---|
-| `docs/alquemist-proyecto.docx` | Arquitectura, stack, estructura del proyecto, roadmap 20 semanas, setup día 1 |
-| `docs/alquemist-features.docx` | RLS policies, Zod schemas, Dexie offline schema, sync queue, features por módulo, API routes, convenciones de código |
-| `docs/alquemist-pwa-reqs.docx` | Roles y permisos, design system, 48 pantallas, catálogo de componentes, navegación, accesibilidad, performance |
-| `docs/alquemist-modelo-datos.docx` | 43 tablas en 8 dominios, 9 tablas CORE, diccionario de campos, cadenas de datos |
+| `docs/alquemist-proyecto.md` | Arquitectura, stack, estructura del proyecto, roadmap 20 semanas, setup día 1 |
+| `docs/alquemist-features.md` | RLS policies, Zod schemas, Dexie offline schema, sync queue, features por módulo, API routes, convenciones de código |
+| `docs/alquemist-pwa-reqs.md` | Roles y permisos, design system, 48 pantallas, catálogo de componentes, navegación, accesibilidad, performance |
+| `docs/alquemist-modelo-definitivo.md` | 43 tablas en 8 dominios, relaciones cross-domain, diccionario de campos, flujos operativos |
 
 ## Sistema de desarrollo — Plan-First
 
@@ -30,11 +30,9 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 | Tarea | Flujo de skills |
 |---|---|
-| Idea de feature nueva | `/prd` → `/product-owner` → implementar |
-| Feature con PRD existente | `/product-owner` → implementar |
+| Feature nueva (idea o descripción) | `/product-owner` → implementar |
 | Feature con stories existentes | Implementar directamente |
 | Descomponer requisitos en historias | `/product-owner` |
-| Documentar una feature | `/prd` |
 | Código React / Next.js | Aplicar `vercel-react-best-practices` |
 | Código de base de datos (queries, schema, RLS) | Aplicar `supabase-postgres-best-practices` |
 | Bug fix | Plan → diagnóstico → fix → verificar |
@@ -64,7 +62,7 @@ src/
 └── styles/           → Estilos globales
 
 docs/
-├── *.docx            → Documentación fuente del proyecto
+├── *.md              → Documentación fuente del proyecto
 └── backlog/          → Feature docs y BACKLOG.md (vía /product-owner)
 
 public/               → Assets estáticos, PWA manifest, icons
@@ -91,7 +89,7 @@ public/               → Assets estáticos, PWA manifest, icons
 - **Icons**: Lucide (outlined, 1.5px stroke, 20px en navegación)
 - **Spacing**: base 4px
 - **Enfoque**: Mobile-first, responsive (sm / md / lg / xl)
-- **Componentes**: Seguir el catálogo definido en `docs/alquemist-pwa-reqs.docx`
+- **Componentes**: Seguir el catálogo definido en `docs/alquemist-pwa-reqs.md`
 
 ## Git workflow
 
