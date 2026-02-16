@@ -2,6 +2,19 @@
 
 ## 2026-02-16
 
+### F-002: Design system (componentes base UI) — Done
+- US-002-001: Button (primary, secondary, ghost) con cva, loading, icon, sizes
+- US-002-002: Card base + StatCard con DM Mono, left border semántico, href opcional
+- US-002-003: Input (forwardRef, RHF compatible, error states) + Toggle (switch role)
+- US-002-004: Badge (filled, outlined, success, warning, error, info) con truncation
+- US-002-005: Dialog nativo con bottom sheet mobile (drag-to-dismiss) + modal desktop
+- US-002-006: Table responsive (desktop table + mobile cards) con sort client-side
+- US-002-007: Toast con store Zustand (success/error/warning/info, auto-dismiss)
+- US-002-008: ProgressBar (aria-progressbar) + Skeleton (shimmer) + EmptyState (icon + CTA)
+- US-002-009: Página /design-system con catálogo completo interactivo
+- **Commits**: 7d225d5, 3dfdb77, dc42780, 114a8b8, 874a2d6, 648b436, f7af7ff, 1d5c09a, 935bb6d
+- **Notas**: Dependencies: class-variance-authority, clsx, tailwind-merge. Utility cn() en lib/utils/cn.ts. ToastContainer global en layout.tsx. Tokens extendidos: radius-dialog, radius-progress, overlay color, keyframe animations (shimmer, slide-up, slide-down, fade-in).
+
 ### F-003: Schema de base de datos — Done
 - US-003-001: Auth helper functions (auth.company_id, auth.user_role, auth.facility_id)
 - US-003-002: Sistema (2) + Produccion (5) = 7 tablas

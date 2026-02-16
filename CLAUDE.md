@@ -25,7 +25,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | Feature | Status | Fecha |
 |---------|--------|-------|
 | F-001 Setup del proyecto | Done | 2026-02-16 |
-| F-002 Design system | In Progress | |
+| F-002 Design system | Done | 2026-02-16 |
 | F-003 Database schema | Done | 2026-02-16 |
 | F-004 Auth y middleware | Planned | |
 | F-005 Layout principal | Planned | |
