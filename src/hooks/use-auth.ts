@@ -7,12 +7,13 @@ import {
 } from "@/lib/auth/permissions";
 
 export function useAuth() {
-  const { userId, email, role, companyId, facilityId, isHydrated } =
+  const { userId, email, fullName, role, companyId, facilityId, isHydrated } =
     useAuthStore();
 
   return {
     userId,
     email,
+    fullName,
     role,
     companyId,
     facilityId,

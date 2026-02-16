@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuth({
           userId: user.id,
           email: user.email ?? "",
+          fullName: (user.user_metadata?.full_name as string) ?? "",
           role,
           companyId: (user.app_metadata?.company_id as string) ?? "",
           facilityId:
@@ -59,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuth({
           userId: user.id,
           email: user.email ?? "",
+          fullName: (user.user_metadata?.full_name as string) ?? "",
           role,
           companyId: (user.app_metadata?.company_id as string) ?? "",
           facilityId:
