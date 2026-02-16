@@ -19,7 +19,7 @@ Implementacion del catalogo de componentes base reutilizables del design system 
 | US-002-003 | Componente Input Field y Toggle | M | P0 | Done |
 | US-002-004 | Componente Badge y Status Badge | S | P1 | Done |
 | US-002-005 | Componente Dialog y Bottom Sheet | M | P1 | Done |
-| US-002-006 | Componente Table (responsive) | M | P1 | Planned |
+| US-002-006 | Componente Table (responsive) | M | P1 | Done |
 | US-002-007 | Componente Toast / Snackbar | S | P1 | Planned |
 | US-002-008 | Componentes Progress Bar, Skeleton y Empty State | M | P1 | Planned |
 | US-002-009 | Pagina /design-system con catalogo visual | S | P0 | Planned |
