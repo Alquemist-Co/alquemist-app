@@ -16,15 +16,15 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-056 | Dashboard Operador | 6 | P0 - Critical | Planned | [F-056](./F-056-dashboard-operator.md) |
-| F-057 | Dashboard Supervisor | 6 | P0 - Critical | Planned | [F-057](./F-057-dashboard-supervisor.md) |
-| F-058 | Dashboard Gerente | 6 | P0 - Critical | Planned | [F-058](./F-058-dashboard-manager.md) |
-| F-059 | Dashboard Viewer | 3 | P1 - High | Planned | [F-059](./F-059-dashboard-viewer.md) |
-| F-060 | Busqueda Global (Cmd+K) | 4 | P1 - High | Planned | [F-060](./F-060-global-search.md) |
-| F-061 | Gestion de Usuarios e Invitaciones | 5 | P0 - Critical | Planned | [F-061](./F-061-user-management.md) |
-| F-062 | Optimizacion de Performance | 5 | P0 - Critical | Planned | [F-062](./F-062-performance-optimization.md) |
-| F-063 | Testing | 8 | P0 - Critical | Planned | [F-063](./F-063-testing.md) |
-| F-064 | Documentacion | 3 | P1 - High | Planned | [F-064](./F-064-documentation.md) |
+| F-056 | Dashboard Operador | 6 | P0 - Critical | Planned | [F-056](./planned/F-056-dashboard-operator.md) |
+| F-057 | Dashboard Supervisor | 6 | P0 - Critical | Planned | [F-057](./planned/F-057-dashboard-supervisor.md) |
+| F-058 | Dashboard Gerente | 6 | P0 - Critical | Planned | [F-058](./planned/F-058-dashboard-manager.md) |
+| F-059 | Dashboard Viewer | 3 | P1 - High | Planned | [F-059](./planned/F-059-dashboard-viewer.md) |
+| F-060 | Busqueda Global (Cmd+K) | 4 | P1 - High | Planned | [F-060](./planned/F-060-global-search.md) |
+| F-061 | Gestion de Usuarios e Invitaciones | 5 | P0 - Critical | Planned | [F-061](./planned/F-061-user-management.md) |
+| F-062 | Optimizacion de Performance | 5 | P0 - Critical | Planned | [F-062](./planned/F-062-performance-optimization.md) |
+| F-063 | Testing | 8 | P0 - Critical | Planned | [F-063](./planned/F-063-testing.md) |
+| F-064 | Documentacion | 3 | P1 - High | Planned | [F-064](./planned/F-064-documentation.md) |
 
 ## Resumen de Stories por Feature
 

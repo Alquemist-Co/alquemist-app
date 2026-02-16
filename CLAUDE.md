@@ -18,6 +18,67 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | `docs/alquemist-pwa-reqs.md` | Roles y permisos, design system, 48 pantallas, catálogo de componentes, navegación, accesibilidad, performance |
 | `docs/alquemist-modelo-definitivo.md` | 43 tablas en 8 dominios, relaciones cross-domain, diccionario de campos, flujos operativos |
 
+## Progreso
+
+**Fase actual**: 0 — Fundacion
+
+| Feature | Status | Fecha |
+|---------|--------|-------|
+| F-001 Setup del proyecto | Done | 2026-02-16 |
+| F-002 Design system | Planned | |
+| F-003 Database schema | Planned | |
+| F-004 Auth y middleware | Planned | |
+| F-005 Layout principal | Planned | |
+| F-006 PWA basica | Planned | |
+
+Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
+Log de cambios en `docs/CHANGELOG.md`.
+
+## Gestión del backlog
+
+El backlog está en `docs/backlog/{planned,in-progress,done}/`. Estas reglas se siguen **siempre** que se trabaje en una feature del backlog.
+
+### Al iniciar una feature (F-XXX)
+
+1. `git mv docs/backlog/planned/F-XXX-*.md docs/backlog/in-progress/`
+2. Actualizar status `Planned` → `In Progress` y link a `./in-progress/` en:
+   - `docs/backlog/BACKLOG.md`
+   - `docs/backlog/BACKLOG-FASE-X.md` (la fase correspondiente)
+3. Actualizar tabla Progreso en este archivo (`CLAUDE.md`)
+4. Commit: `docs(backlog): iniciar F-XXX descripción-corta`
+
+### Al completar cada story (US-XXX-YYY)
+
+1. Marcar status `Done` en el archivo de la feature (`F-XXX-*.md`)
+2. Actualizar counters en `BACKLOG.md` y `BACKLOG-FASE-X.md`
+
+### Al completar una feature (F-XXX)
+
+1. `git mv docs/backlog/in-progress/F-XXX-*.md docs/backlog/done/`
+2. Actualizar status `In Progress` → `Done` y link a `./done/` en:
+   - `docs/backlog/BACKLOG.md`
+   - `docs/backlog/BACKLOG-FASE-X.md`
+3. Actualizar counters (Planned/In Progress/Done) en ambos índices
+4. Actualizar tabla Progreso en este archivo (`CLAUDE.md`) con fecha
+5. Agregar entrada en `docs/CHANGELOG.md` con stories, commits y notas técnicas
+6. Actualizar `MEMORY.md` si hay decisiones técnicas relevantes para futuras sesiones
+
+### Commits estratégicos
+
+Durante la implementación de una feature, hacer commits en estos puntos:
+
+| Momento | Formato del commit |
+|---------|-------------------|
+| Inicio de feature (backlog update) | `docs(backlog): iniciar F-XXX descripción` |
+| Después de cada story funcional | `feat(alcance): US-XXX-YYY descripción` |
+| Feature completa + backlog actualizado | `docs(backlog): completar F-XXX descripción` |
+| Fin de sesión (siempre) | Commit del estado actual + push |
+
+### Push
+
+- **Push al completar cada feature** (o al final de la sesión si queda en progreso)
+- Siempre verificar `npm run lint && npm run build` antes de push
+
 ## Sistema de desarrollo — Plan-First
 
 **Regla central: toda tarea comienza con un plan. Sin excepción.**

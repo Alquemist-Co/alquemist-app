@@ -13,11 +13,11 @@ Configuracion inicial del proyecto Alquemist: creacion del proyecto Next.js 14 c
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-001-001 | Crear proyecto Next.js 14 con TypeScript y Tailwind | S | P0 | Planned |
-| US-001-002 | Instalar y configurar dependencias core del proyecto | S | P0 | Planned |
-| US-001-003 | Configurar Supabase project y variables de entorno | S | P0 | Planned |
-| US-001-004 | Configurar Tailwind con brand tokens y tipografia | M | P0 | Planned |
-| US-001-005 | Deploy en Vercel con CI/CD automatico | S | P0 | Planned |
+| US-001-001 | Crear proyecto Next.js 14 con TypeScript y Tailwind | S | P0 | Done |
+| US-001-002 | Instalar y configurar dependencias core del proyecto | S | P0 | Done |
+| US-001-003 | Configurar Supabase project y variables de entorno | S | P0 | Done |
+| US-001-004 | Configurar Tailwind con brand tokens y tipografia | M | P0 | Done |
+| US-001-005 | Deploy en Vercel con CI/CD automatico | S | P0 | Done |
 
 ---
 

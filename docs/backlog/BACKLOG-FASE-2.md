@@ -21,16 +21,16 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-026 | Stock Actual (vista por producto y por zona) | 5 | P0 - Critical | Planned | [F-026](./F-026-stock-actual.md) |
-| F-027 | Catalogo de Productos (CRUD) | 4 | P0 - Critical | Planned | [F-027](./F-027-product-catalog.md) |
-| F-028 | Recepcion de Compras (INV-01) | 3 | P0 - Critical | Planned | [F-028](./F-028-purchase-reception.md) |
-| F-029 | Log de Movimientos de Inventario | 3 | P1 - High | Planned | [F-029](./F-029-inventory-log.md) |
-| F-030 | Recetas / BOM (INV-03) | 5 | P0 - Critical | Planned | [F-030](./F-030-recipes-bom.md) |
-| F-031 | Transformaciones / Cosecha Multi-Output (INV-02) | 3 | P0 - Critical | Planned | [F-031](./F-031-transformations.md) |
-| F-032 | Tests de Calidad (QUA-01) | 5 | P0 - Critical | Planned | [F-032](./F-032-quality-tests.md) |
-| F-033 | Historial de Calidad y Tendencias | 2 | P1 - High | Planned | [F-033](./F-033-quality-history.md) |
-| F-034 | Split de Batch (BAT-02) | 4 | P0 - Critical | Planned | [F-034](./F-034-batch-split.md) |
-| F-035 | Genealogia Visual de Batch | 3 | P1 - High | Planned | [F-035](./F-035-batch-genealogy.md) |
+| F-026 | Stock Actual (vista por producto y por zona) | 5 | P0 - Critical | Planned | [F-026](./planned/F-026-stock-actual.md) |
+| F-027 | Catalogo de Productos (CRUD) | 4 | P0 - Critical | Planned | [F-027](./planned/F-027-product-catalog.md) |
+| F-028 | Recepcion de Compras (INV-01) | 3 | P0 - Critical | Planned | [F-028](./planned/F-028-purchase-reception.md) |
+| F-029 | Log de Movimientos de Inventario | 3 | P1 - High | Planned | [F-029](./planned/F-029-inventory-log.md) |
+| F-030 | Recetas / BOM (INV-03) | 5 | P0 - Critical | Planned | [F-030](./planned/F-030-recipes-bom.md) |
+| F-031 | Transformaciones / Cosecha Multi-Output (INV-02) | 3 | P0 - Critical | Planned | [F-031](./planned/F-031-transformations.md) |
+| F-032 | Tests de Calidad (QUA-01) | 5 | P0 - Critical | Planned | [F-032](./planned/F-032-quality-tests.md) |
+| F-033 | Historial de Calidad y Tendencias | 2 | P1 - High | Planned | [F-033](./planned/F-033-quality-history.md) |
+| F-034 | Split de Batch (BAT-02) | 4 | P0 - Critical | Planned | [F-034](./planned/F-034-batch-split.md) |
+| F-035 | Genealogia Visual de Batch | 3 | P1 - High | Planned | [F-035](./planned/F-035-batch-genealogy.md) |
 
 ## Stories por Feature
 

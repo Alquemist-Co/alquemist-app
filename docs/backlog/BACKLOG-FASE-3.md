@@ -23,16 +23,16 @@
 
 | ID | Feature | Stories | Prioridad | Estado | Doc |
 |----|---------|---------|-----------|--------|-----|
-| F-041 | Mapa de facility y grid de zonas | 3 | P1 - High | Planned | [F-041](./F-041-facility-map.md) |
-| F-042 | Detalle de zona con clima actual y batches | 4 | P1 - High | Planned | [F-042](./F-042-zone-detail.md) |
-| F-043 | Posiciones de planta (grid visual) | 3 | P2 - Medium | Planned | [F-043](./F-043-plant-positions.md) |
-| F-044 | Ocupacion planificada (timeline Gantt) | 3 | P2 - Medium | Planned | [F-044](./F-044-occupancy-gantt.md) |
-| F-045 | Monitoreo ambiental real-time | 5 | P0 - Critical | Planned | [F-045](./F-045-env-monitoring.md) |
-| F-046 | Gestion de sensores | 3 | P1 - High | Planned | [F-046](./F-046-sensor-management.md) |
-| F-047 | Centro de alertas | 5 | P0 - Critical | Planned | [F-047](./F-047-alert-center.md) |
-| F-048 | Costos overhead y COGS completo | 5 | P1 - High | Planned | [F-048](./F-048-overhead-costs.md) |
-| F-049 | Offline completo | 6 | P0 - Critical | Planned | [F-049](./F-049-offline-complete.md) |
-| F-050 | Supabase Realtime | 5 | P1 - High | Planned | [F-050](./F-050-realtime.md) |
+| F-041 | Mapa de facility y grid de zonas | 3 | P1 - High | Planned | [F-041](./planned/F-041-facility-map.md) |
+| F-042 | Detalle de zona con clima actual y batches | 4 | P1 - High | Planned | [F-042](./planned/F-042-zone-detail.md) |
+| F-043 | Posiciones de planta (grid visual) | 3 | P2 - Medium | Planned | [F-043](./planned/F-043-plant-positions.md) |
+| F-044 | Ocupacion planificada (timeline Gantt) | 3 | P2 - Medium | Planned | [F-044](./planned/F-044-occupancy-gantt.md) |
+| F-045 | Monitoreo ambiental real-time | 5 | P0 - Critical | Planned | [F-045](./planned/F-045-env-monitoring.md) |
+| F-046 | Gestion de sensores | 3 | P1 - High | Planned | [F-046](./planned/F-046-sensor-management.md) |
+| F-047 | Centro de alertas | 5 | P0 - Critical | Planned | [F-047](./planned/F-047-alert-center.md) |
+| F-048 | Costos overhead y COGS completo | 5 | P1 - High | Planned | [F-048](./planned/F-048-overhead-costs.md) |
+| F-049 | Offline completo | 6 | P0 - Critical | Planned | [F-049](./planned/F-049-offline-complete.md) |
+| F-050 | Supabase Realtime | 5 | P1 - High | Planned | [F-050](./planned/F-050-realtime.md) |
 
 ## Definiciones de Prioridad
 
