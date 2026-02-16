@@ -8,7 +8,7 @@
 - **Total stories**: 215
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 189 | **In Progress**: 4 | **Done**: 22
+- **Planned**: 189 | **In Progress**: 0 | **Done**: 26
 
 ## Resumen por Fase
 
@@ -31,7 +31,7 @@
 | F-001 | Setup del proyecto y deploy | 5 | P0 - Critical | Done | [F-001](./done/F-001-project-setup.md) |
 | F-002 | Design system (componentes base UI) | 9 | P0 - Critical | Done | [F-002](./done/F-002-design-system.md) |
 | F-003 | Schema de base de datos | 8 | P0 - Critical | Done | [F-003](./done/F-003-database-schema.md) |
-| F-004 | Autenticacion y middleware de roles | 4 | P0 - Critical | In Progress | [F-004](./in-progress/F-004-auth-middleware.md) |
+| F-004 | Autenticacion y middleware de roles | 4 | P0 - Critical | Done | [F-004](./done/F-004-auth-middleware.md) |
 | F-005 | Layout principal responsive | 5 | P0 - Critical | Planned | [F-005](./planned/F-005-main-layout.md) |
 | F-006 | PWA basica | 4 | P0 - Critical | Planned | [F-006](./planned/F-006-pwa-basic.md) |
 

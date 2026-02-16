@@ -2,6 +2,14 @@
 
 ## 2026-02-16
 
+### F-004: Autenticacion y middleware de roles — Done
+- US-004-001: Pantalla de login con Supabase Auth (RHF + Zod + signInWithPassword)
+- US-004-002: Middleware de proteccion de rutas por rol (getUser, route-access matrix, header injection)
+- US-004-003: Sistema de permisos por rol en frontend (permissions map, Zustand auth store, useAuth hook, AuthProvider, RoleGate, PermissionGate, requireAuth server helper)
+- US-004-004: Logout y manejo de sesion expirada (useLogout hook, LogoutButton, clearAuth)
+- **Commits**: 8bcb4c8, 189aa6c, 13cdd55, 5069665
+- **Notas**: proxy.ts migrado de getClaims() a getUser() (mas seguro). Route groups (auth)/(dashboard). 5 roles con ~25 action-level permissions. AuthProvider con useRef guard para StrictMode. requireAuth() pattern para Server Actions.
+
 ### F-002: Design system (componentes base UI) — Done
 - US-002-001: Button (primary, secondary, ghost) con cva, loading, icon, sizes
 - US-002-002: Card base + StatCard con DM Mono, left border semántico, href opcional

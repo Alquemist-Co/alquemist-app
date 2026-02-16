@@ -15,10 +15,10 @@ Implementacion del sistema de autenticacion basado en Supabase Auth con JWT y cu
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-004-001 | Pantalla de login con Supabase Auth | M | P0 | Planned |
-| US-004-002 | Middleware de Next.js para proteccion de rutas | M | P0 | Planned |
-| US-004-003 | Sistema de permisos por rol en el frontend | M | P0 | Planned |
-| US-004-004 | Logout y manejo de sesion expirada | S | P0 | Planned |
+| US-004-001 | Pantalla de login con Supabase Auth | M | P0 | Done |
+| US-004-002 | Middleware de Next.js para proteccion de rutas | M | P0 | Done |
+| US-004-003 | Sistema de permisos por rol en el frontend | M | P0 | Done |
+| US-004-004 | Logout y manejo de sesion expirada | S | P0 | Done |
 
 ---
 
