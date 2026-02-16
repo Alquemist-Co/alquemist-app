@@ -23,7 +23,7 @@ function StatCard({ value, label, color = "brand", href, className }: StatCardPr
   const content = (
     <article
       className={cn(
-        "bg-surface-card border border-border rounded-card p-4",
+        "bg-surface-card border border-border rounded-card p-5",
         "border-l-4",
         colorMap[color],
         "transition-colors duration-150",
@@ -31,7 +31,7 @@ function StatCard({ value, label, color = "brand", href, className }: StatCardPr
         className
       )}
     >
-      <p className="font-mono text-2xl sm:text-[32px] font-bold leading-tight text-text-primary">
+      <p className="font-mono text-3xl sm:text-[36px] font-bold leading-tight text-text-primary">
         {value}
       </p>
       <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-text-secondary">

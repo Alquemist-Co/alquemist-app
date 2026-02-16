@@ -19,8 +19,8 @@ import { toast } from "@/lib/utils/toast-store";
 // --- Section wrapper ---
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-4">
-      <h2 className="text-xl font-bold text-text-primary border-b border-border pb-2">
+    <section className="flex flex-col gap-5">
+      <h2 className="text-2xl font-bold text-text-primary border-b border-border pb-2">
         {title}
       </h2>
       {children}
@@ -60,14 +60,14 @@ export default function DesignSystemPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <header className="mb-10">
-        <h1 className="text-3xl font-bold text-text-primary">Design System</h1>
+      <header className="mb-14">
+        <h1 className="text-4xl font-bold text-text-primary">Design System</h1>
         <p className="mt-1 text-sm text-text-secondary">
           Alquemist — Componentes base UI
         </p>
       </header>
 
-      <div className="flex flex-col gap-12">
+      <div className="flex flex-col gap-16">
         {/* --- Buttons --- */}
         <Section title="Buttons">
           <div className="flex flex-wrap items-center gap-3">

@@ -9,7 +9,7 @@ const Card = forwardRef<HTMLElement, CardProps>(
       <article
         ref={ref}
         className={cn(
-          "bg-surface-card border border-border rounded-card p-4",
+          "bg-surface-card border border-border rounded-card p-5",
           "transition-colors duration-150 hover:border-brand",
           className
         )}

@@ -29,7 +29,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            "h-12 w-full rounded-input border-[1.5px] bg-surface-card px-3",
+            "h-12 w-full rounded-input border bg-surface-card px-3",
             "font-sans text-sm text-text-primary placeholder:text-text-secondary/50",
             "transition-colors duration-150",
             "focus:border-brand focus:outline-none focus:ring-3 focus:ring-brand-light/25",
