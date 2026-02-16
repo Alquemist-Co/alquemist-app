@@ -93,7 +93,13 @@ VALUES (
 -- 2. Auth users (Supabase auth.users with app_metadata)
 -- ============================================================
 
-INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, aud, role, created_at, updated_at)
+INSERT INTO auth.users (
+  id, instance_id, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, aud, role,
+  confirmation_token, recovery_token, email_change_token_new, email_change,
+  email_change_token_current, email_change_confirm_status, reauthentication_token,
+  created_at, updated_at
+)
 VALUES
   (
     '22222222-2222-2222-2222-222222222201',
@@ -105,6 +111,7 @@ VALUES
     '{"full_name": "Carlos Admin"}',
     'authenticated',
     'authenticated',
+    '', '', '', '', '', 0, '',
     now(), now()
   ),
   (
@@ -117,6 +124,7 @@ VALUES
     '{"full_name": "Maria Supervisor"}',
     'authenticated',
     'authenticated',
+    '', '', '', '', '', 0, '',
     now(), now()
   ),
   (
@@ -129,6 +137,7 @@ VALUES
     '{"full_name": "Juan Operador"}',
     'authenticated',
     'authenticated',
+    '', '', '', '', '', 0, '',
     now(), now()
   )
 ON CONFLICT DO NOTHING;
