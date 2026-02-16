@@ -15,11 +15,11 @@ Implementacion del layout principal de la aplicacion: Sidebar vertical para desk
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-005-001 | Sidebar desktop (collapsed y expanded) | M | P0 | Planned |
-| US-005-002 | Bottom Tab Bar mobile con configuracion por rol | M | P0 | Planned |
-| US-005-003 | Top Bar con breadcrumbs, busqueda y avatar | M | P1 | Planned |
-| US-005-004 | Menu "Mas" con modulos restantes y opciones | S | P1 | Planned |
-| US-005-005 | Paginas de modulos vacios con navegacion funcional | M | P0 | Planned |
+| US-005-001 | Sidebar desktop (collapsed y expanded) | M | P0 | Done |
+| US-005-002 | Bottom Tab Bar mobile con configuracion por rol | M | P0 | Done |
+| US-005-003 | Top Bar con breadcrumbs, busqueda y avatar | M | P1 | Done |
+| US-005-004 | Menu "Mas" con modulos restantes y opciones | S | P1 | Done |
+| US-005-005 | Paginas de modulos vacios con navegacion funcional | M | P0 | Done |
 
 ---
 

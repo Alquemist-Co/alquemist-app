@@ -2,6 +2,16 @@
 
 ## 2026-02-16
 
+### F-005: Layout principal responsive — Done
+- US-005-001: Sidebar desktop collapsed (64px) / expanded (240px) con toggle Cmd+B, items filtrados por rol, perfil de usuario, persistencia en localStorage
+- US-005-002: Bottom tab bar mobile con 4 tabs configurados por rol + boton Mas, safe area, dot indicator
+- US-005-003: Top bar con breadcrumbs (desktop) / titulo (mobile), search/bell placeholders, user menu dropdown con logout
+- US-005-004: Menu Mas como bottom sheet via Dialog, grid de modulos restantes por rol, cerrar sesion
+- US-005-005: Dashboard con saludo personalizado, 8 paginas placeholder con EmptyState, pagina 404 personalizada
+- **Prerequisito**: fullName agregado al auth store (extraido de user_metadata.full_name)
+- **Commits**: 9628258, 4a4fa73, 9629868, 3a602bf, 6f99bdb, 43aa94c, 0101020, 3d19d1a
+- **Notas**: AppShell orquesta todos los componentes de layout. Sidebar store con Zustand persist. Navigation config centralizada en src/lib/nav/navigation.ts. CSS-only responsive (hidden lg:flex / flex lg:hidden). Viewport meta para safe areas PWA.
+
 ### Deploy a produccion (Supabase Cloud + Vercel)
 - Supabase Cloud project linked (ref: `bavpxtnwxvemqmntfnmd`)
 - `uuid_generate_v4()` reemplazado por `gen_random_uuid()` nativo en 4 archivos de migracion (~40 ocurrencias) — la extension `uuid-ossp` no esta disponible en el schema `extensions` de Cloud
