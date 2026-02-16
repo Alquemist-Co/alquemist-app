@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/hooks/use-auth";
 import { useSidebarStore } from "@/stores/sidebar-store";
@@ -65,26 +64,6 @@ export function Sidebar() {
             </span>
           )}
         </Link>
-      </div>
-
-      {/* Toggle button */}
-      <div className="px-3 pb-2">
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={isExpanded ? "Colapsar sidebar" : "Expandir sidebar"}
-          className={cn(
-            "flex size-8 items-center justify-center rounded-badge",
-            "text-white/50 hover:text-white hover:bg-white/10",
-            "transition-colors duration-150 cursor-pointer"
-          )}
-        >
-          {isExpanded ? (
-            <PanelLeftClose className="size-5" strokeWidth={1.5} />
-          ) : (
-            <PanelLeftOpen className="size-5" strokeWidth={1.5} />
-          )}
-        </button>
       </div>
 
       {/* Nav items */}

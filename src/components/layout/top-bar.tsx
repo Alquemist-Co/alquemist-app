@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useSidebarStore } from "@/stores/sidebar-store";
 import { Breadcrumbs } from "./breadcrumbs";
 import { UserMenu } from "./user-menu";
 import { getModuleByHref } from "@/lib/nav/navigation";
@@ -20,6 +21,7 @@ function getPageTitle(pathname: string): string {
 export function TopBar() {
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
+  const { isExpanded, toggle } = useSidebarStore();
 
   return (
     <header
@@ -29,8 +31,24 @@ export function TopBar() {
         "lg:h-(--height-topbar) lg:px-6"
       )}
     >
-      {/* Left: breadcrumbs (desktop) / page title (mobile) */}
-      <div className="min-w-0">
+      {/* Left: toggle + breadcrumbs (desktop) / page title (mobile) */}
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={isExpanded ? "Colapsar sidebar" : "Expandir sidebar"}
+          className={cn(
+            "hidden lg:flex size-8 items-center justify-center rounded-full",
+            "text-text-secondary hover:bg-white hover:text-text-primary",
+            "transition-colors duration-150 cursor-pointer"
+          )}
+        >
+          {isExpanded ? (
+            <PanelLeftClose className="size-5" strokeWidth={1.5} />
+          ) : (
+            <PanelLeftOpen className="size-5" strokeWidth={1.5} />
+          )}
+        </button>
         <div className="hidden lg:block">
           <Breadcrumbs />
         </div>
