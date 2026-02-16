@@ -210,6 +210,11 @@ npm run db:status   # Muestra estado y URLs de los servicios
 - Seed data en `supabase/seed.sql` (se ejecuta automáticamente con `db:reset`)
 - Para agregar una nueva migración: `npx supabase migration new nombre_descriptivo`
 
+**Seed de auth (importante):**
+- `auth.identities` rows son requeridas para que `signInWithPassword` funcione (sin ellas → error 500)
+- Token columns en `auth.users` (`confirmation_token`, `recovery_token`, etc.) deben ser `''`, no NULL (GoTrue scan error)
+- En WSL2 + Docker Desktop: si los contenedores quedan ghost después de `supabase stop`, verificar puertos con `ss -tlnp | grep 5432` y matar shims si es necesario
+
 ## Verificación
 
 Ejecutar **antes** de considerar cualquier tarea completa:
