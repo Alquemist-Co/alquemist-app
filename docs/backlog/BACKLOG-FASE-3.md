@@ -8,7 +8,7 @@
 
 - **Total features**: 10
 - **Total stories**: 42
-- **Planned**: 0 | **In Progress**: 42 | **Done**: 0
+- **Planned**: 0 | **In Progress**: 0 | **Done**: 42
 
 ## Dependencias Cross-Fase
 
@@ -23,16 +23,16 @@
 
 | ID | Feature | Stories | Prioridad | Estado | Doc |
 |----|---------|---------|-----------|--------|-----|
-| F-041 | Mapa de facility y grid de zonas | 3 | P1 - High | In Progress | [F-041](./in-progress/F-041-facility-map.md) |
-| F-042 | Detalle de zona con clima actual y batches | 4 | P1 - High | In Progress | [F-042](./in-progress/F-042-zone-detail.md) |
-| F-043 | Posiciones de planta (grid visual) | 3 | P2 - Medium | In Progress | [F-043](./in-progress/F-043-plant-positions.md) |
-| F-044 | Ocupacion planificada (timeline Gantt) | 3 | P2 - Medium | In Progress | [F-044](./in-progress/F-044-occupancy-gantt.md) |
-| F-045 | Monitoreo ambiental real-time | 5 | P0 - Critical | In Progress | [F-045](./in-progress/F-045-env-monitoring.md) |
-| F-046 | Gestion de sensores | 3 | P1 - High | In Progress | [F-046](./in-progress/F-046-sensor-management.md) |
-| F-047 | Centro de alertas | 5 | P0 - Critical | In Progress | [F-047](./in-progress/F-047-alert-center.md) |
-| F-048 | Costos overhead y COGS completo | 5 | P1 - High | In Progress | [F-048](./in-progress/F-048-overhead-costs.md) |
-| F-049 | Offline completo | 6 | P0 - Critical | In Progress | [F-049](./in-progress/F-049-offline-complete.md) |
-| F-050 | Supabase Realtime | 5 | P1 - High | In Progress | [F-050](./in-progress/F-050-realtime.md) |
+| F-041 | Mapa de facility y grid de zonas | 3 | P1 - High | Done | [F-041](./done/F-041-facility-map.md) |
+| F-042 | Detalle de zona con clima actual y batches | 4 | P1 - High | Done | [F-042](./done/F-042-zone-detail.md) |
+| F-043 | Posiciones de planta (grid visual) | 3 | P2 - Medium | Done | [F-043](./done/F-043-plant-positions.md) |
+| F-044 | Ocupacion planificada (timeline Gantt) | 3 | P2 - Medium | Done | [F-044](./done/F-044-occupancy-gantt.md) |
+| F-045 | Monitoreo ambiental real-time | 5 | P0 - Critical | Done | [F-045](./done/F-045-env-monitoring.md) |
+| F-046 | Gestion de sensores | 3 | P1 - High | Done | [F-046](./done/F-046-sensor-management.md) |
+| F-047 | Centro de alertas | 5 | P0 - Critical | Done | [F-047](./done/F-047-alert-center.md) |
+| F-048 | Costos overhead y COGS completo | 5 | P1 - High | Done | [F-048](./done/F-048-overhead-costs.md) |
+| F-049 | Offline completo | 6 | P0 - Critical | Done | [F-049](./done/F-049-offline-complete.md) |
+| F-050 | Supabase Realtime | 5 | P1 - High | Done | [F-050](./done/F-050-realtime.md) |
 
 ## Definiciones de Prioridad
 

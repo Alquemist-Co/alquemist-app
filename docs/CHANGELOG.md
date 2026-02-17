@@ -2,6 +2,66 @@
 
 ## 2026-02-16
 
+### Fase 3: Operaciones y Offline — COMPLETA
+
+#### Pre-work: Schema migration + permissions
+- SQL migration adding 5 columns to alerts (title, batch_id, created_by, resolved_by, resolution_notes) + 4 performance indices
+- Fixed latent bug in quality.ts alert INSERT (missing company_id)
+- Added permissions: manage_sensors, acknowledge_alert, resolve_alert, view_costs
+
+#### F-046: Gestion de Sensores — Done
+- US-046-001/002/003: Sensor list with zone filter, create/edit dialog, calibration indicators (green <72d, yellow 72-90d, red >90d)
+- Operations hub page replacing EmptyState with 4-module grid
+- Server actions in `src/lib/actions/sensors.ts`
+
+#### F-045: Monitoreo Ambiental — Done
+- US-045-001/002/003/004/005: Dashboard with zone cards, 4 DialGauges per zone (temp, humidity, CO2, VPD), 30s polling
+- Custom SVG DialGauge component (270° arc, optimal range band, color by status)
+- IoT webhook API route `/api/webhooks/iot` with X-API-Key auth, auto-alert with 30min debounce
+- Server actions in `src/lib/actions/environmental.ts`
+
+#### F-041: Mapa de Facility y Grid de Zonas — Done
+- US-041-001/002/003: Facility selector (auto-select if single), zone grid cards with purpose colors, facility stats
+- Zustand facility store (non-persisted), server actions in `src/lib/actions/areas.ts`
+
+#### F-042: Detalle de Zona — Done
+- US-042-001/002/003/004: Zone header with badges, climate dials (reuses DialGauge), active batches list
+- Environmental history chart placeholder (Recharts lazy)
+
+#### F-047: Centro de Alertas — Done
+- US-047-001/002/003/004/005: 3-tab alert center (pending/acknowledged/resolved), cursor pagination
+- Acknowledge + resolve flows with permission gates
+- 3 Vercel Cron jobs: overdue-check (hourly), stock-alerts (6h), expiration-check (daily 6am)
+- `vercel.json` with cron schedules, shared cron auth helper
+
+#### F-043: Posiciones de Planta — Done
+- US-043-001/002/003: CSS Grid cells (32/40px), status colors, stats strip, position detail dialog with status change
+
+#### F-048: Costos Overhead y COGS — Done
+- US-048-001/002/003/004/005: Overhead cost CRUD, allocation table (5 basis types), batch COGS calculation
+- BatchCostsTab added to batch detail view (materials + labor + overhead breakdown)
+- Cost comparison with same-cultivar batches (avg + stddev)
+
+#### F-044: Ocupacion Planificada (Gantt) — Done
+- US-044-001/002/003: Custom SVG Gantt chart, zones as rows, weeks as columns, overlap detection
+- Availability projection table with next-free-date per zone
+
+#### F-049: Offline Completo — Done
+- US-049-001/002/003/004/005/006: Dexie v1 schema (8 cached + 3 sync tables)
+- FIFO sync queue with exponential backoff (3 retries), LWW conflict resolver
+- Photo compressor (Canvas/OffscreenCanvas, 1200px JPEG 80%)
+- Data preloader (post-auth download), enhanced OfflineBanner with sync status
+- Background sync event listener in service worker
+
+#### F-050: Supabase Realtime — Done
+- US-050-001/002/003/004/005: Channel manager with dedup, 4 realtime hooks
+- Alert channel: INSERT → toast + badge increment (viewer excluded)
+- Batch UPDATE, activities INSERT/UPDATE, env readings INSERT (page-scoped)
+- RealtimeProvider wraps AppShell, connection state in Zustand store
+- Cleanup on logout
+
+---
+
 ### Fase 2: Inventario y Calidad — COMPLETA
 
 #### F-027: Catalogo de Productos — Done

@@ -20,7 +20,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 ## Progreso
 
-**Fase actual**: 2 — Inventario y Calidad — COMPLETA
+**Fase actual**: 3 — Operaciones y Offline — COMPLETA
 
 | Feature | Status | Fecha |
 |---------|--------|-------|
@@ -53,6 +53,16 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-033 Historial de calidad y tendencias | Done | 2026-02-16 |
 | F-034 Split de batch | Done | 2026-02-16 |
 | F-035 Genealogia visual de batch | Done | 2026-02-16 |
+| F-041 Mapa de facility y grid de zonas | Done | 2026-02-16 |
+| F-042 Detalle de zona con clima y batches | Done | 2026-02-16 |
+| F-043 Posiciones de planta (grid visual) | Done | 2026-02-16 |
+| F-044 Ocupacion planificada (Gantt) | Done | 2026-02-16 |
+| F-045 Monitoreo ambiental real-time | Done | 2026-02-16 |
+| F-046 Gestion de sensores | Done | 2026-02-16 |
+| F-047 Centro de alertas | Done | 2026-02-16 |
+| F-048 Costos overhead y COGS | Done | 2026-02-16 |
+| F-049 Offline completo | Done | 2026-02-16 |
+| F-050 Supabase Realtime | Done | 2026-02-16 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.
