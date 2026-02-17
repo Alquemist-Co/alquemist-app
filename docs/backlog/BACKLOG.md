@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 171 | **In Progress**: 0 | **Done**: 47
+- **Planned**: 165 | **In Progress**: 6 | **Done**: 47
 
 ## Resumen por Fase
 
@@ -46,7 +46,7 @@
 |----|---------|---------|----------|--------|-----|
 | F-011 | Configuracion de tipos de cultivo y fases | 5 | P0 - Critical | Done | [F-011](./done/F-011-crop-types-config.md) |
 | F-012 | Configuracion de cultivares | 4 | P0 - Critical | Done | [F-012](./done/F-012-cultivar-config.md) |
-| F-013 | Crear orden de produccion — wizard 5 pasos | 6 | P0 - Critical | Planned | [F-013](./planned/F-013-create-production-order.md) |
+| F-013 | Crear orden de produccion — wizard 5 pasos | 6 | P0 - Critical | In Progress | [F-013](./in-progress/F-013-create-production-order.md) |
 | F-014 | Aprobar/rechazar orden y crear batch | 3 | P0 - Critical | Planned | [F-014](./planned/F-014-approve-reject-order.md) |
 | F-015 | Lista de ordenes y detalle con yield waterfall | 4 | P1 - High | Planned | [F-015](./planned/F-015-order-list-detail.md) |
 | F-016 | Lista de batches con filtros y vistas | 3 | P1 - High | Planned | [F-016](./planned/F-016-batch-list.md) |
