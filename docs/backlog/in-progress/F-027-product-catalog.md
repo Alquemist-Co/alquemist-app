@@ -15,10 +15,10 @@ Gestion completa del catalogo maestro de productos: insumos comprados, productos
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-027-001 | Lista de productos con filtros y busqueda | M | P0 | Planned |
-| US-027-002 | Crear producto nuevo | M | P0 | Planned |
-| US-027-003 | Editar producto existente | S | P0 | Planned |
-| US-027-004 | Desactivar producto (soft delete) | S | P1 | Planned |
+| US-027-001 | Lista de productos con filtros y busqueda | M | P0 | Done |
+| US-027-002 | Crear producto nuevo | M | P0 | Done |
+| US-027-003 | Editar producto existente | S | P0 | Done |
+| US-027-004 | Desactivar producto (soft delete) | S | P1 | Done |
 
 ---
 

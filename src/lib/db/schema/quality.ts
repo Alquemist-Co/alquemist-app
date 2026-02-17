@@ -27,6 +27,7 @@ export const qualityTests = pgTable("quality_tests", {
   status: testStatusEnum("status").notNull().default("pending"),
   overallPass: boolean("overall_pass"),
   notes: text("notes"),
+  certificateUrl: text("certificate_url"),
   performedBy: uuid("performed_by").references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

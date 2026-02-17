@@ -109,6 +109,7 @@ export const products = pgTable("products", {
   preferredSupplierId: uuid("preferred_supplier_id").references(
     () => suppliers.id,
   ),
+  minStockThreshold: decimal("min_stock_threshold"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
