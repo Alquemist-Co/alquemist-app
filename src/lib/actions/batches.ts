@@ -1,6 +1,7 @@
 "use server";
 
-import { eq, sql, desc, asc } from "drizzle-orm";
+import { eq, sql, desc, asc, and, inArray } from "drizzle-orm";
+import { z } from "zod";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { db } from "@/lib/db";
 import {
@@ -12,7 +13,9 @@ import {
   facilities,
   productionOrders,
   productionOrderPhases,
+  scheduledActivities,
 } from "@/lib/db/schema";
+import type { ActionResult } from "./types";
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -219,4 +222,382 @@ export async function getBatchFilterOptions(): Promise<BatchFilterOptions> {
     zones: zoneRows,
     cultivars: cultivarRows,
   };
+}
+
+// ── Advance Phase ────────────────────────────────────────────────
+
+export type AdvancePhaseData = {
+  batchCode: string;
+  currentPhaseName: string;
+  nextPhaseName: string | null;
+  nextPhaseId: string | null;
+  requiresZoneChange: boolean;
+  isExitPhase: boolean;
+  pendingActivities: { id: string; name: string; plannedDate: string }[];
+  availableZones: {
+    id: string;
+    name: string;
+    plantCapacity: number;
+    currentOccupancy: number;
+  }[];
+};
+
+export async function getAdvancePhaseData(
+  batchId: string,
+): Promise<ActionResult<AdvancePhaseData>> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  // Get batch with order info
+  const batchRows = await db
+    .select({
+      id: batches.id,
+      code: batches.code,
+      status: batches.status,
+      currentPhaseId: batches.currentPhaseId,
+      productionOrderId: batches.productionOrderId,
+      plantCount: batches.plantCount,
+      zoneId: batches.zoneId,
+    })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+    .limit(1);
+
+  if (batchRows.length === 0) {
+    return { success: false, error: "Batch no encontrado." };
+  }
+
+  const batch = batchRows[0];
+
+  if (batch.status !== "active") {
+    return {
+      success: false,
+      error: `El batch esta en estado "${batch.status}". Solo se pueden avanzar batches activos.`,
+    };
+  }
+
+  if (!batch.productionOrderId) {
+    return {
+      success: false,
+      error: "El batch no tiene una orden de produccion asociada.",
+    };
+  }
+
+  // Get order phases in sort_order
+  const orderPhases = await db
+    .select({
+      id: productionOrderPhases.id,
+      phaseId: productionOrderPhases.phaseId,
+      sortOrder: productionOrderPhases.sortOrder,
+      status: productionOrderPhases.status,
+      phaseName: productionPhases.name,
+      requiresZoneChange: productionPhases.requiresZoneChange,
+    })
+    .from(productionOrderPhases)
+    .innerJoin(
+      productionPhases,
+      eq(productionOrderPhases.phaseId, productionPhases.id),
+    )
+    .where(eq(productionOrderPhases.orderId, batch.productionOrderId))
+    .orderBy(asc(productionOrderPhases.sortOrder));
+
+  // Find current phase index
+  const currentIdx = orderPhases.findIndex(
+    (p) => p.phaseId === batch.currentPhaseId,
+  );
+  if (currentIdx === -1) {
+    return { success: false, error: "Fase actual no encontrada en la orden." };
+  }
+
+  const currentPhase = orderPhases[currentIdx];
+
+  // Check if this is the last phase (exit phase)
+  const isExitPhase = currentIdx === orderPhases.length - 1;
+
+  // Find next non-skipped phase
+  let nextPhase: (typeof orderPhases)[number] | null = null;
+  if (!isExitPhase) {
+    for (let i = currentIdx + 1; i < orderPhases.length; i++) {
+      if (orderPhases[i].status !== "skipped") {
+        nextPhase = orderPhases[i];
+        break;
+      }
+    }
+  }
+
+  // Get pending scheduled activities for current phase
+  const pendingActivitiesRows = await db
+    .select({
+      id: scheduledActivities.id,
+      plannedDate: scheduledActivities.plannedDate,
+      templateName: sql<string>`at.name`,
+    })
+    .from(scheduledActivities)
+    .innerJoin(
+      sql`activity_templates at`,
+      sql`at.id = ${scheduledActivities.templateId}`,
+    )
+    .where(
+      and(
+        eq(scheduledActivities.batchId, batchId),
+        eq(scheduledActivities.phaseId, batch.currentPhaseId),
+        inArray(scheduledActivities.status, ["pending", "overdue"]),
+      ),
+    );
+
+  const pendingActivities = pendingActivitiesRows.map((a) => ({
+    id: a.id,
+    name: a.templateName,
+    plannedDate: a.plannedDate,
+  }));
+
+  // Get available zones with occupancy if zone change required
+  let availableZones: AdvancePhaseData["availableZones"] = [];
+  const requiresZoneChange = nextPhase?.requiresZoneChange ?? false;
+
+  if (requiresZoneChange || isExitPhase === false) {
+    // Always fetch zones so the user can optionally change zone
+    const zoneRows = await db
+      .select({
+        id: zones.id,
+        name: zones.name,
+        plantCapacity: zones.plantCapacity,
+        currentOccupancy: sql<number>`COALESCE(
+          (SELECT SUM(b.plant_count) FROM batches b WHERE b.zone_id = ${zones.id} AND b.status = 'active'),
+          0
+        )`,
+      })
+      .from(zones)
+      .where(eq(zones.status, "active"))
+      .orderBy(zones.name);
+
+    availableZones = zoneRows.map((z) => ({
+      id: z.id,
+      name: z.name,
+      plantCapacity: z.plantCapacity,
+      currentOccupancy: Number(z.currentOccupancy),
+    }));
+  }
+
+  return {
+    success: true,
+    data: {
+      batchCode: batch.code,
+      currentPhaseName: currentPhase.phaseName,
+      nextPhaseName: nextPhase?.phaseName ?? null,
+      nextPhaseId: nextPhase?.phaseId ?? null,
+      requiresZoneChange,
+      isExitPhase,
+      pendingActivities,
+      availableZones,
+    },
+  };
+}
+
+// Zod schema for advance phase
+const advancePhaseSchema = z.object({
+  batchId: z.string().uuid(),
+  targetZoneId: z.string().uuid().optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export async function advancePhase(
+  input: z.infer<typeof advancePhaseSchema>,
+): Promise<ActionResult> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  const parsed = advancePhaseSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: "Datos invalidos." };
+  }
+
+  const { batchId, targetZoneId } = parsed.data;
+
+  // Get batch
+  const batchRows = await db
+    .select({
+      id: batches.id,
+      code: batches.code,
+      status: batches.status,
+      currentPhaseId: batches.currentPhaseId,
+      productionOrderId: batches.productionOrderId,
+      zoneId: batches.zoneId,
+    })
+    .from(batches)
+    .where(and(eq(batches.id, batchId), eq(batches.status, "active")))
+    .limit(1);
+
+  if (batchRows.length === 0) {
+    return {
+      success: false,
+      error: "Batch no encontrado o no esta activo.",
+    };
+  }
+
+  const batch = batchRows[0];
+
+  if (!batch.productionOrderId) {
+    return {
+      success: false,
+      error: "El batch no tiene una orden de produccion asociada.",
+    };
+  }
+
+  // Get order phases
+  const orderPhases = await db
+    .select({
+      id: productionOrderPhases.id,
+      phaseId: productionOrderPhases.phaseId,
+      sortOrder: productionOrderPhases.sortOrder,
+      status: productionOrderPhases.status,
+      requiresZoneChange: productionPhases.requiresZoneChange,
+      phaseName: productionPhases.name,
+    })
+    .from(productionOrderPhases)
+    .innerJoin(
+      productionPhases,
+      eq(productionOrderPhases.phaseId, productionPhases.id),
+    )
+    .where(eq(productionOrderPhases.orderId, batch.productionOrderId))
+    .orderBy(asc(productionOrderPhases.sortOrder));
+
+  const currentIdx = orderPhases.findIndex(
+    (p) => p.phaseId === batch.currentPhaseId,
+  );
+  if (currentIdx === -1) {
+    return { success: false, error: "Fase actual no encontrada en la orden." };
+  }
+
+  const currentOrderPhase = orderPhases[currentIdx];
+  const isExitPhase = currentIdx === orderPhases.length - 1;
+
+  // If exit phase → complete the batch
+  if (isExitPhase) {
+    return completeBatch(batch, currentOrderPhase, batchId);
+  }
+
+  // Find next non-skipped phase
+  let nextPhase: (typeof orderPhases)[number] | null = null;
+  for (let i = currentIdx + 1; i < orderPhases.length; i++) {
+    if (orderPhases[i].status !== "skipped") {
+      nextPhase = orderPhases[i];
+      break;
+    }
+  }
+
+  if (!nextPhase) {
+    return {
+      success: false,
+      error: "No hay una fase siguiente disponible.",
+    };
+  }
+
+  // Validate zone change requirement
+  if (nextPhase.requiresZoneChange && !targetZoneId) {
+    return {
+      success: false,
+      error: `La fase "${nextPhase.phaseName}" requiere cambio de zona. Selecciona una zona destino.`,
+    };
+  }
+
+  const newZoneId = targetZoneId ?? batch.zoneId;
+  const today = new Date().toISOString().split("T")[0];
+
+  // Execute advance in transaction
+  await db.transaction(async (tx) => {
+    // 1. Update batch: new phase, optionally new zone
+    await tx
+      .update(batches)
+      .set({
+        currentPhaseId: nextPhase!.phaseId,
+        ...(targetZoneId ? { zoneId: targetZoneId } : {}),
+      })
+      .where(eq(batches.id, batchId));
+
+    // 2. Mark current order phase as completed
+    await tx
+      .update(productionOrderPhases)
+      .set({ status: "completed", actualEndDate: today })
+      .where(eq(productionOrderPhases.id, currentOrderPhase.id));
+
+    // 3. Mark next order phase as in_progress
+    await tx
+      .update(productionOrderPhases)
+      .set({
+        status: "in_progress",
+        actualStartDate: today,
+        ...(targetZoneId ? { zoneId: newZoneId } : {}),
+      })
+      .where(eq(productionOrderPhases.id, nextPhase!.id));
+
+    // 4. Skip pending/overdue activities for old phase
+    await tx
+      .update(scheduledActivities)
+      .set({ status: "skipped" })
+      .where(
+        and(
+          eq(scheduledActivities.batchId, batchId),
+          eq(scheduledActivities.phaseId, batch.currentPhaseId),
+          inArray(scheduledActivities.status, ["pending", "overdue"]),
+        ),
+      );
+  });
+
+  return { success: true };
+}
+
+// Helper: complete batch at exit phase
+async function completeBatch(
+  batch: { id: string; productionOrderId: string | null },
+  currentOrderPhase: { id: string },
+  batchId: string,
+): Promise<ActionResult> {
+  const today = new Date().toISOString().split("T")[0];
+
+  await db.transaction(async (tx) => {
+    // 1. Mark batch as completed
+    await tx
+      .update(batches)
+      .set({ status: "completed" })
+      .where(eq(batches.id, batchId));
+
+    // 2. Mark current (final) order phase as completed
+    await tx
+      .update(productionOrderPhases)
+      .set({ status: "completed", actualEndDate: today })
+      .where(eq(productionOrderPhases.id, currentOrderPhase.id));
+
+    // 3. Skip remaining pending activities
+    await tx
+      .update(scheduledActivities)
+      .set({ status: "skipped" })
+      .where(
+        and(
+          eq(scheduledActivities.batchId, batchId),
+          inArray(scheduledActivities.status, ["pending", "overdue"]),
+        ),
+      );
+
+    // 4. Check if order should be completed (all batches done)
+    if (batch.productionOrderId) {
+      const activeBatches = await tx
+        .select({ id: batches.id })
+        .from(batches)
+        .where(
+          and(
+            eq(batches.productionOrderId, batch.productionOrderId),
+            eq(batches.status, "active"),
+          ),
+        )
+        .limit(1);
+
+      if (activeBatches.length === 0) {
+        await tx
+          .update(productionOrders)
+          .set({ status: "completed" })
+          .where(eq(productionOrders.id, batch.productionOrderId));
+      }
+    }
+  });
+
+  return { success: true };
 }

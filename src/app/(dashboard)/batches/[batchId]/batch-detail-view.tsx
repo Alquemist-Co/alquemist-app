@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { BatchDetail } from "@/lib/actions/batches";
+import { useAuthStore } from "@/stores/auth-store";
+import { hasPermission } from "@/lib/auth/permissions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { cn } from "@/lib/utils/cn";
 import {
@@ -16,7 +19,9 @@ import {
   DollarSign,
   Shield,
   Check,
+  ChevronRight,
 } from "lucide-react";
+import { AdvancePhaseDialog } from "./advance-phase-dialog";
 
 type Props = {
   batch: BatchDetail;
@@ -58,7 +63,19 @@ const TABS: { key: TabKey; label: string; icon: typeof Clock }[] = [
 
 export function BatchDetailView({ batch }: Props) {
   const router = useRouter();
+  const role = useAuthStore((s) => s.role);
+  const canAdvance = role ? hasPermission(role, "advance_phase") : false;
   const [activeTab, setActiveTab] = useState<TabKey>("timeline");
+  const [advanceDialogOpen, setAdvanceDialogOpen] = useState(false);
+
+  const isActive = batch.status === "active";
+
+  // Determine if batch is at exit phase (last non-skipped phase)
+  const lastNonSkipped = [...batch.phases]
+    .reverse()
+    .find((p) => p.status !== "skipped");
+  const isExitPhase =
+    lastNonSkipped && lastNonSkipped.phaseId === batch.currentPhaseId;
 
   // Calculate phase progress
   const totalPhases = batch.phases.filter((p) => p.status !== "skipped").length;
@@ -106,9 +123,9 @@ export function BatchDetailView({ batch }: Props) {
           <MetricBox label="Inicio" value={batch.startDate} mono />
         </div>
 
-        {/* Order link */}
-        {batch.orderCode && batch.orderId && (
-          <div className="mt-3">
+        {/* Actions row */}
+        <div className="mt-3 flex items-center gap-3">
+          {batch.orderCode && batch.orderId && (
             <Link
               href={`/orders/${batch.orderId}`}
               className="inline-flex items-center gap-1 text-xs text-brand hover:underline"
@@ -116,8 +133,18 @@ export function BatchDetailView({ batch }: Props) {
               Orden: {batch.orderCode}
               <ExternalLink className="h-3 w-3" />
             </Link>
-          </div>
-        )}
+          )}
+          {canAdvance && isActive && (
+            <Button
+              size="sm"
+              onClick={() => setAdvanceDialogOpen(true)}
+              icon={isExitPhase ? Check : ChevronRight}
+              className="ml-auto"
+            >
+              {isExitPhase ? "Completar batch" : "Avanzar fase"}
+            </Button>
+          )}
+        </div>
 
         {/* Phase stepper */}
         {batch.phases.length > 0 && (
@@ -226,6 +253,13 @@ export function BatchDetailView({ batch }: Props) {
           />
         )}
       </div>
+
+      {/* Advance phase dialog */}
+      <AdvancePhaseDialog
+        batchId={batch.id}
+        open={advanceDialogOpen}
+        onClose={() => setAdvanceDialogOpen(false)}
+      />
     </>
   );
 }
