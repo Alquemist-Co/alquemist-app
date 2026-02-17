@@ -2,6 +2,17 @@
 
 ## 2026-02-16
 
+### F-020: Programar actividades desde schedule — Done
+- US-020-001: `generateScheduledActivities(batchId, phaseId)` — reads cultivation_schedule, finds templates for phase via activity_template_phases, generates activities by frequency (daily/weekly/biweekly/once/on_demand), creates template_snapshot JSONB with resources + checklist, bulk inserts scheduled_activities
+- US-020-002: `rescheduleActivity(id, newDate)` — validates date >= today, status in pending/overdue, updates planned_date and resets status to pending
+- US-020-003: `cancelScheduledActivity(id, reason)` — validates reason >= 5 chars, sets status to 'skipped' (closest to cancelled in enum)
+- US-020-004: Auto-assign operator by zone — Deferred (requires zone-operator assignment setup)
+- Hooks: `generateScheduledActivities` called from `approveOrder` (F-014) and `advancePhase` (F-018) as non-blocking fire-and-forget
+- ActivitiesTab: batch detail tab showing activities grouped by phase, with reschedule/cancel dialogs for supervisors+
+- Server actions in `src/lib/actions/scheduled-activities.ts`
+- **Commits**: f6ac1a0
+- **Notas**: Non-blocking hook pattern (`.catch(() => {})`) to avoid blocking order approval/phase advance. Template snapshot frozen at scheduling time. `getBatchScheduledActivities` uses raw SQL join for template name/code. ActivitiesTab uses ref guard for StrictMode + derives loading state from null check (ESLint `set-state-in-effect` rule). Enum has no 'cancelled' status, using 'skipped' instead.
+
 ### F-019: Templates de actividad (CRUD) — Done
 - US-019-001: Template list with type/phase/text filters, activity type badges, phase badges, resource/checklist counts
 - US-019-002: Template editor with basic data form (code, name, type, frequency, duration, trigger days), advanced config (triggers_phase_change, triggers_transformation)
