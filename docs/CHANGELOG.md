@@ -2,6 +2,14 @@
 
 ## 2026-02-16
 
+### F-012: Configuracion de cultivares — Done
+- US-012-001: CRUD de cultivares — List con filter por crop type, create/edit form con todos los campos, show inactive toggle
+- US-012-002: Phase durations — Key-value editor per phase con cycle total calculado, fallback a default_duration_days
+- US-012-003: Optimal conditions — Min/max editor per parameter (temp, humidity, CO2, EC, pH, light, VPD) con unidades
+- US-012-004: Cultivar products — Atomic replace via `setCultivarProducts()` en `db.transaction()`
+- **Commits**: 0f90acb
+- **Notas**: Zod schema `optimalConditionsSchema` con refine(min <= max). `numRegister` helper para convertir inputs a number. Cultivar form es pagina dedicada (no Dialog) por la cantidad de campos. Phases filtradas por crop type seleccionado.
+
 ### F-011: Configuracion de tipos de cultivo y fases — Done
 - US-011-001: CRUD de tipos de cultivo — Settings hub, crop type list con cards, create/edit en Dialog, `ActionResult<T>` type, Zod schemas, Server Actions, `manage_crop_config` permission
 - US-011-002: CRUD de fases con reorder — Detail page con phase list, move-up/move-down reorder (atomic CASE WHEN), phase form con toggles, delete con dependency check

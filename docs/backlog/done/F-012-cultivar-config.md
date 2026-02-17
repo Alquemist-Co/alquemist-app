@@ -14,10 +14,10 @@ Permite gestionar las variedades especificas (cultivars) dentro de cada tipo de 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-012-001 | CRUD de cultivares con datos base | M | P0 | Planned |
-| US-012-002 | Configuracion de duraciones por fase (phase_durations) | S | P0 | Planned |
-| US-012-003 | Configuracion de condiciones optimas (optimal_conditions) | M | P1 | Planned |
-| US-012-004 | Gestion de cultivar products (SKUs por fase) | M | P1 | Planned |
+| US-012-001 | CRUD de cultivares con datos base | M | P0 | Done |
+| US-012-002 | Configuracion de duraciones por fase (phase_durations) | S | P0 | Done |
+| US-012-003 | Configuracion de condiciones optimas (optimal_conditions) | M | P1 | Done |
+| US-012-004 | Gestion de cultivar products (SKUs por fase) | M | P1 | Done |
 
 ---
 

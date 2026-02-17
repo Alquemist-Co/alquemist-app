@@ -5,7 +5,7 @@
 ## Summary
 - **Total features**: 12
 - **Total stories**: 55
-- **Planned**: 46 | **In Progress**: 4 | **Done**: 5
+- **Planned**: 46 | **In Progress**: 0 | **Done**: 9
 - **Semanas**: 3-7
 - **Rango de IDs**: F-011 a F-022
 - **Dependencia cross-fase**: Requiere F-001 a F-006 (Fase 0) como base
@@ -15,7 +15,7 @@
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
 | F-011 | Configuracion de tipos de cultivo y fases | 5 | P0 - Critical | Done | [F-011](./done/F-011-crop-types-config.md) |
-| F-012 | Configuracion de cultivares | 4 | P0 - Critical | In Progress | [F-012](./in-progress/F-012-cultivar-config.md) |
+| F-012 | Configuracion de cultivares | 4 | P0 - Critical | Done | [F-012](./done/F-012-cultivar-config.md) |
 | F-013 | Crear orden de produccion — wizard 5 pasos | 6 | P0 - Critical | Planned | [F-013](./planned/F-013-create-production-order.md) |
 | F-014 | Aprobar/rechazar orden y crear batch | 3 | P0 - Critical | Planned | [F-014](./planned/F-014-approve-reject-order.md) |
 | F-015 | Lista de ordenes y detalle con yield waterfall | 4 | P1 - High | Planned | [F-015](./planned/F-015-order-list-detail.md) |

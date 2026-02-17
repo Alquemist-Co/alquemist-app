@@ -32,7 +32,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-006 PWA basica | Done | 2026-02-16 |
 | F-007 Provisioning basico de usuarios | Done | 2026-02-16 |
 | F-011 Configuracion de tipos de cultivo y fases | Done | 2026-02-16 |
-| F-012 Configuracion de cultivares | In Progress | - |
+| F-012 Configuracion de cultivares | Done | 2026-02-16 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.
