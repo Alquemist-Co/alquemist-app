@@ -2,6 +2,16 @@
 
 ## 2026-02-16
 
+### F-013: Crear orden de produccion — wizard 5 pasos — Done
+- US-013-001: Paso 1 — Cultivar selection cards con crop type filter chips, visual selection state
+- US-013-002: Paso 2 — Entry/exit phase selection con stepper visual, skip toggles para can_skip phases
+- US-013-003: Paso 3 — Quantity input + real-time yield cascade usando `calculateYieldCascade()` pure function
+- US-013-004: Paso 4 — Per-phase zone assignment, auto-date calculation, priority, assignedTo
+- US-013-005: Paso 5 — Review summary con edit links, save as draft via `createOrder` transactional action
+- US-013-006: Persistencia — Zustand store con `persist` middleware, 24h TTL, draft recovery dialog
+- **Commits**: 70ef155
+- **Notas**: `getOrderWizardData()` single query con Promise.all (7 queries paralelas). Order code auto-gen `OP-YYYY-NNN`. `createOrder` transactional: INSERT production_orders + INSERT N production_order_phases atomicamente. Yield cascade es pure function en `src/lib/utils/yield-cascade.ts` (client+server). Wizard store key `alquemist-order-wizard` con TTL 24h. Approve button presente pero disabled (F-014).
+
 ### F-012: Configuracion de cultivares — Done
 - US-012-001: CRUD de cultivares — List con filter por crop type, create/edit form con todos los campos, show inactive toggle
 - US-012-002: Phase durations — Key-value editor per phase con cycle total calculado, fallback a default_duration_days

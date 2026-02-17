@@ -13,12 +13,12 @@ El wizard de creacion de ordenes de produccion es el punto de entrada del ciclo 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-013-001 | Paso 1: Seleccion de cultivar | S | P0 | Planned |
-| US-013-002 | Paso 2: Seleccion de fases entry/exit | M | P0 | Planned |
-| US-013-003 | Paso 3: Cantidad inicial y calculo de yield en cascada | L | P0 | Planned |
-| US-013-004 | Paso 4: Asignacion de zonas y fechas | M | P0 | Planned |
-| US-013-005 | Paso 5: Revision y guardado como draft | M | P0 | Planned |
-| US-013-006 | Persistencia de wizard (auto-save entre pasos) | S | P1 | Planned |
+| US-013-001 | Paso 1: Seleccion de cultivar | S | P0 | Done |
+| US-013-002 | Paso 2: Seleccion de fases entry/exit | M | P0 | Done |
+| US-013-003 | Paso 3: Cantidad inicial y calculo de yield en cascada | L | P0 | Done |
+| US-013-004 | Paso 4: Asignacion de zonas y fechas | M | P0 | Done |
+| US-013-005 | Paso 5: Revision y guardado como draft | M | P0 | Done |
+| US-013-006 | Persistencia de wizard (auto-save entre pasos) | S | P1 | Done |
 
 ---
 
