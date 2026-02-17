@@ -2,6 +2,18 @@
 
 ## 2026-02-16
 
+### F-022: Ejecutar actividad completa — Done
+- US-022-001: Paso 1 Resources — `getActivityContext` loads template_snapshot, scales resources by plant_count using quantity_basis (per_plant/fixed/per_zone), returns product info with units. Editable quantity_actual inputs with planned vs actual diff highlighting
+- US-022-002: Paso 2 Checklist — Items from template_snapshot with critical gating (disables confirm button until all critical items completed), expected value range validation ("1.5-2.0" ± tolerance), color-coded status (ok/warning/error)
+- US-022-003: Observations with photos — Deferred (requires Supabase Storage bucket setup)
+- US-022-004: Paso 3 Confirm — `executeActivity` transactional: INSERT activities + INSERT activity_resources (qty > 0 only) + UPDATE scheduled_activity status='completed'. Concurrency check (rejects if already completed). Non-blocking advancePhase trigger if template has triggers_phase_change_id. Summary view with resources, checklist status, duration, notes
+- US-022-005: Timer — useEffect-based interval (avoids React Compiler impure render error), pause/resume with pausedMs tracking, minimum 1 minute duration, displayed in header
+- US-022-006: Offline — Deferred to Fase 3 (requires Dexie schema + sync queue)
+- Server actions in `src/lib/actions/execute-activity.ts`
+- Page: `/activities/[activityId]` with SC error handling + CC wizard
+- **Commits**: d1a3c5a
+- **Notas**: Checklist results stored as notes text (no activity_checklist_results table in DB). Template snapshot used for both resources and checklist (frozen at scheduling time). Resource scaling simplified (per_m2 and per_L_solution not implemented — requires zone effective_growing_area data). Timer uses lazy ref init to avoid `Date.now()` during render (React Compiler purity rule). 3-step wizard (not 4 — observations deferred).
+
 ### F-021: Lista de actividades de hoy — Done
 - US-021-001: `getTodayActivities` server action — query for today's planned_date + overdue activities, joins templates, activity_types, batches, zones. Ordered by status priority (overdue > pending > completed) then date
 - US-021-002: `ActivityCard` component — color-coded left border by activity type name (8 type colors), template name, batch code, zone, estimated duration, crop day, status badge, links to activity detail

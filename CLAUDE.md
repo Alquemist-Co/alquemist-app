@@ -20,7 +20,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 ## Progreso
 
-**Fase actual**: 1 — Core Loop
+**Fase actual**: 1 — Core Loop (Produccion) — COMPLETA
 
 | Feature | Status | Fecha |
 |---------|--------|-------|
@@ -42,6 +42,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-019 Templates de actividad (CRUD) | Done | 2026-02-16 |
 | F-020 Programar actividades desde schedule | Done | 2026-02-16 |
 | F-021 Lista de actividades de hoy | Done | 2026-02-16 |
+| F-022 Ejecutar actividad completa | Done | 2026-02-16 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.
