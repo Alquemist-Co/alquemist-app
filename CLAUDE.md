@@ -34,6 +34,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-011 Configuracion de tipos de cultivo y fases | Done | 2026-02-16 |
 | F-012 Configuracion de cultivares | Done | 2026-02-16 |
 | F-013 Crear orden de produccion — wizard 5 pasos | Done | 2026-02-16 |
+| F-014 Aprobar/rechazar orden y crear batch | Done | 2026-02-16 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.

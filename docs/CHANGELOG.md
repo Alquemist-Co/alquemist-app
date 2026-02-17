@@ -2,6 +2,15 @@
 
 ## 2026-02-16
 
+### F-014: Aprobar/rechazar orden y crear batch — Done
+- US-014-001: `approveOrder` transactional — update order status, create batch BAT-YYYY-NNN, mark first phase in_progress
+- US-014-002: `rejectOrder` con razon obligatoria (min 5 chars), updates status to cancelled
+- US-014-003: Stock validation deferred to F-026 (inventory module not yet built)
+- Order detail page: approve/reject buttons (role-gated), phase table, batch link
+- Order list page: cards with status badges, priority, batch link, "Nueva Orden" button
+- **Commits**: 979bb99
+- **Notas**: Batch code BAT-YYYY-NNN (facilities don't have `code` field). Optimistic lock via WHERE status='draft'. getOrder/getOrders queries with multi-table JOINs. F-015 will enhance these pages.
+
 ### F-013: Crear orden de produccion — wizard 5 pasos — Done
 - US-013-001: Paso 1 — Cultivar selection cards con crop type filter chips, visual selection state
 - US-013-002: Paso 2 — Entry/exit phase selection con stepper visual, skip toggles para can_skip phases

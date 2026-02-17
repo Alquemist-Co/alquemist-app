@@ -14,9 +14,9 @@ Completa el ciclo de la orden de produccion: el gerente o admin aprueba una orde
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-014-001 | Aprobar orden y crear batch automaticamente | L | P0 | Planned |
-| US-014-002 | Rechazar orden con razon obligatoria | S | P0 | Planned |
-| US-014-003 | Validacion de stock para aprobacion | M | P1 | Planned |
+| US-014-001 | Aprobar orden y crear batch automaticamente | L | P0 | Done |
+| US-014-002 | Rechazar orden con razon obligatoria | S | P0 | Done |
+| US-014-003 | Validacion de stock para aprobacion | M | P1 | Done |
 
 ---
 
