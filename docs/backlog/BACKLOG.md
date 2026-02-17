@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 180 | **In Progress**: 3 | **Done**: 35
+- **Planned**: 180 | **In Progress**: 0 | **Done**: 38
 
 ## Resumen por Fase
 
@@ -34,7 +34,7 @@
 | F-004 | Autenticacion y middleware de roles | 4 | P0 - Critical | Done | [F-004](./done/F-004-auth-middleware.md) |
 | F-005 | Layout principal responsive | 5 | P0 - Critical | Done | [F-005](./done/F-005-main-layout.md) |
 | F-006 | PWA basica | 4 | P0 - Critical | Done | [F-006](./done/F-006-pwa-basic.md) |
-| F-007 | Provisioning basico de usuarios | 3 | P0 - Critical | In Progress | [F-007](./in-progress/F-007-basic-user-provisioning.md) |
+| F-007 | Provisioning basico de usuarios | 3 | P0 - Critical | Done | [F-007](./done/F-007-basic-user-provisioning.md) |
 
 ---
 

@@ -2,6 +2,13 @@
 
 ## 2026-02-16
 
+### F-007: Provisioning basico de usuarios — Done
+- US-007-001: Supabase Admin client helper (`src/lib/supabase/admin.ts`) con `server-only` guard, `service_role_key`, `autoRefreshToken: false`
+- US-007-002: Server Action `createUser` (`src/lib/actions/create-user.ts`) con Zod validation, `requireAuth(['admin'])`, `admin.auth.admin.createUser()`, insert en `public.users`, password generation
+- US-007-003: Pagina de creacion de usuario (`/settings/users/new`) con Server Component (facilities query) + Client Component (RHF + Zod), Dialog con password temporal y boton copiar
+- **Commits**: c19d3e9, 0679863, 6dfbf5f
+- **Notas**: `server-only` package instalado. Zod schema en `src/lib/schemas/user.ts`. Zod v4 usa `.issues` en lugar de `.errors`. Admin client usa `createClient` directo (no SSR). Selects nativos con estilos de Input para roles y facilities. Password generado con `crypto.getRandomValues` (14 chars alfanumerico sin ambiguos).
+
 ### F-006: PWA basica — Done
 - US-006-002: Manifest PWA dinamico (`src/app/manifest.ts`) con branding Alquemist, iconos 192/512/maskable en `public/icons/`, favicon, apple-touch-icon
 - US-006-001: Serwist v9 service worker con precache del shell, runtime caching via `defaultCache`, fallback a `~offline`, build con `--webpack`
