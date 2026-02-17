@@ -14,11 +14,11 @@ Los templates de actividad son las recetas reutilizables que definen que recurso
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-019-001 | Lista de templates con filtros | S | P0 | Planned |
-| US-019-002 | Editor de template: datos base y configuracion | M | P0 | Planned |
-| US-019-003 | Editor de recursos del template (quantity_basis) | L | P0 | Planned |
-| US-019-004 | Editor de checklist items (drag-to-reorder) | M | P0 | Planned |
-| US-019-005 | Seleccion de fases aplicables (multi-select) | S | P1 | Planned |
+| US-019-001 | Lista de templates con filtros | S | P0 | Done |
+| US-019-002 | Editor de template: datos base y configuracion | M | P0 | Done |
+| US-019-003 | Editor de recursos del template (quantity_basis) | L | P0 | Done |
+| US-019-004 | Editor de checklist items (drag-to-reorder) | M | P0 | Done |
+| US-019-005 | Seleccion de fases aplicables (multi-select) | S | P1 | Done |
 
 ---
 

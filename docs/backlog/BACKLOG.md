@@ -1,14 +1,14 @@
 # Product Backlog — Alquemist
 
-> Last updated: 2026-02-16
+> Last updated: 2026-02-17
 
 ## Summary
 
-- **Total features**: 48
-- **Total stories**: 218
-- **Fases**: 5 (0-4)
-- **Semanas**: 20
-- **Planned**: 40 | **In Progress**: 0 | **Done**: 178
+- **Total features**: 67
+- **Total stories**: 278
+- **Fases**: 6 (0-5)
+- **Semanas**: 20+
+- **Planned**: 100 | **In Progress**: 0 | **Done**: 178
 
 ## Resumen por Fase
 
@@ -19,6 +19,7 @@
 | 2 | Inventario y Calidad | 8-11 | 10 | 37 | F-016, F-017, F-022 (Fase 1) |
 | 3 | Operaciones y Offline | 12-16 | 10 | 42 | Fases 0-1 + F-026 (Fase 2) |
 | 4 | Polish y Lanzamiento | 17-20 | 9 | 46 | Todas las fases anteriores |
+| 5 | Configuracion, Flujos Operacionales y Calidad | 21+ | 19 | 60 | Fases 0-4 |
 
 ---
 
@@ -115,10 +116,50 @@
 
 ---
 
+## Fase 5: Configuracion, Flujos Operacionales y Calidad (Semanas 21+)
+
+> Indice detallado: [BACKLOG-FASE-5.md](./BACKLOG-FASE-5.md)
+
+### Bloque A: CRUD de Configuracion
+
+| ID | Feature | Stories | Priority | Status | Doc |
+|----|---------|---------|----------|--------|-----|
+| F-070 | CRUD de Facilities | 3 | P1 - High | Planned | [F-070](./planned/F-070-facility-crud.md) |
+| F-071 | CRUD de Zonas | 4 | P1 - High | Planned | [F-071](./planned/F-071-zone-crud.md) |
+| F-072 | CRUD de Proveedores | 3 | P1 - High | Planned | [F-072](./planned/F-072-supplier-crud.md) |
+| F-073 | Gestion de Unidades de Medida | 3 | P1 - High | Planned | [F-073](./planned/F-073-units-management.md) |
+| F-074 | Gestion de Categorias de Recursos | 3 | P1 - High | Planned | [F-074](./planned/F-074-category-management.md) |
+| F-075 | CRUD de Tipos de Actividad | 2 | P1 - High | Planned | [F-075](./planned/F-075-activity-types-crud.md) |
+| F-076 | CRUD de Cultivation Schedules | 5 | P0 - Critical | Planned | [F-076](./planned/F-076-cultivation-schedules.md) |
+| F-077 | Configuracion de Empresa | 3 | P1 - High | Planned | [F-077](./planned/F-077-company-settings.md) |
+
+### Bloque B: Flujos Operacionales
+
+| ID | Feature | Stories | Priority | Status | Doc |
+|----|---------|---------|----------|--------|-----|
+| F-080 | Transferencia de Stock entre Zonas | 3 | P0 - Critical | Planned | [F-080](./planned/F-080-stock-transfer.md) |
+| F-081 | Ajuste de Stock y Registro de Waste | 3 | P0 - Critical | Planned | [F-081](./planned/F-081-stock-adjustment-waste.md) |
+| F-082 | Hold, Cancel y Zone Change de Batch | 4 | P0 - Critical | Planned | [F-082](./planned/F-082-batch-hold-cancel-move.md) |
+| F-083 | Creacion Manual de Batch | 3 | P1 - High | Planned | [F-083](./planned/F-083-manual-batch.md) |
+| F-084 | Observaciones Rapidas con Fotos | 3 | P0 - Critical | Planned | [F-084](./planned/F-084-quick-observations.md) |
+| F-085 | Calendario de Actividades (Supervisor) | 4 | P1 - High | Planned | [F-085](./planned/F-085-activity-calendar.md) |
+| F-086 | Edicion de Perfil de Usuario | 2 | P1 - High | Planned | [F-086](./planned/F-086-user-profile.md) |
+| F-087 | Cambio de Facility Activa | 2 | P0 - Critical | Planned | [F-087](./planned/F-087-facility-switch.md) |
+
+### Bloque D: Calidad Transversal
+
+| ID | Feature | Stories | Priority | Status | Doc |
+|----|---------|---------|----------|--------|-----|
+| F-088 | Push Notifications | 3 | P1 - High | Planned | [F-088](./planned/F-088-push-notifications.md) |
+| F-089 | Hardening IoT Webhook | 3 | P1 - High | Planned | [F-089](./planned/F-089-iot-hardening.md) |
+| F-090 | Accesibilidad y UX Mejorada | 4 | P2 - Medium | Planned | [F-090](./planned/F-090-accessibility.md) |
+
+---
+
 ## Grafo de Dependencias Cross-Fase
 
 ```
-Fase 0: Fundacion (F-001 a F-006)
+Fase 0: Fundacion (F-001 a F-007)
   │
   ├──► Fase 1: Core Loop (F-011 a F-022)
   │      │
@@ -132,8 +173,15 @@ Fase 0: Fundacion (F-001 a F-006)
   │
   ├──► Fase 3: Operaciones y Offline (F-041 a F-050)
   │
-  └──► Fase 4: Polish y Lanzamiento (F-056 a F-064)
-         (requiere Fases 0-3 completas)
+  ├──► Fase 4: Polish y Lanzamiento (F-056 a F-064)
+  │      (requiere Fases 0-3 completas)
+  │
+  └──► Fase 5: Configuracion, Flujos y Calidad (F-070 a F-090)
+         (requiere Fases 0-4 completas)
+         │
+         ├── Bloque A (CRUDs F-070 a F-077) ──► prerrequisito de Bloque B
+         ├── Bloque B (Flujos F-080 a F-087) ──► depende de Bloque A
+         └── Bloque D (Calidad F-088 a F-090) ──► independiente, aplica sobre todo
 ```
 
 ## Distribucion Global
@@ -142,9 +190,9 @@ Fase 0: Fundacion (F-001 a F-006)
 
 | Priority | Label | Count | % |
 |----------|-------|-------|---|
-| P0 | Critical | ~120 | ~56% |
-| P1 | High | ~78 | ~36% |
-| P2 | Medium | ~17 | ~8% |
+| P0 | Critical | ~157 | ~56% |
+| P1 | High | ~100 | ~36% |
+| P2 | Medium | ~21 | ~8% |
 | P3 | Low | 0 | 0% |
 
 ### Por Tamano
@@ -152,9 +200,9 @@ Fase 0: Fundacion (F-001 a F-006)
 | Size | Count | % |
 |------|-------|---|
 | XS | 0 | 0% |
-| S | ~60 | ~28% |
-| M | ~105 | ~49% |
-| L | ~35 | ~16% |
+| S | ~87 | ~31% |
+| M | ~137 | ~49% |
+| L | ~36 | ~13% |
 | XL | 0 | 0% |
 
 ## Priority Definitions

@@ -15,9 +15,9 @@ Pantallas de consulta y gestion de ordenes de produccion: lista con filtros, bus
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-015-001 | Lista de ordenes con filtros y busqueda | M | P0 | Planned |
+| US-015-001 | Lista de ordenes con filtros y busqueda | M | P0 | Done |
 | US-015-002 | Vista kanban de ordenes por estado (desktop) | M | P2 | Planned |
-| US-015-003 | Detalle de orden con progreso por fase | M | P0 | Planned |
+| US-015-003 | Detalle de orden con progreso por fase | M | P0 | Done |
 | US-015-004 | Diagrama yield waterfall (real vs esperado) | L | P1 | Planned |
 
 ---

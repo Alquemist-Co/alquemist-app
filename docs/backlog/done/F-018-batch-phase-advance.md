@@ -14,10 +14,10 @@ Permite avanzar un batch a la siguiente fase de su ciclo productivo. Incluye val
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-018-001 | Avanzar batch a la siguiente fase | L | P0 | Planned |
-| US-018-002 | Cambio de zona obligatorio al avanzar fase | M | P0 | Planned |
-| US-018-003 | Warning de actividades pendientes al avanzar | S | P1 | Planned |
-| US-018-004 | Completar batch al llegar a exit_phase | M | P1 | Planned |
+| US-018-001 | Avanzar batch a la siguiente fase | L | P0 | Done |
+| US-018-002 | Cambio de zona obligatorio al avanzar fase | M | P0 | Done |
+| US-018-003 | Warning de actividades pendientes al avanzar | S | P1 | Done |
+| US-018-004 | Completar batch al llegar a exit_phase | M | P1 | Done |
 
 ---
 

@@ -16,8 +16,8 @@ La lista de batches es una de las pantallas mas visitadas del sistema. Muestra t
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-016-001 | Lista de batches con cards y datos clave | M | P0 | Planned |
-| US-016-002 | Filtros combinables (estado, fase, zona, cultivar) | M | P0 | Planned |
+| US-016-001 | Lista de batches con cards y datos clave | M | P0 | Done |
+| US-016-002 | Filtros combinables (estado, fase, zona, cultivar) | M | P0 | Done |
 | US-016-003 | Selector de vista lista/grid y sorting | S | P1 | Planned |
 
 ---

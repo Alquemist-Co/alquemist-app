@@ -16,12 +16,12 @@ El detalle de batch es la pantalla mas rica en informacion del sistema. Muestra 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-017-001 | Header hero con datos principales del batch | M | P0 | Planned |
-| US-017-002 | Phase stepper visual interactivo | M | P0 | Planned |
-| US-017-003 | Tab Timeline con cronologia de eventos | L | P0 | Planned |
-| US-017-004 | Tab Actividades con lista pendientes/completadas | M | P1 | Planned |
-| US-017-005 | Tab Inventario con transacciones del batch | M | P1 | Planned |
-| US-017-006 | Tabs Costos y Calidad (vistas basicas) | M | P2 | Planned |
+| US-017-001 | Header hero con datos principales del batch | M | P0 | Done |
+| US-017-002 | Phase stepper visual interactivo | M | P0 | Done |
+| US-017-003 | Tab Timeline con cronologia de eventos | L | P0 | Done |
+| US-017-004 | Tab Actividades con lista pendientes/completadas | M | P1 | Done |
+| US-017-005 | Tab Inventario con transacciones del batch | M | P1 | Done |
+| US-017-006 | Tabs Costos y Calidad (vistas basicas) | M | P2 | Done |
 
 ---
 
