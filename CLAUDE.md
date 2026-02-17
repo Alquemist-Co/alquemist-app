@@ -20,7 +20,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 ## Progreso
 
-**Fase actual**: 1 — Core Loop (Produccion) — COMPLETA
+**Fase actual**: 2 — Inventario y Calidad — COMPLETA
 
 | Feature | Status | Fecha |
 |---------|--------|-------|
@@ -43,6 +43,16 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-020 Programar actividades desde schedule | Done | 2026-02-16 |
 | F-021 Lista de actividades de hoy | Done | 2026-02-16 |
 | F-022 Ejecutar actividad completa | Done | 2026-02-16 |
+| F-026 Stock actual (vista producto/zona) | Done | 2026-02-16 |
+| F-027 Catalogo de productos (CRUD) | Done | 2026-02-16 |
+| F-028 Recepcion de compras | Done | 2026-02-16 |
+| F-029 Log de movimientos de inventario | Done | 2026-02-16 |
+| F-030 Recetas / BOM | Done | 2026-02-16 |
+| F-031 Transformaciones / cosecha multi-output | Done | 2026-02-16 |
+| F-032 Tests de calidad | Done | 2026-02-16 |
+| F-033 Historial de calidad y tendencias | Done | 2026-02-16 |
+| F-034 Split de batch | Done | 2026-02-16 |
+| F-035 Genealogia visual de batch | Done | 2026-02-16 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.

@@ -2,6 +2,71 @@
 
 ## 2026-02-16
 
+### Fase 2: Inventario y Calidad — COMPLETA
+
+#### F-027: Catalogo de Productos — Done
+- US-027-001/002/003/004: Product CRUD with search, category/procurement type filters, show inactive toggle, SKU uniqueness validation, deactivation with stock warning
+- Server actions in `src/lib/actions/inventory.ts` (shared for all inventory features)
+- Zod schema in `src/lib/schemas/product.ts` — uses `z.number().nonnegative().optional()` (not `z.coerce.number()` which causes RHF type inference issues)
+- RHF + Zod form with `{ valueAsNumber: true }` on number register calls
+- **Commits**: 2b9c127
+
+#### F-028: Recepcion de Compras — Done
+- US-028-001/002/003: Individual and bulk reception, auto-calc expiration from shelfLifeDays, supplier pre-fill from product
+- Atomic bulk reception via `db.transaction()` with N inventory_item + inventory_transaction inserts
+- **Commits**: 32347af
+
+#### F-026: Stock Actual — Done
+- US-026-001/002/003/005: Product and zone view toggle (Zustand), lot detail dialog, low stock alerts
+- US-026-004: Stock chart deferred (requires meaningful data for Recharts)
+- GROUP BY queries server-side for stock aggregation
+- **Commits**: 32347af
+
+#### F-029: Log de Movimientos — Done
+- US-029-001/002/003: Transaction table with cursor pagination, type/product/date filters, detail dialog, CSV export with BOM UTF-8
+- TRANSACTION_SIGNS constant for +/- coloring per type
+- **Commits**: 95a6d3e
+
+#### F-030: Recetas / BOM — Done
+- US-030-001/002/003/004/005: Recipe list, detail with stock availability, scale calculator, FIFO execution with FOR UPDATE locks, CRUD form with dynamic ingredient rows
+- `executeRecipe()` atomically consumes ingredients FIFO (by expiration_date ASC NULLS LAST) and creates output inventory_item + transactions
+- **Commits**: 95a6d3e
+
+#### F-031: Transformaciones — Done
+- US-031-001/002: Transform dialog in batch detail, executeTransformation action with multi-output + waste transaction
+- US-031-003: Yield comparison deferred (requires accumulated data)
+- `getTransformationContext()` reads phase_product_flows for pre-configured outputs
+- **Commits**: fff44db
+
+#### F-032: Tests de Calidad — Done
+- US-032-001/002/003/004: Pending tests list with days-waiting badges, create test form, record results with auto-calc pass/fail + auto-alert on failure
+- US-032-005: Certificate upload actions ready (UI deferred — requires Supabase Storage bucket)
+- `recordResults()` atomic: INSERT results + UPDATE test + INSERT alert if failed
+- Quality tab added to batch detail view
+- **Commits**: fff44db
+
+#### F-033: Historial de Calidad — Done
+- US-033-001/002: History table with cultivar/type/pass filters, cursor pagination, trend chart with Recharts LineChart + 3-point SMA
+- Dynamic import for TrendChart (SSR disabled)
+- **Commits**: fff44db
+
+#### F-034: Split de Batch — Done
+- US-034-001/002/003/004: 3-step split wizard (quantity slider → zone/reason → confirm), derived code (LOT-001-A/B/C), merge dialog for siblings, validation (status check, plant count bounds)
+- `splitBatch()` atomic: create child, update parent plant_count, insert batch_lineage
+- `mergeBatches()` atomic: transfer plants, mark sources completed, insert lineage
+- **Commits**: fff44db
+
+#### F-035: Genealogia Visual — Done
+- US-035-001/002/003: SVG tree diagram with recursive CTE (up to root, then down to all descendants), operations table, clickable nodes navigate to batch detail
+- Custom layout algorithm: top-down with parent centered over children
+- **Commits**: fff44db
+
+#### Pre-work: Schema Migration
+- `supabase/migrations/20260217031122_fase2_schema_additions.sql`: ADD min_stock_threshold to products, ADD certificate_url to quality_tests, CREATE quality-certificates storage bucket
+- **Commits**: 2b9c127
+
+---
+
 ### F-022: Ejecutar actividad completa — Done
 - US-022-001: Paso 1 Resources — `getActivityContext` loads template_snapshot, scales resources by plant_count using quantity_basis (per_plant/fixed/per_zone), returns product info with units. Editable quantity_actual inputs with planned vs actual diff highlighting
 - US-022-002: Paso 2 Checklist — Items from template_snapshot with critical gating (disables confirm button until all critical items completed), expected value range validation ("1.5-2.0" ± tolerance), color-coded status (ok/warning/error)

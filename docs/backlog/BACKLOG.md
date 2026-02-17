@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 134 | **In Progress**: 0 | **Done**: 89
+- **Planned**: 97 | **In Progress**: 0 | **Done**: 126
 
 ## Resumen por Fase
 
@@ -65,16 +65,16 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-026 | Stock actual (vista por producto y por zona) | 5 | P0 - Critical | Planned | [F-026](./planned/F-026-stock-actual.md) |
-| F-027 | Catalogo de productos (CRUD) | 4 | P0 - Critical | Planned | [F-027](./planned/F-027-product-catalog.md) |
-| F-028 | Recepcion de compras (INV-01) | 3 | P0 - Critical | Planned | [F-028](./planned/F-028-purchase-reception.md) |
-| F-029 | Log de movimientos de inventario | 3 | P1 - High | Planned | [F-029](./planned/F-029-inventory-log.md) |
-| F-030 | Recetas / BOM (INV-03) | 5 | P0 - Critical | Planned | [F-030](./planned/F-030-recipes-bom.md) |
-| F-031 | Transformaciones / cosecha multi-output (INV-02) | 3 | P0 - Critical | Planned | [F-031](./planned/F-031-transformations.md) |
-| F-032 | Tests de calidad (QUA-01) | 5 | P0 - Critical | Planned | [F-032](./planned/F-032-quality-tests.md) |
-| F-033 | Historial de calidad y tendencias | 2 | P1 - High | Planned | [F-033](./planned/F-033-quality-history.md) |
-| F-034 | Split de batch (BAT-02) | 4 | P0 - Critical | Planned | [F-034](./planned/F-034-batch-split.md) |
-| F-035 | Genealogia visual de batch | 3 | P1 - High | Planned | [F-035](./planned/F-035-batch-genealogy.md) |
+| F-026 | Stock actual (vista por producto y por zona) | 5 | P0 - Critical | Done | [F-026](./done/F-026-stock-actual.md) |
+| F-027 | Catalogo de productos (CRUD) | 4 | P0 - Critical | Done | [F-027](./done/F-027-product-catalog.md) |
+| F-028 | Recepcion de compras (INV-01) | 3 | P0 - Critical | Done | [F-028](./done/F-028-purchase-reception.md) |
+| F-029 | Log de movimientos de inventario | 3 | P1 - High | Done | [F-029](./done/F-029-inventory-log.md) |
+| F-030 | Recetas / BOM (INV-03) | 5 | P0 - Critical | Done | [F-030](./done/F-030-recipes-bom.md) |
+| F-031 | Transformaciones / cosecha multi-output (INV-02) | 3 | P0 - Critical | Done | [F-031](./done/F-031-transformations.md) |
+| F-032 | Tests de calidad (QUA-01) | 5 | P0 - Critical | Done | [F-032](./done/F-032-quality-tests.md) |
+| F-033 | Historial de calidad y tendencias | 2 | P1 - High | Done | [F-033](./done/F-033-quality-history.md) |
+| F-034 | Split de batch (BAT-02) | 4 | P0 - Critical | Done | [F-034](./done/F-034-batch-split.md) |
+| F-035 | Genealogia visual de batch | 3 | P1 - High | Done | [F-035](./done/F-035-batch-genealogy.md) |
 
 ---
 
