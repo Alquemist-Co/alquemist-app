@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-02-17
+
+### fix(auth): Auth resiliente — manejo de refresh tokens invalidos
+- **proxy.ts**: Detecta `getUser()` error, limpia cookies stale `sb-*-auth-token*` con `maxAge=0`, retorna flag `sessionCleared`
+- **middleware.ts**: Skip `updateSession()` para rutas publicas sin auth cookies (evita round-trip innecesario), redirige usuarios autenticados de `/login` a `/`, pasa `?expired=true` al redirect cuando sesion fue limpiada
+- **auth-provider.tsx**: Maneja `getUser()` error con `clearAuth()`, `.catch()` para errores inesperados, manejo explicito de evento `SIGNED_OUT`
+- **use-logout.ts**: `signOut()` graceful — captura error si sesion ya invalida, continua con `clearAuth()` + redirect
+- **Root cause**: Despues de `db:reset` (local o Cloud), refresh tokens en cookies se invalidan pero el browser las mantiene, causando loop de errores silenciosos y pagina en blanco
+
+---
+
 ## 2026-02-16
 
 ### Fase 3: Operaciones y Offline — COMPLETA
@@ -267,7 +278,7 @@
 - US-004-003: Sistema de permisos por rol en frontend (permissions map, Zustand auth store, useAuth hook, AuthProvider, RoleGate, PermissionGate, requireAuth server helper)
 - US-004-004: Logout y manejo de sesion expirada (useLogout hook, LogoutButton, clearAuth)
 - **Commits**: 8bcb4c8, 189aa6c, 13cdd55, 5069665
-- **Notas**: proxy.ts migrado de getClaims() a getUser() (mas seguro). Route groups (auth)/(dashboard). 5 roles con ~25 action-level permissions. AuthProvider con useRef guard para StrictMode. requireAuth() pattern para Server Actions.
+- **Notas**: proxy.ts migrado de getClaims() a getUser() (mas seguro). Route groups (auth)/(dashboard). 5 roles con ~25 action-level permissions. AuthProvider con useRef guard para StrictMode. requireAuth() pattern para Server Actions. Stale cookie cleanup y error handling agregado post-Fase 3 (ver 2026-02-17).
 
 ### F-002: Design system (componentes base UI) — Done
 - US-002-001: Button (primary, secondary, ghost) con cva, loading, icon, sizes

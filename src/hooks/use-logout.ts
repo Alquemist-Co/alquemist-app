@@ -10,7 +10,10 @@ export function useLogout() {
 
   async function logout() {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.warn(`[auth] signOut error: ${error.message}`);
+    }
     clearAuth();
     router.push("/login");
     router.refresh();

@@ -7,18 +7,35 @@ import type { UserRole } from "./types";
 export async function handleAuth(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip public routes
+  // Skip public routes — avoid updateSession() if no auth cookies
   if (isPublicRoute(pathname)) {
-    const { response } = await updateSession(request);
+    const hasAuthCookies = request.cookies
+      .getAll()
+      .some(({ name }) => name.startsWith("sb-") && name.includes("-auth-token"));
+
+    if (!hasAuthCookies) {
+      return NextResponse.next({ request });
+    }
+
+    const { response, user } = await updateSession(request);
+
+    // Authenticated user visiting /login → redirect to dashboard
+    if (user && pathname === "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+
     return response;
   }
 
   // Refresh session + get user
-  const { response, user } = await updateSession(request);
+  const { response, user, sessionCleared } = await updateSession(request);
 
   // No session → redirect to login
   if (!user) {
-    return redirectToLogin(request, pathname);
+    return redirectToLogin(request, pathname, sessionCleared);
   }
 
   // Extract role from app_metadata
@@ -47,10 +64,17 @@ export async function handleAuth(request: NextRequest) {
   return response;
 }
 
-function redirectToLogin(request: NextRequest, pathname: string) {
+function redirectToLogin(
+  request: NextRequest,
+  pathname: string,
+  expired = false
+) {
   const url = request.nextUrl.clone();
   url.pathname = "/login";
   url.searchParams.set("redirectTo", pathname);
+  if (expired) {
+    url.searchParams.set("expired", "true");
+  }
   return NextResponse.redirect(url);
 }
 

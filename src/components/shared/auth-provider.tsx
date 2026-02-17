@@ -25,35 +25,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
 
     // Initial hydration
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        const rawRole = user.app_metadata?.role as string | undefined;
-        const role =
-          rawRole && VALID_ROLES.includes(rawRole as UserRole)
-            ? (rawRole as UserRole)
-            : "viewer";
+    supabase.auth
+      .getUser()
+      .then(({ data: { user }, error }) => {
+        if (error) {
+          console.warn(`[auth] AuthProvider getUser error: ${error.message}`);
+          clearAuth();
+          return;
+        }
+        if (user) {
+          const rawRole = user.app_metadata?.role as string | undefined;
+          const role =
+            rawRole && VALID_ROLES.includes(rawRole as UserRole)
+              ? (rawRole as UserRole)
+              : "viewer";
 
-        setAuth({
-          userId: user.id,
-          email: user.email ?? "",
-          fullName: (user.user_metadata?.full_name as string) ?? "",
-          role,
-          companyId: (user.app_metadata?.company_id as string) ?? "",
-          facilityId:
-            (user.app_metadata?.facility_id as string) ?? null,
-        });
+          setAuth({
+            userId: user.id,
+            email: user.email ?? "",
+            fullName: (user.user_metadata?.full_name as string) ?? "",
+            role,
+            companyId: (user.app_metadata?.company_id as string) ?? "",
+            facilityId:
+              (user.app_metadata?.facility_id as string) ?? null,
+          });
 
-        // Preload essential data for offline access
-        import("@/lib/offline/data-preloader")
-          .then(({ preloadEssentialData }) => preloadEssentialData())
-          .catch(() => {});
-      }
-    });
+          // Preload essential data for offline access
+          import("@/lib/offline/data-preloader")
+            .then(({ preloadEssentialData }) => preloadEssentialData())
+            .catch(() => {});
+        } else {
+          clearAuth();
+        }
+      })
+      .catch((err) => {
+        console.error("[auth] AuthProvider unexpected error:", err);
+        clearAuth();
+      });
 
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        clearAuth();
+        return;
+      }
       if (session?.user) {
         const user = session.user;
         const rawRole = user.app_metadata?.role as string | undefined;

@@ -208,7 +208,7 @@ feature-based modules:
 | │ ├── (auth)/ | Route Group | Login, register, forgot-password (sin layout de app) |
 | │ │ ├── login/page.tsx |  |  |
 | │ │ └── layout.tsx |  | Layout centrado, sin sidebar/bottombar |
-| │ ├── (dashboard)/ | Route Group | App principal con auth middleware |
+| │ ├── (dashboard)/ | Route Group | App principal con auth middleware (stale cookie cleanup + role check) |
 | │ │ ├── layout.tsx |  | Layout principal: sidebar (desktop) + bottombar (mobile) + topbar |
 | │ │ ├── page.tsx |  | Dashboard (redirect por rol) |
 | │ │ ├── batches/ | Modul |  |
@@ -248,7 +248,7 @@ feature-based modules:
 | │ ├── forms/ |  | ActivityExecutor, OrderWizard, RecipeScaler, BatchSplitter |
 | │ └── shared/ |  | RoleBadge, StatusBadge, OfflineBanner, EmptyState, Skeleton |
 | ├── lib/ |  | Lógica de negocio y utilidades |
-| │ ├── supabase/ |  | client.ts (browser), server.ts (SSR), middleware.ts, admin.ts |
+| │ ├── supabase/ |  | client.ts (browser), server.ts (SSR), proxy.ts (session refresh + stale cookie cleanup), admin.ts |
 | │ ├── db/ |  | Drizzle schema, queries, migrations |
 | │ │ ├── schema/ |  | Un archivo por dominio: batches.ts, inventory.ts, activities.ts\... |
 | │ │ ├── queries/ |  | Queries reutilizables: getBatchWithDetails, getStockByProduct\... |

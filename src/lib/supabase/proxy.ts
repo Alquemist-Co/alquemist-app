@@ -29,7 +29,32 @@ export async function updateSession(request: NextRequest) {
   // hard to debug issues with users being randomly logged out.
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser();
 
-  return { response: supabaseResponse, user };
+  let sessionCleared = false;
+
+  if (error) {
+    console.warn(
+      `[auth] getUser error: ${error.message} (${error.status ?? ""})`
+    );
+
+    // Clear stale auth cookies to break the redirect loop
+    const staleCookies = request.cookies
+      .getAll()
+      .filter(
+        ({ name }) => name.startsWith("sb-") && name.includes("-auth-token")
+      );
+
+    if (staleCookies.length > 0) {
+      sessionCleared = true;
+      supabaseResponse = NextResponse.next({ request });
+      for (const { name } of staleCookies) {
+        request.cookies.delete(name);
+        supabaseResponse.cookies.set(name, "", { path: "/", maxAge: 0 });
+      }
+    }
+  }
+
+  return { response: supabaseResponse, user, sessionCleared };
 }
