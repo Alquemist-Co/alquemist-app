@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 97 | **In Progress**: 0 | **Done**: 126
+- **Planned**: 55 | **In Progress**: 42 | **Done**: 126
 
 ## Resumen por Fase
 
@@ -84,16 +84,16 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-041 | Mapa de facility y grid de zonas | 3 | P1 - High | Planned | [F-041](./planned/F-041-facility-map.md) |
-| F-042 | Detalle de zona con clima actual y batches | 4 | P1 - High | Planned | [F-042](./planned/F-042-zone-detail.md) |
-| F-043 | Posiciones de planta (grid visual) | 3 | P2 - Medium | Planned | [F-043](./planned/F-043-plant-positions.md) |
-| F-044 | Ocupacion planificada (timeline Gantt) | 3 | P2 - Medium | Planned | [F-044](./planned/F-044-occupancy-gantt.md) |
-| F-045 | Monitoreo ambiental real-time (OPS-01) | 5 | P0 - Critical | Planned | [F-045](./planned/F-045-env-monitoring.md) |
-| F-046 | Gestion de sensores | 3 | P1 - High | Planned | [F-046](./planned/F-046-sensor-management.md) |
-| F-047 | Centro de alertas | 5 | P0 - Critical | Planned | [F-047](./planned/F-047-alert-center.md) |
-| F-048 | Costos overhead y COGS completo (OPS-02) | 5 | P1 - High | Planned | [F-048](./planned/F-048-overhead-costs.md) |
-| F-049 | Offline completo | 6 | P0 - Critical | Planned | [F-049](./planned/F-049-offline-complete.md) |
-| F-050 | Supabase Realtime | 5 | P1 - High | Planned | [F-050](./planned/F-050-realtime.md) |
+| F-041 | Mapa de facility y grid de zonas | 3 | P1 - High | In Progress | [F-041](./in-progress/F-041-facility-map.md) |
+| F-042 | Detalle de zona con clima actual y batches | 4 | P1 - High | In Progress | [F-042](./in-progress/F-042-zone-detail.md) |
+| F-043 | Posiciones de planta (grid visual) | 3 | P2 - Medium | In Progress | [F-043](./in-progress/F-043-plant-positions.md) |
+| F-044 | Ocupacion planificada (timeline Gantt) | 3 | P2 - Medium | In Progress | [F-044](./in-progress/F-044-occupancy-gantt.md) |
+| F-045 | Monitoreo ambiental real-time (OPS-01) | 5 | P0 - Critical | In Progress | [F-045](./in-progress/F-045-env-monitoring.md) |
+| F-046 | Gestion de sensores | 3 | P1 - High | In Progress | [F-046](./in-progress/F-046-sensor-management.md) |
+| F-047 | Centro de alertas | 5 | P0 - Critical | In Progress | [F-047](./in-progress/F-047-alert-center.md) |
+| F-048 | Costos overhead y COGS completo (OPS-02) | 5 | P1 - High | In Progress | [F-048](./in-progress/F-048-overhead-costs.md) |
+| F-049 | Offline completo | 6 | P0 - Critical | In Progress | [F-049](./in-progress/F-049-offline-complete.md) |
+| F-050 | Supabase Realtime | 5 | P1 - High | In Progress | [F-050](./in-progress/F-050-realtime.md) |
 
 ---
 

@@ -20,6 +20,7 @@ import {
 } from "./enums";
 import { companies, users } from "./system";
 import { facilities, zones } from "./areas";
+import { batches } from "./batches";
 
 export const overheadCosts = pgTable("overhead_costs", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -87,16 +88,21 @@ export const alerts = pgTable("alerts", {
   id: uuid("id").primaryKey().defaultRandom(),
   type: alertTypeEnum("type").notNull(),
   severity: alertSeverityEnum("severity").notNull().default("info"),
+  title: text("title"),
   entityType: varchar("entity_type").notNull(),
   entityId: uuid("entity_id").notNull(),
   message: text("message").notNull(),
+  batchId: uuid("batch_id").references(() => batches.id),
   triggeredAt: timestamp("triggered_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
   acknowledgedBy: uuid("acknowledged_by").references(() => users.id),
   acknowledgedAt: timestamp("acknowledged_at", { withTimezone: true }),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+  resolvedBy: uuid("resolved_by").references(() => users.id),
+  resolutionNotes: text("resolution_notes"),
   companyId: uuid("company_id").references(() => companies.id),
+  createdBy: uuid("created_by").references(() => users.id),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

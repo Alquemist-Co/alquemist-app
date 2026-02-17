@@ -43,6 +43,10 @@ export const ACTION_PERMISSIONS: Record<string, UserRole[]> = {
 
   // Operations
   manage_overhead_costs: ["manager", "admin"],
+  manage_sensors: ["supervisor", "manager", "admin"],
+  acknowledge_alert: ["operator", "supervisor", "manager", "admin"],
+  resolve_alert: ["supervisor", "manager", "admin"],
+  view_costs: ["supervisor", "manager", "admin", "viewer"],
 
   // Settings / Users
   manage_users: ["admin"],

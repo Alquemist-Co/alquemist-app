@@ -267,12 +267,12 @@ export async function recordResults(input: unknown): Promise<ActionResult> {
 
       if (batchId) {
         await tx.execute(sql`
-          INSERT INTO alerts (type, severity, title, message, batch_id, entity_type, entity_id, created_by)
+          INSERT INTO alerts (type, severity, title, message, batch_id, entity_type, entity_id, created_by, company_id)
           VALUES (
             'quality_failed', 'warning',
             'Test de calidad fallido',
             'Un test de calidad ha fallado para este batch',
-            ${batchId}, 'quality_test', ${testId}, ${claims.userId}
+            ${batchId}, 'quality_test', ${testId}, ${claims.userId}, ${claims.companyId}
           )
         `);
       }
