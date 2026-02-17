@@ -29,6 +29,7 @@ import { ActivitiesTab } from "./activities-tab";
 import { TransformDialog } from "./transform-dialog";
 import { BatchInventoryTab } from "./batch-inventory-tab";
 import { BatchQualityTab } from "./batch-quality-tab";
+import { BatchCostsTab } from "./batch-costs-tab";
 
 type Props = {
   batch: BatchDetail;
@@ -266,11 +267,7 @@ export function BatchDetailView({ batch }: Props) {
           <BatchInventoryTab batchId={batch.id} />
         )}
         {activeTab === "costs" && (
-          <EmptyState
-            icon={DollarSign}
-            title="Costos"
-            description="Los costos de produccion se mostraran aqui (F-048)."
-          />
+          <BatchCostsTab batchId={batch.id} />
         )}
         {activeTab === "quality" && (
           <BatchQualityTab batchId={batch.id} />
