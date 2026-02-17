@@ -3,6 +3,9 @@
 -- Idempotente: ON CONFLICT DO NOTHING
 -- UUIDs explicitos para consistencia de FKs
 
+-- Passwords are pre-hashed bcrypt ($2a$10$) so seed works on both local and Cloud
+-- without requiring pgcrypto extension
+
 -- ============================================================
 -- UUID Constants
 -- ============================================================
@@ -146,7 +149,7 @@ VALUES
     '22222222-2222-2222-2222-222222222201',
     '00000000-0000-0000-0000-000000000000',
     'admin@agrotech.co',
-    crypt('Admin123!', gen_salt('bf')),
+    '$2a$10$vSIEzyMidhIw5oUe0h6J/emTcWmIRMCnJ.RnsFVPyEVqI7gh0cMsu',
     now(),
     '{"provider": "email", "providers": ["email"], "company_id": "11111111-1111-1111-1111-111111111111", "role": "admin", "facility_id": "33333333-3333-3333-3333-333333333301"}',
     '{"full_name": "Carlos Admin"}',
@@ -159,7 +162,7 @@ VALUES
     '22222222-2222-2222-2222-222222222202',
     '00000000-0000-0000-0000-000000000000',
     'supervisor@agrotech.co',
-    crypt('Super123!', gen_salt('bf')),
+    '$2a$10$b7Q9E/84iZkvcAzgqFHAD.hTM8j7.bZVg4n3jPzPBH03IwH7r1N0u',
     now(),
     '{"provider": "email", "providers": ["email"], "company_id": "11111111-1111-1111-1111-111111111111", "role": "supervisor", "facility_id": "33333333-3333-3333-3333-333333333301"}',
     '{"full_name": "Maria Supervisor"}',
@@ -172,7 +175,7 @@ VALUES
     '22222222-2222-2222-2222-222222222203',
     '00000000-0000-0000-0000-000000000000',
     'operator@agrotech.co',
-    crypt('Oper123!', gen_salt('bf')),
+    '$2a$10$.XiG8eXn.SdDJDDwnMRRie28PysX02lqf96t.r8poNkUlO31wrLhK',
     now(),
     '{"provider": "email", "providers": ["email"], "company_id": "11111111-1111-1111-1111-111111111111", "role": "operator", "facility_id": "33333333-3333-3333-3333-333333333301"}',
     '{"full_name": "Juan Operador"}',
@@ -451,7 +454,7 @@ VALUES
     '22222222-2222-2222-2222-222222222204',
     '00000000-0000-0000-0000-000000000000',
     'manager@agrotech.co',
-    crypt('Mgr123!', gen_salt('bf')),
+    '$2a$10$yHVR21RJ107.euowrKYBeeLk0GUA8LCutaSw.yexR3QGhlkdXX4ja',
     now(),
     '{"provider": "email", "providers": ["email"], "company_id": "11111111-1111-1111-1111-111111111111", "role": "manager", "facility_id": "33333333-3333-3333-3333-333333333301"}',
     '{"full_name": "Ana Gerente"}',
@@ -463,7 +466,7 @@ VALUES
     '22222222-2222-2222-2222-222222222205',
     '00000000-0000-0000-0000-000000000000',
     'viewer@agrotech.co',
-    crypt('View123!', gen_salt('bf')),
+    '$2a$10$kJzCBP4OdMMB47Cst1ym/.4IMRdQsiqYn4DIphFeOaEg3Y79ORSU6',
     now(),
     '{"provider": "email", "providers": ["email"], "company_id": "11111111-1111-1111-1111-111111111111", "role": "viewer", "facility_id": "33333333-3333-3333-3333-333333333301"}',
     '{"full_name": "Luis Viewer"}',
