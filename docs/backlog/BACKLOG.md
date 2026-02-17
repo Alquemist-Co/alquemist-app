@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 149 | **In Progress**: 0 | **Done**: 69
+- **Planned**: 145 | **In Progress**: 5 | **Done**: 73
 
 ## Resumen por Fase
 
@@ -51,7 +51,7 @@
 | F-015 | Lista de ordenes y detalle con yield waterfall | 4 | P1 - High | Done | [F-015](./done/F-015-order-list-detail.md) |
 | F-016 | Lista de batches con filtros y vistas | 3 | P1 - High | Done | [F-016](./done/F-016-batch-list.md) |
 | F-017 | Detalle de batch con tabs | 6 | P1 - High | Done | [F-017](./done/F-017-batch-detail.md) |
-| F-018 | Avanzar fase de batch | 4 | P0 - Critical | In Progress | [F-018](./in-progress/F-018-batch-phase-advance.md) |
+| F-018 | Avanzar fase de batch | 4 | P0 - Critical | Done | [F-018](./done/F-018-batch-phase-advance.md) |
 | F-019 | Templates de actividad (CRUD) | 5 | P0 - Critical | In Progress | [F-019](./in-progress/F-019-activity-templates.md) |
 | F-020 | Programar actividades desde schedule | 4 | P0 - Critical | Planned | [F-020](./planned/F-020-schedule-activities.md) |
 | F-021 | Lista de actividades de hoy | 5 | P1 - High | Planned | [F-021](./planned/F-021-today-activities.md) |

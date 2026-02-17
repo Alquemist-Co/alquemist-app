@@ -2,6 +2,17 @@
 
 ## 2026-02-16
 
+### F-018: Avanzar fase de batch — Done
+- US-018-001: `advancePhase` transactional — update batch.currentPhaseId, mark current order_phase completed, mark next order_phase in_progress, skip pending scheduled_activities
+- US-018-002: Zone change conditional — if next phase `requiresZoneChange=true`, zone selector required. Zone occupancy calculated from active batches
+- US-018-003: Pending activities warning — fetches pending/overdue activities for current phase, shows yellow warning banner with list, marks as 'skipped' on advance
+- US-018-004: Batch completion at exit phase — `completeBatch` sets batch status='completed', checks if all order batches done to auto-complete order
+- `getAdvancePhaseData` query: batch validation, next phase detection, pending activities, available zones with occupancy
+- `AdvancePhaseDialog` with conditional zone selector, pending activities warning, notes, exit phase mode ("Completar batch" vs "Avanzar fase")
+- "Avanzar fase" button gated by `advance_phase` permission, only visible for active batches
+- **Commits**: 513bab4
+- **Notas**: Zone capacity validation is informational (shown in dropdown), not blocking — full capacity enforcement deferred to avoid false blocks with zone sharing. Notes field accepted but not persisted (no timeline events table yet). `generateScheduledActivities` hook deferred to F-020.
+
 ### F-015/F-016/F-017: Listas y detalle de ordenes y batches — Done
 - F-015: Order list enhanced with status filter chips, text search, count display. Order detail already built in F-014.
 - F-016: Batch list with grid cards, combinable filters (status, phase, zone, cultivar), "Limpiar filtros". Cards show code, cultivar, phase, zone, plants, dates.
