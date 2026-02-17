@@ -13,11 +13,11 @@ Permite al administrador crear y gestionar tipos de cultivo (crop_types) con sus
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-011-001 | CRUD de tipos de cultivo | S | P0 | Planned |
-| US-011-002 | CRUD de fases de produccion con drag-to-reorder | M | P0 | Planned |
-| US-011-003 | Configuracion de phase product flows por fase | L | P0 | Planned |
-| US-011-004 | Validacion visual de cadena input-output entre fases consecutivas | M | P1 | Planned |
-| US-011-005 | Soft delete y proteccion de datos en uso | S | P1 | Planned |
+| US-011-001 | CRUD de tipos de cultivo | S | P0 | Done |
+| US-011-002 | CRUD de fases de produccion con drag-to-reorder | M | P0 | Done |
+| US-011-003 | Configuracion de phase product flows por fase | L | P0 | Done |
+| US-011-004 | Validacion visual de cadena input-output entre fases consecutivas | M | P1 | Done |
+| US-011-005 | Soft delete y proteccion de datos en uso | S | P1 | Done |
 
 ---
 

@@ -2,6 +2,15 @@
 
 ## 2026-02-16
 
+### F-011: Configuracion de tipos de cultivo y fases — Done
+- US-011-001: CRUD de tipos de cultivo — Settings hub, crop type list con cards, create/edit en Dialog, `ActionResult<T>` type, Zod schemas, Server Actions, `manage_crop_config` permission
+- US-011-002: CRUD de fases con reorder — Detail page con phase list, move-up/move-down reorder (atomic CASE WHEN), phase form con toggles, delete con dependency check
+- US-011-003: Phase product flows — Inline editable flow table por fase, split Inputs/Outputs, product/category/unit selectors, role badges, atomic replace (DELETE + INSERT)
+- US-011-004: Validacion visual de cadena — Compara output primario de fase N con input de fase N+1, indicadores verde/amarillo/rojo con iconos
+- US-011-005: Soft delete y proteccion — `deactivateCropType` con conteo de ordenes activas, `reactivateCropType`, show inactive toggle, confirmation dialogs
+- **Commits**: 67a2812, 4221473, 14f6b83, e62b774
+- **Notas**: `ActionResult<T>` en `src/lib/actions/types.ts` como tipo reutilizable. Reorder via buttons (no drag) — evita @dnd-kit (30KB+), accesible por teclado. Phase flows usa atomic replace en `db.transaction()`. Chain validation es informativa, no bloquea. Zod `z.boolean()` sin `.default()` para compatibilidad con zodResolver RHF types.
+
 ### F-007: Provisioning basico de usuarios — Done
 - US-007-001: Supabase Admin client helper (`src/lib/supabase/admin.ts`) con `server-only` guard, `service_role_key`, `autoRefreshToken: false`
 - US-007-002: Server Action `createUser` (`src/lib/actions/create-user.ts`) con Zod validation, `requireAuth(['admin'])`, `admin.auth.admin.createUser()`, insert en `public.users`, password generation
