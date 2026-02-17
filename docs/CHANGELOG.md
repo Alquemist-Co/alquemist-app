@@ -2,6 +2,14 @@
 
 ## 2026-02-16
 
+### F-006: PWA basica — Done
+- US-006-002: Manifest PWA dinamico (`src/app/manifest.ts`) con branding Alquemist, iconos 192/512/maskable en `public/icons/`, favicon, apple-touch-icon
+- US-006-001: Serwist v9 service worker con precache del shell, runtime caching via `defaultCache`, fallback a `~offline`, build con `--webpack`
+- US-006-003: Meta tags de instalabilidad: `applicationName`, `appleWebApp`, `themeColor`, `formatDetection`, titulo con template
+- US-006-004: Banner permanente de conexion con `useOnlineStatus` (useSyncExternalStore), integrado en AppShell entre TopBar y main
+- **Commits**: 08ba755, 014d3c6, 2fbd4b9, 3b9f49b
+- **Notas**: Serwist requiere `--webpack` en build (Next.js 16 default es Turbopack). `webworker` lib agregada a tsconfig para tipos de SW. ESLint ignora `public/sw.js` generado. SVGs default de Next.js eliminados. Hook `useOnlineStatus` usa `useSyncExternalStore` sin Zustand.
+
 ### F-005: Layout principal responsive — Done
 - US-005-001: Sidebar desktop collapsed (64px) / expanded (240px) con toggle Cmd+B, items filtrados por rol, perfil de usuario, persistencia en localStorage
 - US-005-002: Bottom tab bar mobile con 4 tabs configurados por rol + boton Mas, safe area, dot indicator

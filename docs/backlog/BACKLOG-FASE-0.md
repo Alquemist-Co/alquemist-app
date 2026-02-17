@@ -12,7 +12,7 @@
 ## Summary
 - **Total features**: 7
 - **Total stories**: 37
-- **Planned**: 2 | **In Progress**: 4 | **Done**: 31
+- **Planned**: 2 | **In Progress**: 0 | **Done**: 35
 
 ## Features
 
@@ -23,7 +23,7 @@
 | F-003 | Schema de base de datos | 8 | P0 - Critical | Done | [F-003](./done/F-003-database-schema.md) |
 | F-004 | Autenticacion y middleware de roles | 4 | P0 - Critical | Done | [F-004](./done/F-004-auth-middleware.md) |
 | F-005 | Layout principal responsive | 5 | P0 - Critical | Done | [F-005](./done/F-005-main-layout.md) |
-| F-006 | PWA basica | 4 | P0 - Critical | In Progress | [F-006](./in-progress/F-006-pwa-basic.md) |
+| F-006 | PWA basica | 4 | P0 - Critical | Done | [F-006](./done/F-006-pwa-basic.md) |
 | F-007 | Provisioning basico de usuarios | 3 | P0 - Critical | Planned | [F-007](./planned/F-007-basic-user-provisioning.md) |
 
 ## Indice de Stories
