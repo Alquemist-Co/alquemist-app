@@ -3,7 +3,6 @@
 import { sql } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { db } from "@/lib/db";
-import { PARAMETER_CONFIG } from "@/lib/schemas/environmental";
 
 // ── Types ─────────────────────────────────────────────────────────
 

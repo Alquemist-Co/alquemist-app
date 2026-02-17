@@ -14,17 +14,22 @@ const POLL_INTERVAL = 30_000; // 30 seconds
 
 export function EnvDashboard({ initialData }: Props) {
   const [zones, setZones] = useState<ZoneCondition[]>(initialData);
-  const [lastRefresh, setLastRefresh] = useState(Date.now());
   const [secondsAgo, setSecondsAgo] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval>>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>(null);
+  const lastRefreshRef = useRef(0);
+
+  // Initialize lastRefresh ref on mount
+  useEffect(() => {
+    lastRefreshRef.current = Date.now();
+  }, []);
 
   // Poll for updates
   const refresh = useCallback(async () => {
     try {
       const data = await getAllZoneConditions();
       setZones(data);
-      setLastRefresh(Date.now());
+      lastRefreshRef.current = Date.now();
       setSecondsAgo(0);
     } catch {
       // Silently fail on polling errors
@@ -41,12 +46,14 @@ export function EnvDashboard({ initialData }: Props) {
   // Seconds ago counter
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      setSecondsAgo(Math.floor((Date.now() - lastRefresh) / 1000));
+      if (lastRefreshRef.current > 0) {
+        setSecondsAgo(Math.floor((Date.now() - lastRefreshRef.current) / 1000));
+      }
     }, 1000);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [lastRefresh]);
+  }, []);
 
   if (zones.length === 0) {
     return (

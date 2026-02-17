@@ -180,7 +180,7 @@ export async function getAllocations(overheadCostId: string): Promise<Allocation
         break;
       case "per_zone": {
         // Count batches per zone, split evenly within zone
-        const zoneCount = batches.filter((x) => true).length; // All in same zone if zone_id is set
+        const zoneCount = batches.filter(() => true).length; // All in same zone if zone_id is set
         pct = 1 / zoneCount;
         break;
       }

@@ -42,6 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           facilityId:
             (user.app_metadata?.facility_id as string) ?? null,
         });
+
+        // Preload essential data for offline access
+        import("@/lib/offline/data-preloader")
+          .then(({ preloadEssentialData }) => preloadEssentialData())
+          .catch(() => {});
       }
     });
 

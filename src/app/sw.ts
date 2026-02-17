@@ -29,3 +29,17 @@ const serwist = new Serwist({
 });
 
 serwist.addEventListeners();
+
+// Background sync: process offline queue when connectivity is restored
+self.addEventListener("sync", (event) => {
+  if (event.tag === "sync-queue") {
+    event.waitUntil(
+      (async () => {
+        const clients = await self.clients.matchAll({ type: "window" });
+        for (const client of clients) {
+          client.postMessage({ type: "SYNC_REQUESTED" });
+        }
+      })(),
+    );
+  }
+});
