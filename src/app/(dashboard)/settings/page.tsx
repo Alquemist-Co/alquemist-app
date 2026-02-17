@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sprout, FlaskConical, Users } from "lucide-react";
+import { Sprout, FlaskConical, Users, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const SETTINGS_LINKS = [
@@ -14,6 +14,12 @@ const SETTINGS_LINKS = [
     icon: FlaskConical,
     title: "Cultivares",
     description: "Variedades, duraciones por fase y condiciones optimas",
+  },
+  {
+    href: "/settings/templates",
+    icon: Zap,
+    title: "Templates de actividad",
+    description: "Recetas reutilizables con recursos, checklist y fases",
   },
   {
     href: "/settings/users/new",
