@@ -46,5 +46,6 @@ export async function requireAuth(
     role,
     companyId: (user.app_metadata?.company_id as string) ?? "",
     facilityId: (user.app_metadata?.facility_id as string) ?? null,
+    fullName: (user.user_metadata?.full_name as string) ?? "",
   };
 }

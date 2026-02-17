@@ -2,6 +2,19 @@
 
 ## 2026-02-17
 
+### Fase 4: Polish y Lanzamiento — Iniciada
+
+#### F-056: Dashboard Operador — Done
+- US-056-001: Header contextual con saludo por hora, fecha formateada, facility badge
+- US-056-002: Stats strip con 3 StatCards clickeables (pendientes/completadas/alertas) que filtran la lista
+- US-056-003: Lista de actividades del dia con cards coloreadas por tipo, overdue section, empty state
+- US-056-004: Banners compactos de alertas (max 3) con severidad y link "Ver todas"
+- US-056-005: Pull-to-refresh con gesto touch (80px threshold) + boton + timestamp + manejo offline
+- US-056-006: FAB 56px con bottom sheet de 3 acciones rapidas (actividad ad-hoc, observacion, foto)
+- **Cambios base**: `AuthClaims.fullName`, `requireAuth()` extrae fullName, `StatCard` onClick/selected, `getFacilityNameById()`
+- **Arquitectura**: page.tsx convertido a Server Component con role routing, data fetching paralelo con Promise.all
+- 8 archivos nuevos en `src/components/dashboard/`, roles sin dashboard ven placeholder
+
 ### fix(auth): Auth resiliente — manejo de refresh tokens invalidos
 - **proxy.ts**: Detecta `getUser()` error, limpia cookies stale `sb-*-auth-token*` con `maxAge=0`, retorna flag `sessionCleared`
 - **middleware.ts**: Skip `updateSession()` para rutas publicas sin auth cookies (evita round-trip innecesario), redirige usuarios autenticados de `/login` a `/`, pasa `?expired=true` al redirect cuando sesion fue limpiada

@@ -62,6 +62,21 @@ export type ZoneBatch = {
 
 // ── Queries ───────────────────────────────────────────────────────
 
+export async function getFacilityNameById(
+  id: string | null,
+): Promise<string | null> {
+  if (!id) return null;
+  await requireAuth();
+
+  const rows = await db.execute(sql`
+    SELECT name FROM facilities WHERE id = ${id} LIMIT 1
+  `);
+
+  const row = (rows as unknown as { name: string }[])[0];
+  return row?.name ?? null;
+}
+
+
 export async function getFacilities(): Promise<FacilityItem[]> {
   const claims = await requireAuth();
 

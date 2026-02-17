@@ -20,7 +20,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 ## Progreso
 
-**Fase actual**: 3 — Operaciones y Offline — COMPLETA
+**Fase actual**: 4 — Polish y Lanzamiento
 
 | Feature | Status | Fecha |
 |---------|--------|-------|
@@ -63,6 +63,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-048 Costos overhead y COGS | Done | 2026-02-16 |
 | F-049 Offline completo | Done | 2026-02-16 |
 | F-050 Supabase Realtime | Done | 2026-02-16 |
+| F-056 Dashboard operador | Done | 2026-02-17 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.

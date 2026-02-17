@@ -11,4 +11,5 @@ export interface AuthClaims {
   role: UserRole;
   companyId: string;
   facilityId: string | null;
+  fullName: string;
 }

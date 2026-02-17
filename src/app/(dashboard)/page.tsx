@@ -1,42 +1,34 @@
-"use client";
+import { requireAuth } from "@/lib/auth/require-auth";
+import { getTodayActivities } from "@/lib/actions/scheduled-activities";
+import { getAlerts, getAlertCounts } from "@/lib/actions/alerts";
+import { getFacilityNameById } from "@/lib/actions/areas";
+import { OperatorDashboard } from "@/components/dashboard/operator-dashboard";
+import { DashboardPlaceholder } from "@/components/dashboard/dashboard-placeholder";
 
-import { useAuth } from "@/hooks/use-auth";
-import { ROLE_LABELS } from "@/lib/nav/navigation";
+export default async function DashboardPage() {
+  const claims = await requireAuth();
 
-const ROLE_DESCRIPTIONS: Record<string, string> = {
-  operator: "Gestiona actividades diarias, registra datos de campo e inventario.",
-  supervisor: "Supervisa batches, actividades y operaciones del equipo.",
-  manager: "Administra ordenes de produccion, costos y reportes.",
-  admin: "Configura el sistema, gestiona usuarios y acceso completo.",
-  viewer: "Consulta datos de produccion, calidad y batches.",
-};
+  if (claims.role === "operator") {
+    const [activities, alertsResult, alertCounts, facilityName] =
+      await Promise.all([
+        getTodayActivities(),
+        getAlerts("pending"),
+        getAlertCounts(),
+        getFacilityNameById(claims.facilityId),
+      ]);
 
-export default function DashboardPage() {
-  const { fullName, role } = useAuth();
+    const firstName = claims.fullName?.split(" ")[0] || "Operador";
 
-  const firstName = fullName?.split(" ")[0] ?? "Usuario";
-  const roleLabel = role ? ROLE_LABELS[role] : "";
-  const roleDesc = role ? ROLE_DESCRIPTIONS[role] ?? "" : "";
+    return (
+      <OperatorDashboard
+        firstName={firstName}
+        facilityName={facilityName}
+        activities={activities}
+        alerts={alertsResult.items.slice(0, 3)}
+        alertCount={alertCounts.pending}
+      />
+    );
+  }
 
-  return (
-    <div className="p-4 lg:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-extrabold text-text-primary">
-          Bienvenido, {firstName}
-        </h1>
-        <p className="mt-1 text-sm text-text-secondary">
-          {roleLabel} — {roleDesc}
-        </p>
-      </div>
-
-      <div className="flex flex-col items-center justify-center py-16">
-        <div className="flex size-16 items-center justify-center rounded-card bg-brand">
-          <span className="text-2xl font-bold text-white">A</span>
-        </div>
-        <p className="mt-4 text-sm text-text-secondary">
-          Dashboard en desarrollo. Proximamente.
-        </p>
-      </div>
-    </div>
-  );
+  return <DashboardPlaceholder fullName={claims.fullName} role={claims.role} />;
 }

@@ -12,12 +12,12 @@ Dashboard personalizado para el rol operador que muestra un resumen ejecutivo de
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-056-001 | Header contextual con saludo, fecha y facility | S | P0 | Planned |
-| US-056-002 | Stats strip con contadores de pendientes, completadas y alertas | M | P0 | Planned |
-| US-056-003 | Lista de actividades del dia con cards ordenadas por hora | M | P0 | Planned |
-| US-056-004 | Seccion de alertas del operador | S | P1 | Planned |
-| US-056-005 | Indicador de estado offline y pull-to-refresh | M | P0 | Planned |
-| US-056-006 | FAB con acciones rapidas | M | P1 | Planned |
+| US-056-001 | Header contextual con saludo, fecha y facility | S | P0 | Done |
+| US-056-002 | Stats strip con contadores de pendientes, completadas y alertas | M | P0 | Done |
+| US-056-003 | Lista de actividades del dia con cards ordenadas por hora | M | P0 | Done |
+| US-056-004 | Seccion de alertas del operador | S | P1 | Done |
+| US-056-005 | Indicador de estado offline y pull-to-refresh | M | P0 | Done |
+| US-056-006 | FAB con acciones rapidas | M | P1 | Done |
 
 ---
 

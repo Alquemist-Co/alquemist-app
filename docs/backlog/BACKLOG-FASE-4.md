@@ -5,7 +5,7 @@
 ## Summary
 - **Total features**: 9
 - **Total stories**: 44
-- **Planned**: 44 | **In Progress**: 0 | **Done**: 0
+- **Planned**: 38 | **In Progress**: 0 | **Done**: 6
 
 ## Fase
 - **Fase**: 4 - Polish y Lanzamiento
@@ -16,7 +16,7 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-056 | Dashboard Operador | 6 | P0 - Critical | Planned | [F-056](./planned/F-056-dashboard-operator.md) |
+| F-056 | Dashboard Operador | 6 | P0 - Critical | Done | [F-056](./done/F-056-dashboard-operator.md) |
 | F-057 | Dashboard Supervisor | 6 | P0 - Critical | Planned | [F-057](./planned/F-057-dashboard-supervisor.md) |
 | F-058 | Dashboard Gerente | 6 | P0 - Critical | Planned | [F-058](./planned/F-058-dashboard-manager.md) |
 | F-059 | Dashboard Viewer | 3 | P1 - High | Planned | [F-059](./planned/F-059-dashboard-viewer.md) |

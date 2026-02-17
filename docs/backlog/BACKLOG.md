@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 46 | **In Progress**: 0 | **Done**: 172
+- **Planned**: 40 | **In Progress**: 0 | **Done**: 178
 
 ## Resumen por Fase
 
@@ -103,7 +103,7 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-056 | Dashboard operador | 6 | P0 - Critical | Planned | [F-056](./planned/F-056-dashboard-operator.md) |
+| F-056 | Dashboard operador | 6 | P0 - Critical | Done | [F-056](./done/F-056-dashboard-operator.md) |
 | F-057 | Dashboard supervisor | 6 | P0 - Critical | Planned | [F-057](./planned/F-057-dashboard-supervisor.md) |
 | F-058 | Dashboard gerente | 6 | P0 - Critical | Planned | [F-058](./planned/F-058-dashboard-manager.md) |
 | F-059 | Dashboard viewer | 3 | P1 - High | Planned | [F-059](./planned/F-059-dashboard-viewer.md) |
