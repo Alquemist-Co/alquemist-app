@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 142 | **In Progress**: 0 | **Done**: 81
+- **Planned**: 138 | **In Progress**: 0 | **Done**: 85
 
 ## Resumen por Fase
 
@@ -54,7 +54,7 @@
 | F-018 | Avanzar fase de batch | 4 | P0 - Critical | Done | [F-018](./done/F-018-batch-phase-advance.md) |
 | F-019 | Templates de actividad (CRUD) | 5 | P0 - Critical | Done | [F-019](./done/F-019-activity-templates.md) |
 | F-020 | Programar actividades desde schedule | 4 | P0 - Critical | Done | [F-020](./done/F-020-schedule-activities.md) |
-| F-021 | Lista de actividades de hoy | 5 | P1 - High | In Progress | [F-021](./in-progress/F-021-today-activities.md) |
+| F-021 | Lista de actividades de hoy | 5 | P1 - High | Done | [F-021](./done/F-021-today-activities.md) |
 | F-022 | Ejecutar actividad completa | 6 | P0 - Critical | Planned | [F-022](./planned/F-022-execute-activity.md) |
 
 ---

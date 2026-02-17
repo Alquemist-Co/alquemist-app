@@ -2,6 +2,16 @@
 
 ## 2026-02-16
 
+### F-021: Lista de actividades de hoy — Done
+- US-021-001: `getTodayActivities` server action — query for today's planned_date + overdue activities, joins templates, activity_types, batches, zones. Ordered by status priority (overdue > pending > completed) then date
+- US-021-002: `ActivityCard` component — color-coded left border by activity type name (8 type colors), template name, batch code, zone, estimated duration, crop day, status badge, links to activity detail
+- US-021-003: Quick-complete (swipe) — Deferred, requires F-022 executeActivity
+- US-021-004: Overdue sticky section — CSS `sticky top-0 z-10`, warning background, compact OverdueCard, shows max 3 with "+N mas"
+- US-021-005: Filter chips — "Pendientes (N)" / "Completadas (N)" / "Todas (N)", client-side filter, brand-colored active chip
+- Activities page converted from EmptyState placeholder to SC (data fetch) + CC (TodayActivitiesView)
+- **Commits**: 2df7a81
+- **Notas**: No time field in scheduled_activities (only planned_date), so timeline is a list sorted by status/date rather than hour-by-hour. Activity type colors mapped by normalized lowercase name (accent-stripped). No assigned_to filter yet (US-020-004 deferred). getTodayActivities query excludes 'skipped' status.
+
 ### F-020: Programar actividades desde schedule — Done
 - US-020-001: `generateScheduledActivities(batchId, phaseId)` — reads cultivation_schedule, finds templates for phase via activity_template_phases, generates activities by frequency (daily/weekly/biweekly/once/on_demand), creates template_snapshot JSONB with resources + checklist, bulk inserts scheduled_activities
 - US-020-002: `rescheduleActivity(id, newDate)` — validates date >= today, status in pending/overdue, updates planned_date and resets status to pending

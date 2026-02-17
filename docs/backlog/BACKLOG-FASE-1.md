@@ -5,7 +5,7 @@
 ## Summary
 - **Total features**: 12
 - **Total stories**: 55
-- **Planned**: 17 | **In Progress**: 0 | **Done**: 43
+- **Planned**: 13 | **In Progress**: 0 | **Done**: 47
 - **Semanas**: 3-7
 - **Rango de IDs**: F-011 a F-022
 - **Dependencia cross-fase**: Requiere F-001 a F-006 (Fase 0) como base
@@ -24,7 +24,7 @@
 | F-018 | Avanzar fase de batch | 4 | P0 - Critical | Done | [F-018](./done/F-018-batch-phase-advance.md) |
 | F-019 | Templates de actividad (CRUD) | 5 | P0 - Critical | Done | [F-019](./done/F-019-activity-templates.md) |
 | F-020 | Programar actividades desde schedule | 4 | P0 - Critical | Done | [F-020](./done/F-020-schedule-activities.md) |
-| F-021 | Lista de actividades de hoy | 5 | P1 - High | In Progress | [F-021](./in-progress/F-021-today-activities.md) |
+| F-021 | Lista de actividades de hoy | 5 | P1 - High | Done | [F-021](./done/F-021-today-activities.md) |
 | F-022 | Ejecutar actividad completa | 6 | P0 - Critical | Planned | [F-022](./planned/F-022-execute-activity.md) |
 
 ## Resumen de Stories por Feature
