@@ -40,13 +40,13 @@ export const createPhaseSchema = z.object({
     .string()
     .min(2, "Minimo 2 caracteres")
     .max(100, "Maximo 100 caracteres"),
-  defaultDurationDays: z.coerce.number().int().min(1).optional(),
-  isTransformation: z.boolean().default(false),
-  isDestructive: z.boolean().default(false),
-  requiresZoneChange: z.boolean().default(false),
-  canSkip: z.boolean().default(false),
-  canBeEntryPoint: z.boolean().default(false),
-  canBeExitPoint: z.boolean().default(false),
+  defaultDurationDays: z.number().int().min(1).optional(),
+  isTransformation: z.boolean(),
+  isDestructive: z.boolean(),
+  requiresZoneChange: z.boolean(),
+  canSkip: z.boolean(),
+  canBeEntryPoint: z.boolean(),
+  canBeExitPoint: z.boolean(),
   icon: z.string().max(50).optional().or(z.literal("")),
   color: z.string().max(20).optional().or(z.literal("")),
 });
