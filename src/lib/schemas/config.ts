@@ -91,3 +91,56 @@ export const setPhaseFlowsSchema = z.object({
 
 export type PhaseProductFlowItem = z.infer<typeof phaseProductFlowItemSchema>;
 export type SetPhaseFlowsData = z.infer<typeof setPhaseFlowsSchema>;
+
+// ── Cultivar schemas ───────────────────────────────────────────────
+
+const optionalConditionRange = z
+  .object({
+    min: z.number(),
+    max: z.number(),
+  })
+  .refine((d) => d.min <= d.max, {
+    message: "El valor minimo debe ser menor o igual al maximo",
+  })
+  .optional();
+
+export const optimalConditionsSchema = z.object({
+  temperature: optionalConditionRange,
+  humidity: optionalConditionRange,
+  co2: optionalConditionRange,
+  ec: optionalConditionRange,
+  ph: optionalConditionRange,
+  lightPpfd: optionalConditionRange,
+  vpd: optionalConditionRange,
+});
+
+export const createCultivarSchema = z.object({
+  cropTypeId: z.string().uuid("Tipo de cultivo requerido"),
+  code: z
+    .string()
+    .min(2, "Minimo 2 caracteres")
+    .max(50, "Maximo 50 caracteres")
+    .regex(codeRegex, "Solo minusculas, numeros, guiones y guion bajo"),
+  name: z
+    .string()
+    .min(2, "Minimo 2 caracteres")
+    .max(100, "Maximo 100 caracteres"),
+  breeder: z.string().max(100).optional().or(z.literal("")),
+  genetics: z.string().max(200).optional().or(z.literal("")),
+  defaultCycleDays: z.number().int().min(1).optional(),
+  expectedYieldPerPlantG: z.number().min(0).optional(),
+  expectedDryRatio: z.number().min(0).max(1).optional(),
+  qualityGrade: z.string().max(50).optional().or(z.literal("")),
+  densityPlantsPerM2: z.number().min(0).optional(),
+  notes: z.string().max(2000).optional().or(z.literal("")),
+  phaseDurations: z.record(z.string(), z.number().int().min(1)).optional(),
+  optimalConditions: optimalConditionsSchema.optional(),
+});
+
+export const updateCultivarSchema = createCultivarSchema.extend({
+  id: z.string().uuid(),
+});
+
+export type CreateCultivarData = z.infer<typeof createCultivarSchema>;
+export type UpdateCultivarData = z.infer<typeof updateCultivarSchema>;
+export type OptimalConditions = z.infer<typeof optimalConditionsSchema>;

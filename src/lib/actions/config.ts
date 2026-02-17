@@ -7,6 +7,8 @@ import {
   cropTypes,
   productionPhases,
   phaseProductFlows,
+  cultivars,
+  cultivarProducts,
 } from "@/lib/db/schema";
 import {
   createCropTypeSchema,
@@ -15,6 +17,8 @@ import {
   updatePhaseSchema,
   reorderPhasesSchema,
   setPhaseFlowsSchema,
+  createCultivarSchema,
+  updateCultivarSchema,
 } from "@/lib/schemas/config";
 import type { ActionResult } from "./types";
 
@@ -452,6 +456,264 @@ export async function setPhaseFlows(input: unknown): Promise<ActionResult> {
           isRequired: f.isRequired,
           sortOrder: f.sortOrder,
           notes: f.notes || null,
+          createdBy: claims.userId,
+          updatedBy: claims.userId,
+        }))
+      );
+    }
+  });
+
+  return { success: true };
+}
+
+// ── Cultivar queries ───────────────────────────────────────────────
+
+export type CultivarWithCropType = {
+  id: string;
+  code: string;
+  name: string;
+  cropTypeId: string;
+  cropTypeName: string;
+  breeder: string | null;
+  genetics: string | null;
+  defaultCycleDays: number | null;
+  expectedYieldPerPlantG: string | null;
+  expectedDryRatio: string | null;
+  qualityGrade: string | null;
+  densityPlantsPerM2: string | null;
+  notes: string | null;
+  phaseDurations: Record<string, number> | null;
+  optimalConditions: Record<string, unknown> | null;
+  isActive: boolean;
+};
+
+export async function getCultivars(): Promise<CultivarWithCropType[]> {
+  await requireAuth();
+
+  const rows = await db
+    .select({
+      id: cultivars.id,
+      code: cultivars.code,
+      name: cultivars.name,
+      cropTypeId: cultivars.cropTypeId,
+      cropTypeName: cropTypes.name,
+      breeder: cultivars.breeder,
+      genetics: cultivars.genetics,
+      defaultCycleDays: cultivars.defaultCycleDays,
+      expectedYieldPerPlantG: cultivars.expectedYieldPerPlantG,
+      expectedDryRatio: cultivars.expectedDryRatio,
+      qualityGrade: cultivars.qualityGrade,
+      densityPlantsPerM2: cultivars.densityPlantsPerM2,
+      notes: cultivars.notes,
+      phaseDurations: cultivars.phaseDurations,
+      optimalConditions: cultivars.optimalConditions,
+      isActive: cultivars.isActive,
+    })
+    .from(cultivars)
+    .leftJoin(cropTypes, eq(cultivars.cropTypeId, cropTypes.id))
+    .orderBy(cultivars.name);
+
+  return rows.map((r) => ({
+    ...r,
+    cropTypeName: r.cropTypeName ?? "",
+    phaseDurations: r.phaseDurations as Record<string, number> | null,
+    optimalConditions: r.optimalConditions as Record<string, unknown> | null,
+  }));
+}
+
+export type CultivarDetail = CultivarWithCropType & {
+  products: CultivarProductRow[];
+};
+
+export type CultivarProductRow = {
+  id: string;
+  productId: string | null;
+  phaseId: string | null;
+  isPrimary: boolean;
+  sortOrder: number;
+};
+
+export async function getCultivar(id: string): Promise<CultivarDetail | null> {
+  await requireAuth();
+
+  const rows = await db
+    .select({
+      id: cultivars.id,
+      code: cultivars.code,
+      name: cultivars.name,
+      cropTypeId: cultivars.cropTypeId,
+      cropTypeName: cropTypes.name,
+      breeder: cultivars.breeder,
+      genetics: cultivars.genetics,
+      defaultCycleDays: cultivars.defaultCycleDays,
+      expectedYieldPerPlantG: cultivars.expectedYieldPerPlantG,
+      expectedDryRatio: cultivars.expectedDryRatio,
+      qualityGrade: cultivars.qualityGrade,
+      densityPlantsPerM2: cultivars.densityPlantsPerM2,
+      notes: cultivars.notes,
+      phaseDurations: cultivars.phaseDurations,
+      optimalConditions: cultivars.optimalConditions,
+      isActive: cultivars.isActive,
+    })
+    .from(cultivars)
+    .leftJoin(cropTypes, eq(cultivars.cropTypeId, cropTypes.id))
+    .where(eq(cultivars.id, id))
+    .limit(1);
+
+  if (rows.length === 0) return null;
+
+  const r = rows[0];
+
+  const products = await db
+    .select()
+    .from(cultivarProducts)
+    .where(eq(cultivarProducts.cultivarId, id))
+    .orderBy(asc(cultivarProducts.sortOrder));
+
+  return {
+    ...r,
+    cropTypeName: r.cropTypeName ?? "",
+    phaseDurations: r.phaseDurations as Record<string, number> | null,
+    optimalConditions: r.optimalConditions as Record<string, unknown> | null,
+    products: products.map((p) => ({
+      id: p.id,
+      productId: p.productId,
+      phaseId: p.phaseId,
+      isPrimary: p.isPrimary,
+      sortOrder: p.sortOrder,
+    })),
+  };
+}
+
+// ── Cultivar mutations ─────────────────────────────────────────────
+
+export async function createCultivar(input: unknown): Promise<ActionResult<{ id: string }>> {
+  const claims = await requireAuth(["admin"]);
+
+  const parsed = createCultivarSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const data = parsed.data;
+
+  try {
+    const [row] = await db
+      .insert(cultivars)
+      .values({
+        cropTypeId: data.cropTypeId,
+        code: data.code,
+        name: data.name,
+        breeder: data.breeder || null,
+        genetics: data.genetics || null,
+        defaultCycleDays: data.defaultCycleDays ?? null,
+        expectedYieldPerPlantG: data.expectedYieldPerPlantG?.toString() ?? null,
+        expectedDryRatio: data.expectedDryRatio?.toString() ?? null,
+        qualityGrade: data.qualityGrade || null,
+        densityPlantsPerM2: data.densityPlantsPerM2?.toString() ?? null,
+        notes: data.notes || null,
+        phaseDurations: data.phaseDurations ?? null,
+        optimalConditions: data.optimalConditions ?? null,
+        createdBy: claims.userId,
+        updatedBy: claims.userId,
+      })
+      .returning({ id: cultivars.id });
+
+    return { success: true, data: { id: row.id } };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message.includes("unique")) {
+      return { success: false, error: "Ya existe un cultivar con este codigo" };
+    }
+    throw err;
+  }
+}
+
+export async function updateCultivar(input: unknown): Promise<ActionResult> {
+  const claims = await requireAuth(["admin"]);
+
+  const parsed = updateCultivarSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { id, ...data } = parsed.data;
+
+  try {
+    const [updated] = await db
+      .update(cultivars)
+      .set({
+        cropTypeId: data.cropTypeId,
+        code: data.code,
+        name: data.name,
+        breeder: data.breeder || null,
+        genetics: data.genetics || null,
+        defaultCycleDays: data.defaultCycleDays ?? null,
+        expectedYieldPerPlantG: data.expectedYieldPerPlantG?.toString() ?? null,
+        expectedDryRatio: data.expectedDryRatio?.toString() ?? null,
+        qualityGrade: data.qualityGrade || null,
+        densityPlantsPerM2: data.densityPlantsPerM2?.toString() ?? null,
+        notes: data.notes || null,
+        phaseDurations: data.phaseDurations ?? null,
+        optimalConditions: data.optimalConditions ?? null,
+        updatedBy: claims.userId,
+      })
+      .where(eq(cultivars.id, id))
+      .returning({ id: cultivars.id });
+
+    if (!updated) {
+      return { success: false, error: "Cultivar no encontrado" };
+    }
+
+    return { success: true };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message.includes("unique")) {
+      return { success: false, error: "Ya existe un cultivar con este codigo" };
+    }
+    throw err;
+  }
+}
+
+export async function deactivateCultivar(id: string): Promise<ActionResult> {
+  await requireAuth(["admin"]);
+
+  await db
+    .update(cultivars)
+    .set({ isActive: false })
+    .where(eq(cultivars.id, id));
+
+  return { success: true };
+}
+
+export async function reactivateCultivar(id: string): Promise<ActionResult> {
+  await requireAuth(["admin"]);
+
+  await db
+    .update(cultivars)
+    .set({ isActive: true })
+    .where(eq(cultivars.id, id));
+
+  return { success: true };
+}
+
+// ── Cultivar Products (atomic replace) ─────────────────────────────
+
+export async function setCultivarProducts(
+  cultivarId: string,
+  products: { productId: string; phaseId: string; isPrimary: boolean; sortOrder: number }[]
+): Promise<ActionResult> {
+  const claims = await requireAuth(["admin"]);
+
+  await db.transaction(async (tx) => {
+    await tx.delete(cultivarProducts).where(eq(cultivarProducts.cultivarId, cultivarId));
+
+    if (products.length > 0) {
+      await tx.insert(cultivarProducts).values(
+        products.map((p) => ({
+          cultivarId,
+          productId: p.productId,
+          phaseId: p.phaseId,
+          isPrimary: p.isPrimary,
+          sortOrder: p.sortOrder,
           createdBy: claims.userId,
           updatedBy: claims.userId,
         }))
