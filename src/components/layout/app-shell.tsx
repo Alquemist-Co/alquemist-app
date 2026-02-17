@@ -8,6 +8,7 @@ import { Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { BottomBar } from "./bottom-bar";
 import { MoreMenu } from "./more-menu";
+import { OfflineBanner } from "@/components/shared/offline-banner";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { isHydrated } = useAuth();
@@ -37,6 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       >
         <TopBar />
+        <OfflineBanner />
 
         <main className="flex-1 pb-(--height-bottombar) lg:pb-0">
           {children}
