@@ -2,6 +2,14 @@
 
 ## 2026-02-16
 
+### F-015/F-016/F-017: Listas y detalle de ordenes y batches — Done
+- F-015: Order list enhanced with status filter chips, text search, count display. Order detail already built in F-014.
+- F-016: Batch list with grid cards, combinable filters (status, phase, zone, cultivar), "Limpiar filtros". Cards show code, cultivar, phase, zone, plants, dates.
+- F-017: Batch detail with hero header (code, cultivar, zone, plants, start date), progress bar, phase stepper with current/completed indicators, 5 tabs (Timeline functional, Activities/Inventory/Costs/Quality as placeholders for later features).
+- Server actions: `getBatches`, `getBatch`, `getBatchFilterOptions`, `getOrders`, `getOrder` with multi-table JOINs
+- **Commits**: a9f1ea5
+- **Notas**: US-015-002 (kanban P2) deferred. US-015-004 (yield waterfall chart) deferred — requires Recharts. Tab content lazy loaded by tab state. Phase stepper reused from order detail. All filter logic is client-side (catalog-level data).
+
 ### F-014: Aprobar/rechazar orden y crear batch — Done
 - US-014-001: `approveOrder` transactional — update order status, create batch BAT-YYYY-NNN, mark first phase in_progress
 - US-014-002: `rejectOrder` con razon obligatoria (min 5 chars), updates status to cancelled

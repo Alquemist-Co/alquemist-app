@@ -8,7 +8,7 @@
 - **Total stories**: 218
 - **Fases**: 5 (0-4)
 - **Semanas**: 20
-- **Planned**: 162 | **In Progress**: 0 | **Done**: 56
+- **Planned**: 149 | **In Progress**: 0 | **Done**: 69
 
 ## Resumen por Fase
 
@@ -48,9 +48,9 @@
 | F-012 | Configuracion de cultivares | 4 | P0 - Critical | Done | [F-012](./done/F-012-cultivar-config.md) |
 | F-013 | Crear orden de produccion — wizard 5 pasos | 6 | P0 - Critical | Done | [F-013](./done/F-013-create-production-order.md) |
 | F-014 | Aprobar/rechazar orden y crear batch | 3 | P0 - Critical | Done | [F-014](./done/F-014-approve-reject-order.md) |
-| F-015 | Lista de ordenes y detalle con yield waterfall | 4 | P1 - High | In Progress | [F-015](./in-progress/F-015-order-list-detail.md) |
-| F-016 | Lista de batches con filtros y vistas | 3 | P1 - High | In Progress | [F-016](./in-progress/F-016-batch-list.md) |
-| F-017 | Detalle de batch con tabs | 6 | P1 - High | In Progress | [F-017](./in-progress/F-017-batch-detail.md) |
+| F-015 | Lista de ordenes y detalle con yield waterfall | 4 | P1 - High | Done | [F-015](./done/F-015-order-list-detail.md) |
+| F-016 | Lista de batches con filtros y vistas | 3 | P1 - High | Done | [F-016](./done/F-016-batch-list.md) |
+| F-017 | Detalle de batch con tabs | 6 | P1 - High | Done | [F-017](./done/F-017-batch-detail.md) |
 | F-018 | Avanzar fase de batch | 4 | P0 - Critical | Planned | [F-018](./planned/F-018-batch-phase-advance.md) |
 | F-019 | Templates de actividad (CRUD) | 5 | P0 - Critical | Planned | [F-019](./planned/F-019-activity-templates.md) |
 | F-020 | Programar actividades desde schedule | 4 | P0 - Critical | Planned | [F-020](./planned/F-020-schedule-activities.md) |
