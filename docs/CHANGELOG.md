@@ -2,6 +2,18 @@
 
 ## 2026-02-16
 
+### F-019: Templates de actividad (CRUD) — Done
+- US-019-001: Template list with type/phase/text filters, activity type badges, phase badges, resource/checklist counts
+- US-019-002: Template editor with basic data form (code, name, type, frequency, duration, trigger days), advanced config (triggers_phase_change, triggers_transformation)
+- US-019-003: Resources editor with product selector, quantity input, quantity_basis dropdown (fixed/per_plant/per_m2/per_zone/per_L_solution), optional toggle, move-up/move-down reorder
+- US-019-004: Checklist editor with instruction input, critical/photo toggles, expected value/tolerance fields, move-up/move-down reorder
+- US-019-005: Phase selection via toggle chips with crop type labels, warning when no phases selected
+- Server actions: `getTemplates`, `getTemplate`, `getTemplateFormData`, `createTemplate`, `updateTemplate`, `setTemplateResources`, `setTemplateChecklist`
+- `manage_templates` permission for manager/admin added
+- Settings hub updated with templates link
+- **Commits**: a13558e
+- **Notas**: Reorder via buttons (same pattern as F-011 phases). Resources and checklist saved atomically via DELETE+INSERT in transaction. `z.number()` with `valueAsNumber: true` in register for RHF compat (not `z.coerce`). Toggle uses controlled approach (`watch`+`setValue`) instead of `register` spread. Shared `TemplateEditor` component for both create and edit pages.
+
 ### F-018: Avanzar fase de batch — Done
 - US-018-001: `advancePhase` transactional — update batch.currentPhaseId, mark current order_phase completed, mark next order_phase in_progress, skip pending scheduled_activities
 - US-018-002: Zone change conditional — if next phase `requiresZoneChange=true`, zone selector required. Zone occupancy calculated from active batches

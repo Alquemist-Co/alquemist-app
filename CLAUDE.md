@@ -39,6 +39,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-016 Lista de batches con filtros | Done | 2026-02-16 |
 | F-017 Detalle de batch con tabs | Done | 2026-02-16 |
 | F-018 Avanzar fase de batch | Done | 2026-02-16 |
+| F-019 Templates de actividad (CRUD) | Done | 2026-02-16 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.
