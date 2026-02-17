@@ -20,9 +20,15 @@ import {
   Shield,
   Check,
   ChevronRight,
+  Scissors,
+  ArrowRightLeft,
+  GitBranch,
 } from "lucide-react";
 import { AdvancePhaseDialog } from "./advance-phase-dialog";
 import { ActivitiesTab } from "./activities-tab";
+import { TransformDialog } from "./transform-dialog";
+import { BatchInventoryTab } from "./batch-inventory-tab";
+import { BatchQualityTab } from "./batch-quality-tab";
 
 type Props = {
   batch: BatchDetail;
@@ -66,8 +72,11 @@ export function BatchDetailView({ batch }: Props) {
   const router = useRouter();
   const role = useAuthStore((s) => s.role);
   const canAdvance = role ? hasPermission(role, "advance_phase") : false;
+  const canSplit = role ? hasPermission(role, "split_batch") : false;
+  const canTransform = role ? hasPermission(role, "create_inventory_transaction") : false;
   const [activeTab, setActiveTab] = useState<TabKey>("timeline");
   const [advanceDialogOpen, setAdvanceDialogOpen] = useState(false);
+  const [transformDialogOpen, setTransformDialogOpen] = useState(false);
 
   const isActive = batch.status === "active";
 
@@ -125,7 +134,7 @@ export function BatchDetailView({ batch }: Props) {
         </div>
 
         {/* Actions row */}
-        <div className="mt-3 flex items-center gap-3">
+        <div className="mt-3 flex items-center gap-3 flex-wrap">
           {batch.orderCode && batch.orderId && (
             <Link
               href={`/orders/${batch.orderId}`}
@@ -135,16 +144,41 @@ export function BatchDetailView({ batch }: Props) {
               <ExternalLink className="h-3 w-3" />
             </Link>
           )}
-          {canAdvance && isActive && (
-            <Button
-              size="sm"
-              onClick={() => setAdvanceDialogOpen(true)}
-              icon={isExitPhase ? Check : ChevronRight}
-              className="ml-auto"
-            >
-              {isExitPhase ? "Completar batch" : "Avanzar fase"}
-            </Button>
-          )}
+          <Link
+            href={`/batches/${batch.id}/genealogy`}
+            className="inline-flex items-center gap-1 text-xs text-brand hover:underline"
+          >
+            <GitBranch className="h-3 w-3" />
+            Genealogia
+          </Link>
+          <div className="ml-auto flex items-center gap-2">
+            {canTransform && isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setTransformDialogOpen(true)}
+                icon={ArrowRightLeft}
+              >
+                Transformar
+              </Button>
+            )}
+            {canSplit && isActive && (
+              <Link href={`/batches/${batch.id}/split`}>
+                <Button size="sm" variant="ghost" icon={Scissors}>
+                  Dividir
+                </Button>
+              </Link>
+            )}
+            {canAdvance && isActive && (
+              <Button
+                size="sm"
+                onClick={() => setAdvanceDialogOpen(true)}
+                icon={isExitPhase ? Check : ChevronRight}
+              >
+                {isExitPhase ? "Completar batch" : "Avanzar fase"}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Phase stepper */}
@@ -229,11 +263,7 @@ export function BatchDetailView({ batch }: Props) {
           <ActivitiesTab batchId={batch.id} />
         )}
         {activeTab === "inventory" && (
-          <EmptyState
-            icon={Package}
-            title="Inventario"
-            description="Las transacciones de inventario se mostraran aqui (F-026)."
-          />
+          <BatchInventoryTab batchId={batch.id} />
         )}
         {activeTab === "costs" && (
           <EmptyState
@@ -243,11 +273,7 @@ export function BatchDetailView({ batch }: Props) {
           />
         )}
         {activeTab === "quality" && (
-          <EmptyState
-            icon={Shield}
-            title="Calidad"
-            description="Los tests de calidad se mostraran aqui (F-032)."
-          />
+          <BatchQualityTab batchId={batch.id} />
         )}
       </div>
 
@@ -256,6 +282,13 @@ export function BatchDetailView({ batch }: Props) {
         batchId={batch.id}
         open={advanceDialogOpen}
         onClose={() => setAdvanceDialogOpen(false)}
+      />
+
+      {/* Transform dialog */}
+      <TransformDialog
+        batchId={batch.id}
+        open={transformDialogOpen}
+        onClose={() => setTransformDialogOpen(false)}
       />
     </>
   );

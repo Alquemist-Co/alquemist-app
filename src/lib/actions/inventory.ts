@@ -641,6 +641,7 @@ export type TransactionListItem = {
 export async function getTransactions(filters?: {
   type?: string;
   productId?: string;
+  batchId?: string;
   dateFrom?: string;
   dateTo?: string;
   cursor?: string;
@@ -673,6 +674,7 @@ export async function getTransactions(filters?: {
     WHERE 1=1
       ${filters?.type ? sql`AND it.type = ${filters.type}` : sql``}
       ${filters?.productId ? sql`AND ii.product_id = ${filters.productId}` : sql``}
+      ${filters?.batchId ? sql`AND it.batch_id = ${filters.batchId}` : sql``}
       ${filters?.dateFrom ? sql`AND it.timestamp >= ${filters.dateFrom}::timestamptz` : sql``}
       ${filters?.dateTo ? sql`AND it.timestamp <= ${filters.dateTo}::timestamptz` : sql``}
       ${filters?.cursor ? sql`AND it.timestamp < ${filters.cursor}::timestamptz` : sql``}
@@ -1066,5 +1068,144 @@ export async function executeRecipe(input: unknown): Promise<ActionResult<{ exec
 
     revalidatePath("/inventory");
     return { success: true as const, data: { executionId: execution.id } };
+  });
+}
+
+// ── Transformations (F-031) ───────────────────────────────────────
+
+export type TransformationContext = {
+  batchCode: string;
+  batchId: string;
+  plantCount: number;
+  phaseName: string;
+  phaseId: string;
+  outputs: {
+    productId: string | null;
+    productName: string | null;
+    productRole: string;
+    expectedYieldPct: string | null;
+    expectedQtyPerInput: string | null;
+    unitId: string | null;
+    unitCode: string | null;
+  }[];
+  zones: { id: string; name: string }[];
+};
+
+export async function getTransformationContext(
+  batchId: string,
+): Promise<TransformationContext | null> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  const rows = await db.execute(sql`
+    SELECT
+      b.id as "batchId",
+      b.code as "batchCode",
+      b.plant_count as "plantCount",
+      pp.name as "phaseName",
+      pp.id as "phaseId"
+    FROM batches b
+    INNER JOIN production_phases pp ON pp.id = b.current_phase_id
+    WHERE b.id = ${batchId} AND b.status = 'active'
+    LIMIT 1
+  `);
+
+  const batch = (rows as unknown as Record<string, unknown>[])[0];
+  if (!batch) return null;
+
+  const outputRows = await db.execute(sql`
+    SELECT
+      ppf.product_id as "productId",
+      p.name as "productName",
+      ppf.product_role as "productRole",
+      ppf.expected_yield_pct as "expectedYieldPct",
+      ppf.expected_quantity_per_input as "expectedQtyPerInput",
+      ppf.unit_id as "unitId",
+      u.code as "unitCode"
+    FROM phase_product_flows ppf
+    LEFT JOIN products p ON p.id = ppf.product_id
+    LEFT JOIN units_of_measure u ON u.id = ppf.unit_id
+    WHERE ppf.phase_id = ${batch.phaseId}
+      AND ppf.direction = 'output'
+    ORDER BY ppf.sort_order
+  `);
+
+  const zoneRows = await db.execute(sql`
+    SELECT id, name FROM zones WHERE status = 'active' ORDER BY name
+  `);
+
+  return {
+    batchCode: batch.batchCode as string,
+    batchId: batch.batchId as string,
+    plantCount: batch.plantCount as number,
+    phaseName: batch.phaseName as string,
+    phaseId: batch.phaseId as string,
+    outputs: outputRows as unknown as TransformationContext["outputs"],
+    zones: zoneRows as unknown as { id: string; name: string }[],
+  };
+}
+
+export async function executeTransformation(input: unknown): Promise<ActionResult> {
+  const claims = await requireAuth(["supervisor", "manager", "admin"]);
+
+  const { executeTransformationSchema } = await import("@/lib/schemas/transformation");
+  const parsed = executeTransformationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { batchId, phaseId, outputs, wasteQuantity, wasteUnitId, wasteReason, notes } = parsed.data;
+
+  return db.transaction(async (tx) => {
+    // Verify batch status
+    const [batch] = await tx.execute(sql`
+      SELECT id, status, current_phase_id FROM batches WHERE id = ${batchId} FOR UPDATE
+    `);
+    const b = batch as unknown as { id: string; status: string; current_phase_id: string };
+    if (!b || b.status !== "active") {
+      return { success: false as const, error: "Batch no esta activo" };
+    }
+    if (b.current_phase_id !== phaseId) {
+      return { success: false as const, error: "La fase ya no es la actual" };
+    }
+
+    // Create output inventory items + transactions
+    for (const output of outputs) {
+      const [item] = await tx
+        .insert(inventoryItems)
+        .values({
+          productId: output.productId,
+          zoneId: output.zoneId,
+          quantityAvailable: output.quantity.toString(),
+          unitId: output.unitId,
+          sourceType: "transformation",
+          lotStatus: "available",
+          createdBy: claims.userId,
+          updatedBy: claims.userId,
+        })
+        .returning({ id: inventoryItems.id });
+
+      await tx.insert(inventoryTransactions).values({
+        type: "transformation_in",
+        inventoryItemId: item.id,
+        quantity: output.quantity.toString(),
+        unitId: output.unitId,
+        zoneId: output.zoneId,
+        batchId,
+        userId: claims.userId,
+        reason: notes || "Transformacion de batch",
+      });
+    }
+
+    // Waste transaction (no inventory item)
+    if (wasteQuantity && wasteQuantity > 0 && wasteUnitId) {
+      await tx.execute(sql`
+        INSERT INTO inventory_transactions (type, quantity, unit_id, batch_id, user_id, reason)
+        VALUES ('waste', ${wasteQuantity.toString()}, ${wasteUnitId}, ${batchId}, ${claims.userId}, ${wasteReason || "Desperdicio de transformacion"})
+      `);
+    }
+
+    revalidatePath("/inventory");
+    revalidatePath(`/batches/${batchId}`);
+    return { success: true as const };
   });
 }
