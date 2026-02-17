@@ -41,6 +41,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# serwist (generated service worker)
+public/sw.js
+public/sw.js.map
+public/swe-worker-*.js
+
 # claude code
 .claude/settings.local.json
 .claude/plans/
