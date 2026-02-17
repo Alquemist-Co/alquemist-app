@@ -9,6 +9,7 @@ import { TopBar } from "./top-bar";
 import { BottomBar } from "./bottom-bar";
 import { MoreMenu } from "./more-menu";
 import { OfflineBanner } from "@/components/shared/offline-banner";
+import { RealtimeProvider } from "@/components/shared/realtime-provider";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { isHydrated } = useAuth();
@@ -27,26 +28,28 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-surface">
-      <Sidebar />
+    <RealtimeProvider>
+      <div className="min-h-screen bg-surface">
+        <Sidebar />
 
-      <div
-        className={cn(
-          "flex flex-col min-h-screen transition-all duration-250",
-          "lg:ml-(--width-sidebar-collapsed)",
-          isExpanded && "lg:ml-(--width-sidebar-expanded)"
-        )}
-      >
-        <TopBar />
-        <OfflineBanner />
+        <div
+          className={cn(
+            "flex flex-col min-h-screen transition-all duration-250",
+            "lg:ml-(--width-sidebar-collapsed)",
+            isExpanded && "lg:ml-(--width-sidebar-expanded)"
+          )}
+        >
+          <TopBar />
+          <OfflineBanner />
 
-        <main className="flex-1 pb-(--height-bottombar) lg:pb-0">
-          {children}
-        </main>
+          <main className="flex-1 pb-(--height-bottombar) lg:pb-0">
+            {children}
+          </main>
+        </div>
+
+        <BottomBar onMorePress={() => setMoreOpen(true)} />
+        <MoreMenu open={moreOpen} onClose={() => setMoreOpen(false)} />
       </div>
-
-      <BottomBar onMorePress={() => setMoreOpen(true)} />
-      <MoreMenu open={moreOpen} onClose={() => setMoreOpen(false)} />
-    </div>
+    </RealtimeProvider>
   );
 }
