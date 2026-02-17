@@ -15,10 +15,10 @@ Automatiza la generacion de actividades programadas (scheduled_activities) a par
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-020-001 | Generar actividades al crear batch o avanzar fase | L | P0 | Planned |
-| US-020-002 | Reprogramar actividad individual (cambiar fecha) | S | P0 | Planned |
-| US-020-003 | Cancelar actividad programada con razon | S | P1 | Planned |
-| US-020-004 | Asignacion automatica de operador por zona | M | P1 | Planned |
+| US-020-001 | Generar actividades al crear batch o avanzar fase | L | P0 | Done |
+| US-020-002 | Reprogramar actividad individual (cambiar fecha) | S | P0 | Done |
+| US-020-003 | Cancelar actividad programada con razon | S | P1 | Done |
+| US-020-004 | Asignacion automatica de operador por zona | M | P1 | Deferred |
 
 ---
 

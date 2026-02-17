@@ -22,6 +22,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { AdvancePhaseDialog } from "./advance-phase-dialog";
+import { ActivitiesTab } from "./activities-tab";
 
 type Props = {
   batch: BatchDetail;
@@ -225,11 +226,7 @@ export function BatchDetailView({ batch }: Props) {
       <div className="flex-1 overflow-y-auto p-4 lg:p-6">
         {activeTab === "timeline" && <TimelineTab batch={batch} />}
         {activeTab === "activities" && (
-          <EmptyState
-            icon={ClipboardList}
-            title="Actividades"
-            description="Las actividades programadas se mostraran aqui (F-020/F-021)."
-          />
+          <ActivitiesTab batchId={batch.id} />
         )}
         {activeTab === "inventory" && (
           <EmptyState

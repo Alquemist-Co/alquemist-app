@@ -16,6 +16,7 @@ import {
   scheduledActivities,
 } from "@/lib/db/schema";
 import type { ActionResult } from "./types";
+import { generateScheduledActivities } from "./scheduled-activities";
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -540,6 +541,11 @@ export async function advancePhase(
           inArray(scheduledActivities.status, ["pending", "overdue"]),
         ),
       );
+  });
+
+  // Generate scheduled activities for the new phase (non-blocking)
+  generateScheduledActivities(batchId, nextPhase!.phaseId).catch(() => {
+    // Silently fail — activities can be regenerated later
   });
 
   return { success: true };

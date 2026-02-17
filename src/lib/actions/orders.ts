@@ -17,6 +17,7 @@ import {
 } from "@/lib/db/schema";
 import { createOrderSchema } from "@/lib/schemas/order";
 import type { ActionResult } from "./types";
+import { generateScheduledActivities } from "./scheduled-activities";
 
 // ── Types ─────────────────────────────────────────────────────────
 
@@ -701,6 +702,11 @@ export async function approveOrder(
       }
 
       return batch;
+    });
+
+    // Generate scheduled activities for the entry phase (non-blocking)
+    generateScheduledActivities(result.id, order.entryPhaseId).catch(() => {
+      // Silently fail — activities can be regenerated later
     });
 
     return { success: true, data: { batchId: result.id, batchCode: result.code } };
