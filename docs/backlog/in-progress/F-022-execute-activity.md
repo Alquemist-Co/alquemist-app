@@ -13,12 +13,12 @@ La pantalla de ejecucion de actividad es el corazon operativo del sistema. En 4 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-022-001 | Paso 1: Recursos escalados con edicion | L | P0 | Planned |
-| US-022-002 | Paso 2: Checklist con items criticos bloqueantes | M | P0 | Planned |
-| US-022-003 | Paso 3: Observaciones opcionales con fotos | M | P1 | Planned |
-| US-022-004 | Paso 4: Confirmacion y generacion de transacciones | L | P0 | Planned |
-| US-022-005 | Timer automatico de duracion | S | P0 | Planned |
-| US-022-006 | Funcionamiento offline completo | L | P1 | Planned |
+| US-022-001 | Paso 1: Recursos escalados con edicion | L | P0 | Done |
+| US-022-002 | Paso 2: Checklist con items criticos bloqueantes | M | P0 | Done |
+| US-022-003 | Paso 3: Observaciones opcionales con fotos | M | P1 | Deferred |
+| US-022-004 | Paso 4: Confirmacion y generacion de transacciones | L | P0 | Done |
+| US-022-005 | Timer automatico de duracion | S | P0 | Done |
+| US-022-006 | Funcionamiento offline completo | L | P1 | Deferred |
 
 ---
 
