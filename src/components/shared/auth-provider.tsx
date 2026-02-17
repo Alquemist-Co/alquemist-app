@@ -29,7 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .getUser()
       .then(({ data: { user }, error }) => {
         if (error) {
-          console.warn(`[auth] AuthProvider getUser error: ${error.message}`);
+          // "Auth session missing" is normal when not logged in — only warn on real errors
+          if (error.name !== "AuthSessionMissingError") {
+            console.warn(`[auth] AuthProvider getUser error: ${error.message}`);
+          }
           clearAuth();
           return;
         }

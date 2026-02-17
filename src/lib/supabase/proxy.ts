@@ -35,9 +35,12 @@ export async function updateSession(request: NextRequest) {
   let sessionCleared = false;
 
   if (error) {
-    console.warn(
-      `[auth] getUser error: ${error.message} (${error.status ?? ""})`
-    );
+    // "Auth session missing" is normal for unauthenticated requests — only warn on real errors
+    if (error.name !== "AuthSessionMissingError") {
+      console.warn(
+        `[auth] getUser error: ${error.message} (${error.status ?? ""})`
+      );
+    }
 
     // Clear stale auth cookies to break the redirect loop
     const staleCookies = request.cookies
