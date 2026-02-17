@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql, asc, and, inArray } from "drizzle-orm";
+import { eq, sql, asc, desc, and, inArray } from "drizzle-orm";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { db } from "@/lib/db";
 import {
@@ -10,6 +10,7 @@ import {
   phaseProductFlows,
   productionOrders,
   productionOrderPhases,
+  batches,
   zones,
   facilities,
   users,
@@ -399,4 +400,360 @@ export async function createOrder(
     }
     throw err;
   }
+}
+
+// ── Get Order Detail ──────────────────────────────────────────────
+
+export type OrderDetail = {
+  id: string;
+  code: string;
+  cultivarName: string;
+  cropTypeName: string;
+  entryPhaseName: string;
+  exitPhaseName: string;
+  initialQuantity: string;
+  unitName: string;
+  unitCode: string;
+  plannedStartDate: string;
+  plannedEndDate: string | null;
+  assigneeName: string | null;
+  status: string;
+  priority: string;
+  notes: string | null;
+  batchId: string | null;
+  batchCode: string | null;
+  createdAt: Date;
+  phases: OrderPhaseDetail[];
+};
+
+export type OrderPhaseDetail = {
+  id: string;
+  phaseId: string;
+  phaseName: string;
+  sortOrder: number;
+  plannedStartDate: string | null;
+  plannedEndDate: string | null;
+  plannedDurationDays: number | null;
+  zoneName: string | null;
+  status: string;
+};
+
+export async function getOrder(id: string): Promise<OrderDetail | null> {
+  await requireAuth();
+
+  const rows = await db
+    .select({
+      id: productionOrders.id,
+      code: productionOrders.code,
+      cultivarName: cultivars.name,
+      cropTypeName: cropTypes.name,
+      entryPhaseName: sql<string>`ep.name`,
+      exitPhaseName: sql<string>`xp.name`,
+      initialQuantity: productionOrders.initialQuantity,
+      unitName: sql<string>`u.name`,
+      unitCode: sql<string>`u.code`,
+      plannedStartDate: productionOrders.plannedStartDate,
+      plannedEndDate: productionOrders.plannedEndDate,
+      assigneeName: sql<string | null>`au.full_name`,
+      status: productionOrders.status,
+      priority: productionOrders.priority,
+      notes: productionOrders.notes,
+      batchId: sql<string | null>`b.id`,
+      batchCode: sql<string | null>`b.code`,
+      createdAt: productionOrders.createdAt,
+    })
+    .from(productionOrders)
+    .innerJoin(cultivars, eq(productionOrders.cultivarId, cultivars.id))
+    .innerJoin(cropTypes, eq(cultivars.cropTypeId, cropTypes.id))
+    .innerJoin(
+      sql`production_phases ep`,
+      sql`ep.id = ${productionOrders.entryPhaseId}`,
+    )
+    .innerJoin(
+      sql`production_phases xp`,
+      sql`xp.id = ${productionOrders.exitPhaseId}`,
+    )
+    .innerJoin(
+      sql`units_of_measure u`,
+      sql`u.id = ${productionOrders.initialUnitId}`,
+    )
+    .leftJoin(
+      sql`users au`,
+      sql`au.id = ${productionOrders.assignedTo}`,
+    )
+    .leftJoin(
+      sql`batches b`,
+      sql`b.production_order_id = ${productionOrders.id}`,
+    )
+    .where(eq(productionOrders.id, id))
+    .limit(1);
+
+  if (rows.length === 0) return null;
+
+  const order = rows[0];
+
+  // Fetch order phases
+  const phaseRows = await db
+    .select({
+      id: productionOrderPhases.id,
+      phaseId: productionOrderPhases.phaseId,
+      phaseName: productionPhases.name,
+      sortOrder: productionOrderPhases.sortOrder,
+      plannedStartDate: productionOrderPhases.plannedStartDate,
+      plannedEndDate: productionOrderPhases.plannedEndDate,
+      plannedDurationDays: productionOrderPhases.plannedDurationDays,
+      zoneName: zones.name,
+      status: productionOrderPhases.status,
+    })
+    .from(productionOrderPhases)
+    .innerJoin(
+      productionPhases,
+      eq(productionOrderPhases.phaseId, productionPhases.id),
+    )
+    .leftJoin(zones, eq(productionOrderPhases.zoneId, zones.id))
+    .where(eq(productionOrderPhases.orderId, id))
+    .orderBy(asc(productionOrderPhases.sortOrder));
+
+  return {
+    ...order,
+    phases: phaseRows,
+  };
+}
+
+// ── Get Orders List ───────────────────────────────────────────────
+
+export type OrderListItem = {
+  id: string;
+  code: string;
+  cultivarName: string;
+  cropTypeName: string;
+  status: string;
+  priority: string;
+  initialQuantity: string;
+  unitCode: string;
+  plannedStartDate: string;
+  batchCode: string | null;
+  createdAt: Date;
+};
+
+export async function getOrders(): Promise<OrderListItem[]> {
+  await requireAuth();
+
+  return db
+    .select({
+      id: productionOrders.id,
+      code: productionOrders.code,
+      cultivarName: cultivars.name,
+      cropTypeName: cropTypes.name,
+      status: productionOrders.status,
+      priority: productionOrders.priority,
+      initialQuantity: productionOrders.initialQuantity,
+      unitCode: sql<string>`u.code`,
+      plannedStartDate: productionOrders.plannedStartDate,
+      batchCode: sql<string | null>`b.code`,
+      createdAt: productionOrders.createdAt,
+    })
+    .from(productionOrders)
+    .innerJoin(cultivars, eq(productionOrders.cultivarId, cultivars.id))
+    .innerJoin(cropTypes, eq(cultivars.cropTypeId, cropTypes.id))
+    .innerJoin(
+      sql`units_of_measure u`,
+      sql`u.id = ${productionOrders.initialUnitId}`,
+    )
+    .leftJoin(
+      sql`batches b`,
+      sql`b.production_order_id = ${productionOrders.id}`,
+    )
+    .orderBy(desc(productionOrders.createdAt));
+}
+
+// ── Approve Order ─────────────────────────────────────────────────
+
+export async function approveOrder(
+  orderId: string,
+): Promise<ActionResult<{ batchId: string; batchCode: string }>> {
+  const claims = await requireAuth(["manager", "admin"]);
+
+  // Fetch the order with its first phase
+  const [order] = await db
+    .select({
+      id: productionOrders.id,
+      status: productionOrders.status,
+      cultivarId: productionOrders.cultivarId,
+      entryPhaseId: productionOrders.entryPhaseId,
+      initialQuantity: productionOrders.initialQuantity,
+      plannedStartDate: productionOrders.plannedStartDate,
+      plannedEndDate: productionOrders.plannedEndDate,
+      companyId: productionOrders.companyId,
+    })
+    .from(productionOrders)
+    .where(eq(productionOrders.id, orderId))
+    .limit(1);
+
+  if (!order) {
+    return { success: false, error: "Orden no encontrada" };
+  }
+
+  if (order.status !== "draft") {
+    if (order.status === "cancelled") {
+      return { success: false, error: "No se puede aprobar una orden cancelada" };
+    }
+    return { success: false, error: "Orden ya aprobada" };
+  }
+
+  // Get the first non-skipped order phase to determine zone
+  const [firstPhase] = await db
+    .select({
+      id: productionOrderPhases.id,
+      zoneId: productionOrderPhases.zoneId,
+    })
+    .from(productionOrderPhases)
+    .where(
+      and(
+        eq(productionOrderPhases.orderId, orderId),
+        sql`${productionOrderPhases.status} != 'skipped'`,
+      ),
+    )
+    .orderBy(asc(productionOrderPhases.sortOrder))
+    .limit(1);
+
+  // Resolve zone: from first phase, or get any active zone
+  let batchZoneId = firstPhase?.zoneId;
+  if (!batchZoneId) {
+    const [anyZone] = await db
+      .select({ id: zones.id })
+      .from(zones)
+      .where(eq(zones.status, "active"))
+      .limit(1);
+    batchZoneId = anyZone?.id ?? null;
+  }
+
+  if (!batchZoneId) {
+    return { success: false, error: "No hay zonas activas disponibles" };
+  }
+
+  // Generate batch code: BAT-YYYY-NNN
+  const year = new Date().getFullYear();
+  const batchPrefix = `BAT-${year}-`;
+
+  const [maxBatch] = await db
+    .select({ code: batches.code })
+    .from(batches)
+    .where(sql`code LIKE ${batchPrefix + "%"}`)
+    .orderBy(sql`code DESC`)
+    .limit(1);
+
+  let batchSeq = 1;
+  if (maxBatch?.code) {
+    const lastSeq = parseInt(maxBatch.code.replace(batchPrefix, ""), 10);
+    if (!isNaN(lastSeq)) batchSeq = lastSeq + 1;
+  }
+
+  const batchCode = `${batchPrefix}${batchSeq.toString().padStart(3, "0")}`;
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      // 1. Update order status to in_progress
+      await tx
+        .update(productionOrders)
+        .set({
+          status: "in_progress",
+          updatedBy: claims.userId,
+        })
+        .where(
+          and(
+            eq(productionOrders.id, orderId),
+            eq(productionOrders.status, "draft"),
+          ),
+        );
+
+      // 2. Create batch
+      const plantCount = Math.round(parseFloat(order.initialQuantity));
+
+      const [batch] = await tx
+        .insert(batches)
+        .values({
+          code: batchCode,
+          cultivarId: order.cultivarId,
+          zoneId: batchZoneId!,
+          plantCount: plantCount > 0 ? plantCount : 1,
+          currentPhaseId: order.entryPhaseId,
+          productionOrderId: orderId,
+          startDate: order.plannedStartDate,
+          expectedEndDate: order.plannedEndDate,
+          companyId: order.companyId,
+          createdBy: claims.userId,
+          updatedBy: claims.userId,
+        })
+        .returning({ id: batches.id, code: batches.code });
+
+      // 3. Mark first order phase as in_progress
+      if (firstPhase) {
+        await tx
+          .update(productionOrderPhases)
+          .set({
+            status: "in_progress",
+            actualStartDate: new Date().toISOString().split("T")[0],
+            batchId: batch.id,
+            updatedBy: claims.userId,
+          })
+          .where(eq(productionOrderPhases.id, firstPhase.id));
+      }
+
+      return batch;
+    });
+
+    return { success: true, data: { batchId: result.id, batchCode: result.code } };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message.includes("unique")) {
+      return { success: false, error: "Error de codigo duplicado. Intente de nuevo." };
+    }
+    throw err;
+  }
+}
+
+// ── Reject Order ──────────────────────────────────────────────────
+
+export async function rejectOrder(
+  orderId: string,
+  reason: string,
+): Promise<ActionResult> {
+  const claims = await requireAuth(["manager", "admin"]);
+
+  if (!reason || reason.trim().length < 5) {
+    return { success: false, error: "La razon debe tener al menos 5 caracteres" };
+  }
+
+  const [order] = await db
+    .select({ status: productionOrders.status })
+    .from(productionOrders)
+    .where(eq(productionOrders.id, orderId))
+    .limit(1);
+
+  if (!order) {
+    return { success: false, error: "Orden no encontrada" };
+  }
+
+  if (order.status !== "draft") {
+    return {
+      success: false,
+      error: "Solo se pueden rechazar ordenes en estado borrador",
+    };
+  }
+
+  await db
+    .update(productionOrders)
+    .set({
+      status: "cancelled",
+      notes: reason.trim(),
+      updatedBy: claims.userId,
+    })
+    .where(
+      and(
+        eq(productionOrders.id, orderId),
+        eq(productionOrders.status, "draft"),
+      ),
+    );
+
+  return { success: true };
 }

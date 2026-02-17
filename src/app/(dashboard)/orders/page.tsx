@@ -1,14 +1,12 @@
-import { ClipboardList } from "lucide-react";
-import { EmptyState } from "@/components/shared/empty-state";
+import { getOrders } from "@/lib/actions/orders";
+import { OrderList } from "./order-list";
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  const orders = await getOrders();
+
   return (
-    <div className="flex flex-1 items-center justify-center p-4 lg:p-6">
-      <EmptyState
-        icon={ClipboardList}
-        title="Ordenes"
-        description="Ordenes de produccion y seguimiento. Proximamente."
-      />
+    <div className="flex flex-1 flex-col">
+      <OrderList orders={orders} />
     </div>
   );
 }
