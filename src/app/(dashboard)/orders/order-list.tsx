@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import type { OrderListItem } from "@/lib/actions/orders";
 import { useAuthStore } from "@/stores/auth-store";
@@ -7,6 +8,7 @@ import { hasPermission } from "@/lib/auth/permissions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/shared/empty-state";
+import { cn } from "@/lib/utils/cn";
 import { ClipboardList, Plus } from "lucide-react";
 
 type Props = {
@@ -36,9 +38,27 @@ const PRIORITY_LABELS: Record<string, string> = {
   urgent: "Urgente",
 };
 
+const STATUS_FILTERS = ["", "draft", "in_progress", "completed", "cancelled"] as const;
+
 export function OrderList({ orders }: Props) {
   const role = useAuthStore((s) => s.role);
   const canCreate = role ? hasPermission(role, "create_order") : false;
+  const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    let result = orders;
+    if (statusFilter) result = result.filter((o) => o.status === statusFilter);
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (o) =>
+          o.code.toLowerCase().includes(q) ||
+          o.cultivarName.toLowerCase().includes(q),
+      );
+    }
+    return result;
+  }, [orders, statusFilter, search]);
 
   if (orders.length === 0) {
     return (
@@ -61,7 +81,12 @@ export function OrderList({ orders }: Props) {
     <div className="flex flex-1 flex-col p-4 lg:p-6">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-primary">Ordenes de Produccion</h1>
+        <div>
+          <h1 className="text-lg font-bold text-primary">Ordenes de Produccion</h1>
+          <p className="text-sm text-secondary">
+            {filtered.length} de {orders.length} orden(es)
+          </p>
+        </div>
         {canCreate && (
           <Link href="/orders/new">
             <Button icon={Plus} size="sm">
@@ -71,9 +96,35 @@ export function OrderList({ orders }: Props) {
         )}
       </div>
 
+      {/* Filters */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por codigo o cultivar..."
+          className="h-9 w-48 rounded-full border border-border bg-surface px-3 text-xs text-primary placeholder:text-tertiary focus:border-brand focus:outline-none"
+        />
+        {STATUS_FILTERS.map((status) => (
+          <button
+            key={status || "all"}
+            type="button"
+            onClick={() => setStatusFilter(status)}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              statusFilter === status
+                ? "bg-brand text-white"
+                : "bg-surface-secondary text-secondary hover:text-primary",
+            )}
+          >
+            {status ? STATUS_LABELS[status] ?? status : "Todos"}
+          </button>
+        ))}
+      </div>
+
       {/* Orders list */}
       <div className="space-y-3">
-        {orders.map((order) => (
+        {filtered.map((order) => (
           <Link
             key={order.id}
             href={`/orders/${order.id}`}
