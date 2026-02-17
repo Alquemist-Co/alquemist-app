@@ -11,8 +11,11 @@ import {
   suppliers,
   inventoryItems,
   inventoryTransactions,
+  recipes,
+  recipeExecutions,
 } from "@/lib/db/schema";
 import { createProductSchema, updateProductSchema } from "@/lib/schemas/product";
+import { createRecipeSchema, executeRecipeSchema } from "@/lib/schemas/recipe";
 import type { ActionResult } from "./types";
 
 // ── Types ─────────────────────────────────────────────────────────
@@ -777,4 +780,291 @@ export async function exportTransactionsCSV(filters?: {
   });
 
   return { success: true, data: [header, ...lines].join("\n") };
+}
+
+// ── Recipe queries (F-030) ────────────────────────────────────────
+
+export type RecipeListItem = {
+  id: string;
+  name: string;
+  code: string;
+  outputProductName: string;
+  outputProductSku: string;
+  baseQuantity: string;
+  baseUnitCode: string;
+  ingredientCount: number;
+  isActive: boolean;
+};
+
+export async function getRecipes(): Promise<RecipeListItem[]> {
+  await requireAuth();
+
+  const rows = await db.execute(sql`
+    SELECT
+      r.id, r.name, r.code,
+      p.name as "outputProductName",
+      p.sku as "outputProductSku",
+      r.base_quantity as "baseQuantity",
+      u.code as "baseUnitCode",
+      jsonb_array_length(r.items) as "ingredientCount",
+      r.is_active as "isActive"
+    FROM recipes r
+    INNER JOIN products p ON p.id = r.output_product_id
+    INNER JOIN units_of_measure u ON u.id = r.base_unit_id
+    ORDER BY r.name
+  `);
+
+  return rows as unknown as RecipeListItem[];
+}
+
+export type RecipeDetail = {
+  id: string;
+  name: string;
+  code: string;
+  outputProductId: string;
+  outputProductName: string;
+  outputProductSku: string;
+  baseQuantity: number;
+  baseUnitId: string;
+  baseUnitCode: string;
+  isActive: boolean;
+  items: RecipeItemDetail[];
+};
+
+export type RecipeItemDetail = {
+  productId: string;
+  productName: string;
+  productSku: string;
+  quantity: number;
+  unitId: string;
+  unitCode: string;
+  stockAvailable: number;
+};
+
+export async function getRecipe(id: string): Promise<RecipeDetail | null> {
+  await requireAuth();
+
+  const rows = await db.execute(sql`
+    SELECT
+      r.id, r.name, r.code,
+      r.output_product_id as "outputProductId",
+      p.name as "outputProductName",
+      p.sku as "outputProductSku",
+      r.base_quantity::float as "baseQuantity",
+      r.base_unit_id as "baseUnitId",
+      u.code as "baseUnitCode",
+      r.is_active as "isActive",
+      r.items
+    FROM recipes r
+    INNER JOIN products p ON p.id = r.output_product_id
+    INNER JOIN units_of_measure u ON u.id = r.base_unit_id
+    WHERE r.id = ${id}
+    LIMIT 1
+  `);
+
+  const row = (rows as unknown as Record<string, unknown>[])[0];
+  if (!row) return null;
+
+  const rawItems = (row.items as { productId: string; quantity: number; unitId: string }[]) ?? [];
+
+  // Enrich items with product info and stock
+  const enrichedItems: RecipeItemDetail[] = [];
+  for (const item of rawItems) {
+    const [info] = await db.execute(sql`
+      SELECT
+        p.name as "productName",
+        p.sku as "productSku",
+        u.code as "unitCode",
+        COALESCE((SELECT SUM(quantity_available)::float FROM inventory_items WHERE product_id = p.id), 0) as "stockAvailable"
+      FROM products p
+      INNER JOIN units_of_measure u ON u.id = ${item.unitId}
+      WHERE p.id = ${item.productId}
+      LIMIT 1
+    `);
+
+    const i = info as unknown as Record<string, unknown>;
+    enrichedItems.push({
+      productId: item.productId,
+      productName: (i?.productName as string) ?? "",
+      productSku: (i?.productSku as string) ?? "",
+      quantity: item.quantity,
+      unitId: item.unitId,
+      unitCode: (i?.unitCode as string) ?? "",
+      stockAvailable: (i?.stockAvailable as number) ?? 0,
+    });
+  }
+
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    code: row.code as string,
+    outputProductId: row.outputProductId as string,
+    outputProductName: row.outputProductName as string,
+    outputProductSku: row.outputProductSku as string,
+    baseQuantity: row.baseQuantity as number,
+    baseUnitId: row.baseUnitId as string,
+    baseUnitCode: row.baseUnitCode as string,
+    isActive: row.isActive as boolean,
+    items: enrichedItems,
+  };
+}
+
+// ── Recipe mutations ──────────────────────────────────────────────
+
+export async function createRecipe(input: unknown): Promise<ActionResult<{ id: string }>> {
+  const claims = await requireAuth(["manager", "admin"]);
+
+  const parsed = createRecipeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const data = parsed.data;
+
+  try {
+    const [row] = await db
+      .insert(recipes)
+      .values({
+        name: data.name,
+        code: data.code,
+        outputProductId: data.outputProductId,
+        baseQuantity: data.baseQuantity.toString(),
+        baseUnitId: data.baseUnitId,
+        items: data.items,
+        createdBy: claims.userId,
+        updatedBy: claims.userId,
+      })
+      .returning({ id: recipes.id });
+
+    revalidatePath("/inventory/recipes");
+    return { success: true, data: { id: row.id } };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message.includes("unique")) {
+      return { success: false, error: "Ya existe una receta con este codigo" };
+    }
+    throw err;
+  }
+}
+
+export async function deactivateRecipe(id: string): Promise<ActionResult> {
+  await requireAuth(["manager", "admin"]);
+
+  await db.update(recipes).set({ isActive: false }).where(eq(recipes.id, id));
+  revalidatePath("/inventory/recipes");
+  return { success: true };
+}
+
+export async function executeRecipe(input: unknown): Promise<ActionResult<{ executionId: string }>> {
+  const claims = await requireAuth(["supervisor", "manager", "admin"]);
+
+  const parsed = executeRecipeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { recipeId, scaleFactor, zoneId, batchId } = parsed.data;
+
+  // Fetch recipe
+  const [recipe] = await db
+    .select()
+    .from(recipes)
+    .where(eq(recipes.id, recipeId))
+    .limit(1);
+
+  if (!recipe) return { success: false, error: "Receta no encontrada" };
+
+  const items = recipe.items as { productId: string; quantity: number; unitId: string }[];
+
+  return db.transaction(async (tx) => {
+    // 1. Consume ingredients FIFO
+    for (const item of items) {
+      const needed = item.quantity * scaleFactor;
+      let remaining = needed;
+
+      const lots = await tx.execute(sql`
+        SELECT id, quantity_available::float as qty
+        FROM inventory_items
+        WHERE product_id = ${item.productId} AND quantity_available > 0
+        ORDER BY expiration_date ASC NULLS LAST, created_at ASC
+        FOR UPDATE
+      `);
+
+      for (const lot of lots as unknown as { id: string; qty: number }[]) {
+        if (remaining <= 0) break;
+        const consume = Math.min(remaining, lot.qty);
+
+        await tx.execute(sql`
+          UPDATE inventory_items
+          SET quantity_available = quantity_available - ${consume}
+          WHERE id = ${lot.id}
+        `);
+
+        await tx.insert(inventoryTransactions).values({
+          type: "consumption",
+          inventoryItemId: lot.id,
+          quantity: consume.toString(),
+          unitId: item.unitId,
+          zoneId,
+          batchId: batchId || null,
+          recipeExecutionId: null, // Updated below
+          userId: claims.userId,
+          reason: `Consumo para receta ${recipe.name}`,
+        });
+
+        remaining -= consume;
+      }
+
+      if (remaining > 0) {
+        return {
+          success: false as const,
+          error: `Stock insuficiente para ingrediente. Faltan ${remaining.toFixed(2)}`,
+        };
+      }
+    }
+
+    // 2. Create output
+    const outputQty = parseFloat(recipe.baseQuantity) * scaleFactor;
+
+    const [outputItem] = await tx
+      .insert(inventoryItems)
+      .values({
+        productId: recipe.outputProductId,
+        zoneId,
+        quantityAvailable: outputQty.toString(),
+        unitId: recipe.baseUnitId,
+        sourceType: "transformation",
+        lotStatus: "available",
+        createdBy: claims.userId,
+        updatedBy: claims.userId,
+      })
+      .returning({ id: inventoryItems.id });
+
+    await tx.insert(inventoryTransactions).values({
+      type: "transformation_in",
+      inventoryItemId: outputItem.id,
+      quantity: outputQty.toString(),
+      unitId: recipe.baseUnitId,
+      zoneId,
+      batchId: batchId || null,
+      userId: claims.userId,
+      reason: `Produccion via receta ${recipe.name} (x${scaleFactor})`,
+    });
+
+    // 3. Create execution record
+    const [execution] = await tx
+      .insert(recipeExecutions)
+      .values({
+        recipeId,
+        executedBy: claims.userId,
+        scaleFactor: scaleFactor.toString(),
+        outputQuantityExpected: outputQty.toString(),
+        outputQuantityActual: outputQty.toString(),
+        yieldPct: "100",
+        batchId: batchId || null,
+      })
+      .returning({ id: recipeExecutions.id });
+
+    revalidatePath("/inventory");
+    return { success: true as const, data: { executionId: execution.id } };
+  });
 }
