@@ -15,7 +15,7 @@ Configuracion de la Progressive Web App con Serwist: manifest dinamico, service 
 |----|-------|------|----------|--------|
 | US-006-001 | Configurar Serwist y service worker con precache | M | P0 | Done |
 | US-006-002 | Manifest PWA dinamico con branding Alquemist | S | P0 | Done |
-| US-006-003 | App instalable en Android e iOS | S | P0 | Planned |
+| US-006-003 | App instalable en Android e iOS | S | P0 | Done |
 | US-006-004 | Indicador permanente de estado de conexion | M | P1 | Planned |
 
 ---

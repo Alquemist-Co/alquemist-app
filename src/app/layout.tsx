@@ -16,14 +16,27 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Alquemist",
-  description: "Sistema de gestion agricola",
+  applicationName: "Alquemist",
+  title: {
+    default: "Alquemist",
+    template: "%s | Alquemist",
+  },
+  description: "Sistema de gestión agrícola integral",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Alquemist",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#005E42",
 };
 
 export default function RootLayout({
@@ -33,6 +46,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+      </head>
       <body
         className={`${dmSans.variable} ${dmMono.variable} antialiased`}
       >
