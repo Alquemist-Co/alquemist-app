@@ -381,6 +381,74 @@ export async function getBatchScheduledActivities(
     .orderBy(asc(scheduledActivities.plannedDate));
 }
 
+// ── Today's activities ───────────────────────────────────────────
+
+export type TodayActivityItem = {
+  id: string;
+  templateName: string;
+  templateCode: string;
+  activityTypeName: string;
+  batchCode: string;
+  batchId: string;
+  zoneName: string;
+  phaseName: string;
+  plannedDate: string;
+  cropDay: number;
+  status: string;
+  estimatedDurationMin: number;
+};
+
+export async function getTodayActivities(): Promise<TodayActivityItem[]> {
+  await requireAuth();
+
+  const today = new Date().toISOString().split("T")[0];
+
+  return db
+    .select({
+      id: scheduledActivities.id,
+      templateName: sql<string>`at.name`,
+      templateCode: sql<string>`at.code`,
+      activityTypeName: sql<string>`atype.name`,
+      batchCode: sql<string>`b.code`,
+      batchId: sql<string>`b.id`,
+      zoneName: sql<string>`z.name`,
+      phaseName: productionPhases.name,
+      plannedDate: scheduledActivities.plannedDate,
+      cropDay: scheduledActivities.cropDay,
+      status: scheduledActivities.status,
+      estimatedDurationMin: sql<number>`at.estimated_duration_min`,
+    })
+    .from(scheduledActivities)
+    .innerJoin(
+      sql`activity_templates at`,
+      sql`at.id = ${scheduledActivities.templateId}`,
+    )
+    .innerJoin(
+      sql`activity_types atype`,
+      sql`atype.id = at.activity_type_id`,
+    )
+    .innerJoin(
+      sql`batches b`,
+      sql`b.id = ${scheduledActivities.batchId}`,
+    )
+    .innerJoin(
+      sql`zones z`,
+      sql`z.id = b.zone_id`,
+    )
+    .innerJoin(
+      productionPhases,
+      eq(scheduledActivities.phaseId, productionPhases.id),
+    )
+    .where(
+      sql`(${scheduledActivities.plannedDate} = ${today} OR (${scheduledActivities.status} = 'overdue'))
+        AND ${scheduledActivities.status} != 'skipped'`,
+    )
+    .orderBy(
+      sql`CASE ${scheduledActivities.status} WHEN 'overdue' THEN 0 WHEN 'pending' THEN 1 WHEN 'completed' THEN 2 END`,
+      asc(scheduledActivities.plannedDate),
+    );
+}
+
 // ── Helpers ───────────────────────────────────────────────────────
 
 function addDays(date: Date, days: number): Date {

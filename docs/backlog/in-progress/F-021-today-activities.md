@@ -13,11 +13,11 @@ La pantalla de actividades de hoy es la principal herramienta del operador. Pres
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-021-001 | Timeline visual de actividades del dia | M | P0 | Planned |
-| US-021-002 | Activity cards con datos y color-coding por tipo | M | P0 | Planned |
-| US-021-003 | Quick-complete (swipe) para actividades rutinarias | M | P1 | Planned |
-| US-021-004 | Seccion sticky de actividades vencidas | S | P0 | Planned |
-| US-021-005 | Filtros: pendientes, completadas, todas | S | P1 | Planned |
+| US-021-001 | Timeline visual de actividades del dia | M | P0 | Done |
+| US-021-002 | Activity cards con datos y color-coding por tipo | M | P0 | Done |
+| US-021-003 | Quick-complete (swipe) para actividades rutinarias | M | P1 | Deferred |
+| US-021-004 | Seccion sticky de actividades vencidas | S | P0 | Done |
+| US-021-005 | Filtros: pendientes, completadas, todas | S | P1 | Done |
 
 ---
 
