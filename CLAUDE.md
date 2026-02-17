@@ -29,7 +29,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-003 Database schema | Done | 2026-02-16 |
 | F-004 Auth y middleware | Done | 2026-02-16 |
 | F-005 Layout principal | Done | 2026-02-16 |
-| F-006 PWA basica | Planned | |
+| F-006 PWA basica | In Progress | |
 | F-007 Provisioning basico de usuarios | Planned | |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
