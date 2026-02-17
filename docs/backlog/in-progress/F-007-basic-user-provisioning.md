@@ -22,7 +22,7 @@ F-061 (Gestion completa de usuarios) esta en Fase 4 (semana 17+). Las fases 1-3 
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-007-001 | Supabase Admin client helper | S | P0 | Planned |
+| US-007-001 | Supabase Admin client helper | S | P0 | Done |
 | US-007-002 | Server Action createUser | S | P0 | Planned |
 | US-007-003 | Pagina minima de creacion de usuario | S | P0 | Planned |
 
