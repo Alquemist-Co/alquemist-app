@@ -47,7 +47,7 @@
 | F-011 | Configuracion de tipos de cultivo y fases | 5 | P0 - Critical | Done | [F-011](./done/F-011-crop-types-config.md) |
 | F-012 | Configuracion de cultivares | 4 | P0 - Critical | Done | [F-012](./done/F-012-cultivar-config.md) |
 | F-013 | Crear orden de produccion — wizard 5 pasos | 6 | P0 - Critical | Done | [F-013](./done/F-013-create-production-order.md) |
-| F-014 | Aprobar/rechazar orden y crear batch | 3 | P0 - Critical | Planned | [F-014](./planned/F-014-approve-reject-order.md) |
+| F-014 | Aprobar/rechazar orden y crear batch | 3 | P0 - Critical | In Progress | [F-014](./in-progress/F-014-approve-reject-order.md) |
 | F-015 | Lista de ordenes y detalle con yield waterfall | 4 | P1 - High | Planned | [F-015](./planned/F-015-order-list-detail.md) |
 | F-016 | Lista de batches con filtros y vistas | 3 | P1 - High | Planned | [F-016](./planned/F-016-batch-list.md) |
 | F-017 | Detalle de batch con tabs | 6 | P1 - High | Planned | [F-017](./planned/F-017-batch-detail.md) |
