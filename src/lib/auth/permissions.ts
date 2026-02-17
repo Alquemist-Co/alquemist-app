@@ -47,6 +47,7 @@ export const ACTION_PERMISSIONS: Record<string, UserRole[]> = {
   // Settings / Users
   manage_users: ["admin"],
   manage_settings: ["supervisor", "manager", "admin"],
+  manage_crop_config: ["admin"],
 
   // Areas
   manage_areas: ["manager", "admin"],
