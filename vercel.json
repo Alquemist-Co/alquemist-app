@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/overdue-check",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/stock-alerts",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/expiration-check",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
