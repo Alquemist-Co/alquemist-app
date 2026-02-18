@@ -2,10 +2,15 @@ import { requireAuth } from "@/lib/auth/require-auth";
 import { getTodayActivities } from "@/lib/actions/scheduled-activities";
 import { getAlerts, getAlertCounts } from "@/lib/actions/alerts";
 import { getFacilityNameById } from "@/lib/actions/areas";
-import { getSupervisorDashboardData } from "@/lib/actions/dashboard";
+import {
+  getSupervisorDashboardData,
+  getManagerDashboardData,
+  getViewerDashboardData,
+} from "@/lib/actions/dashboard";
 import { OperatorDashboard } from "@/components/dashboard/operator-dashboard";
 import { SupervisorDashboard } from "@/components/dashboard/supervisor-dashboard";
-import { DashboardPlaceholder } from "@/components/dashboard/dashboard-placeholder";
+import { ManagerDashboard } from "@/components/dashboard/manager-dashboard";
+import { ViewerDashboard } from "@/components/dashboard/viewer-dashboard";
 
 export default async function DashboardPage() {
   const claims = await requireAuth();
@@ -37,5 +42,17 @@ export default async function DashboardPage() {
     return <SupervisorDashboard initialData={data} />;
   }
 
-  return <DashboardPlaceholder fullName={claims.fullName} role={claims.role} />;
+  if (claims.role === "manager" || claims.role === "admin") {
+    const data = await getManagerDashboardData();
+    return <ManagerDashboard initialData={data} />;
+  }
+
+  if (claims.role === "viewer") {
+    const data = await getViewerDashboardData();
+    return <ViewerDashboard initialData={data} />;
+  }
+
+  // Fallback — should not happen with 5 known roles
+  const data = await getViewerDashboardData();
+  return <ViewerDashboard initialData={data} />;
 }

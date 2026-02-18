@@ -334,6 +334,424 @@ async function getPendingAlertCount(companyId: string): Promise<number> {
   return row?.count ?? 0;
 }
 
+// ── Manager Dashboard Types ───────────────────────────────────────
+
+export type ManagerKPIs = {
+  activeOrders: number;
+  activeBatches: number;
+  avgYieldPct: number | null;
+  cogsPerGram: number | null;
+};
+
+export type OrderProgress = {
+  id: string;
+  code: string;
+  cultivarName: string;
+  status: string;
+  priority: string;
+  phasesTotal: number;
+  phasesCompleted: number;
+  progressPct: number;
+  plannedEndDate: string | null;
+  daysRemaining: number | null;
+};
+
+export type CostDistribution = {
+  materials: number;
+  labor: number;
+  overhead: number;
+  total: number;
+};
+
+export type YieldComparison = {
+  orderCode: string;
+  cultivarName: string;
+  yieldReal: number | null;
+  yieldExpected: number | null;
+};
+
+export type ManagerDashboardData = {
+  facilities: FacilityItem[];
+  kpis: ManagerKPIs;
+  orders: OrderProgress[];
+  costDistribution: CostDistribution;
+  yieldComparison: YieldComparison[];
+};
+
+// ── Viewer Dashboard Types ────────────────────────────────────────
+
+export type ViewerKPIs = {
+  activeOrders: number;
+  activeBatches: number;
+  avgYieldPct: number | null;
+  qualityPassRate: number | null;
+};
+
+export type ViewerOrderStatus = {
+  code: string;
+  cultivarName: string;
+  status: string;
+  progressPct: number;
+  expectedEndDate: string | null;
+};
+
+export type ViewerDashboardData = {
+  facilities: FacilityItem[];
+  kpis: ViewerKPIs;
+  orders: ViewerOrderStatus[];
+  overallYieldReal: number | null;
+  overallYieldExpected: number | null;
+};
+
+// ── Manager Queries ───────────────────────────────────────────────
+
+async function getManagerKPIs(
+  companyId: string,
+  facilityId?: string,
+): Promise<ManagerKPIs> {
+  const facilityFilter = facilityId
+    ? sql`AND z.facility_id = ${facilityId}`
+    : sql``;
+
+  const [row] = (await db.execute(sql`
+    SELECT
+      (SELECT COUNT(*)::int FROM production_orders po
+       INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+       INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+       WHERE ct.company_id = ${companyId}
+         AND po.status IN ('approved', 'in_progress')) AS active_orders,
+      (SELECT COUNT(*)::int FROM batches b
+       INNER JOIN zones z ON b.zone_id = z.id
+       INNER JOIN facilities f ON z.facility_id = f.id
+       WHERE f.company_id = ${companyId}
+         AND b.status = 'active'
+         ${facilityFilter}) AS active_batches,
+      (SELECT AVG(pop.yield_pct)
+       FROM production_order_phases pop
+       INNER JOIN production_orders po ON pop.production_order_id = po.id
+       INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+       INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+       WHERE ct.company_id = ${companyId}
+         AND pop.yield_pct IS NOT NULL) AS avg_yield_pct
+  `)) as unknown as {
+    active_orders: number;
+    active_batches: number;
+    avg_yield_pct: string | null;
+  }[];
+
+  return {
+    activeOrders: row?.active_orders ?? 0,
+    activeBatches: row?.active_batches ?? 0,
+    avgYieldPct: row?.avg_yield_pct ? parseFloat(row.avg_yield_pct) : null,
+    cogsPerGram: null, // Would need batch-level COGS aggregation — simplified for now
+  };
+}
+
+async function getOrdersProgress(
+  companyId: string,
+  facilityId?: string,
+): Promise<OrderProgress[]> {
+  const rows = await db.execute(sql`
+    SELECT
+      po.id,
+      po.code,
+      cv.name AS cultivar_name,
+      po.status,
+      po.priority,
+      po.planned_end_date,
+      COUNT(pop.id)::int AS phases_total,
+      COUNT(pop.id) FILTER (WHERE pop.status = 'completed')::int AS phases_completed
+    FROM production_orders po
+    INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+    INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+    LEFT JOIN production_order_phases pop ON pop.production_order_id = po.id
+    WHERE ct.company_id = ${companyId}
+      AND po.status IN ('approved', 'in_progress')
+    GROUP BY po.id, cv.name
+    ORDER BY
+      CASE po.priority WHEN 'urgent' THEN 0 WHEN 'high' THEN 1 WHEN 'normal' THEN 2 ELSE 3 END,
+      po.created_at DESC
+    LIMIT 10
+  `);
+
+  const today = new Date();
+
+  return (
+    rows as unknown as {
+      id: string;
+      code: string;
+      cultivar_name: string;
+      status: string;
+      priority: string;
+      planned_end_date: string | null;
+      phases_total: number;
+      phases_completed: number;
+    }[]
+  ).map((r) => {
+    const phasesTotal = r.phases_total || 1;
+    let daysRemaining: number | null = null;
+    if (r.planned_end_date) {
+      const end = new Date(r.planned_end_date);
+      daysRemaining = Math.ceil(
+        (end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+      );
+    }
+    return {
+      id: r.id,
+      code: r.code,
+      cultivarName: r.cultivar_name,
+      status: r.status,
+      priority: r.priority,
+      phasesTotal,
+      phasesCompleted: r.phases_completed,
+      progressPct: Math.round((r.phases_completed / phasesTotal) * 100),
+      plannedEndDate: r.planned_end_date,
+      daysRemaining,
+    };
+  });
+}
+
+async function getCostDistributionInternal(
+  companyId: string,
+): Promise<CostDistribution> {
+  const [row] = (await db.execute(sql`
+    SELECT
+      COALESCE((
+        SELECT SUM(ABS(it.cost::numeric))
+        FROM inventory_transactions it
+        INNER JOIN batches b ON it.batch_id = b.id
+        INNER JOIN zones z ON b.zone_id = z.id
+        INNER JOIN facilities f ON z.facility_id = f.id
+        WHERE f.company_id = ${companyId}
+          AND it.type IN ('consumption', 'application')
+      ), 0) AS materials,
+      COALESCE((
+        SELECT SUM(EXTRACT(EPOCH FROM (a.completed_at - a.started_at)) / 3600) * 15
+        FROM activities a
+        INNER JOIN batches b ON a.batch_id = b.id
+        INNER JOIN zones z ON b.zone_id = z.id
+        INNER JOIN facilities f ON z.facility_id = f.id
+        WHERE f.company_id = ${companyId}
+          AND a.completed_at IS NOT NULL
+      ), 0) AS labor,
+      COALESCE((
+        SELECT SUM(oc.amount::numeric)
+        FROM overhead_costs oc
+        INNER JOIN facilities f ON oc.facility_id = f.id
+        WHERE f.company_id = ${companyId}
+      ), 0) AS overhead
+  `)) as unknown as {
+    materials: string;
+    labor: string;
+    overhead: string;
+  }[];
+
+  const materials = parseFloat(row?.materials ?? "0");
+  const labor = parseFloat(row?.labor ?? "0");
+  const overhead = parseFloat(row?.overhead ?? "0");
+
+  return {
+    materials,
+    labor,
+    overhead,
+    total: materials + labor + overhead,
+  };
+}
+
+async function getYieldComparisonInternal(
+  companyId: string,
+): Promise<YieldComparison[]> {
+  const rows = await db.execute(sql`
+    SELECT
+      po.code AS order_code,
+      cv.name AS cultivar_name,
+      AVG(pop.yield_pct) AS yield_real,
+      AVG(ppf.expected_yield_pct::numeric) AS yield_expected
+    FROM production_orders po
+    INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+    INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+    LEFT JOIN production_order_phases pop ON pop.production_order_id = po.id
+    LEFT JOIN phase_product_flows ppf ON ppf.phase_id = pop.phase_id
+      AND ppf.direction = 'output'
+    WHERE ct.company_id = ${companyId}
+      AND po.status IN ('approved', 'in_progress', 'completed')
+    GROUP BY po.id, po.code, cv.name
+    ORDER BY po.created_at DESC
+    LIMIT 8
+  `);
+
+  return (
+    rows as unknown as {
+      order_code: string;
+      cultivar_name: string;
+      yield_real: string | null;
+      yield_expected: string | null;
+    }[]
+  ).map((r) => ({
+    orderCode: r.order_code,
+    cultivarName: r.cultivar_name,
+    yieldReal: r.yield_real ? parseFloat(r.yield_real) : null,
+    yieldExpected: r.yield_expected ? parseFloat(r.yield_expected) : null,
+  }));
+}
+
+export async function getManagerDashboardData(
+  facilityId?: string,
+): Promise<ManagerDashboardData> {
+  const claims = await requireAuth();
+
+  const [facilities, kpis, orders, costDistribution, yieldComparison] =
+    await Promise.all([
+      getFacilitiesInternal(claims.companyId),
+      getManagerKPIs(claims.companyId, facilityId),
+      getOrdersProgress(claims.companyId, facilityId),
+      getCostDistributionInternal(claims.companyId),
+      getYieldComparisonInternal(claims.companyId),
+    ]);
+
+  return { facilities, kpis, orders, costDistribution, yieldComparison };
+}
+
+// ── Viewer Queries ────────────────────────────────────────────────
+
+async function getViewerKPIs(companyId: string): Promise<ViewerKPIs> {
+  const [row] = (await db.execute(sql`
+    SELECT
+      (SELECT COUNT(*)::int FROM production_orders po
+       INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+       INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+       WHERE ct.company_id = ${companyId}
+         AND po.status IN ('approved', 'in_progress')) AS active_orders,
+      (SELECT COUNT(*)::int FROM batches b
+       INNER JOIN zones z ON b.zone_id = z.id
+       INNER JOIN facilities f ON z.facility_id = f.id
+       WHERE f.company_id = ${companyId}
+         AND b.status = 'active') AS active_batches,
+      (SELECT AVG(pop.yield_pct)
+       FROM production_order_phases pop
+       INNER JOIN production_orders po ON pop.production_order_id = po.id
+       INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+       INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+       WHERE ct.company_id = ${companyId}
+         AND pop.yield_pct IS NOT NULL) AS avg_yield_pct,
+      (SELECT CASE WHEN COUNT(*) > 0
+        THEN ROUND(COUNT(*) FILTER (WHERE overall_pass = true)::numeric / COUNT(*) * 100, 1)
+        ELSE NULL END
+       FROM quality_tests qt
+       INNER JOIN batches b ON qt.batch_id = b.id
+       INNER JOIN zones z ON b.zone_id = z.id
+       INNER JOIN facilities f ON z.facility_id = f.id
+       WHERE f.company_id = ${companyId}
+         AND qt.status = 'completed') AS quality_pass_rate
+  `)) as unknown as {
+    active_orders: number;
+    active_batches: number;
+    avg_yield_pct: string | null;
+    quality_pass_rate: string | null;
+  }[];
+
+  return {
+    activeOrders: row?.active_orders ?? 0,
+    activeBatches: row?.active_batches ?? 0,
+    avgYieldPct: row?.avg_yield_pct ? parseFloat(row.avg_yield_pct) : null,
+    qualityPassRate: row?.quality_pass_rate
+      ? parseFloat(row.quality_pass_rate)
+      : null,
+  };
+}
+
+async function getViewerOrders(
+  companyId: string,
+): Promise<ViewerOrderStatus[]> {
+  const rows = await db.execute(sql`
+    SELECT
+      po.code,
+      cv.name AS cultivar_name,
+      po.status,
+      po.planned_end_date,
+      COUNT(pop.id)::int AS phases_total,
+      COUNT(pop.id) FILTER (WHERE pop.status = 'completed')::int AS phases_completed
+    FROM production_orders po
+    INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+    INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+    LEFT JOIN production_order_phases pop ON pop.production_order_id = po.id
+    WHERE ct.company_id = ${companyId}
+      AND po.status IN ('approved', 'in_progress', 'completed')
+    GROUP BY po.id, cv.name
+    ORDER BY po.created_at DESC
+    LIMIT 10
+  `);
+
+  return (
+    rows as unknown as {
+      code: string;
+      cultivar_name: string;
+      status: string;
+      planned_end_date: string | null;
+      phases_total: number;
+      phases_completed: number;
+    }[]
+  ).map((r) => {
+    const total = r.phases_total || 1;
+    return {
+      code: r.code,
+      cultivarName: r.cultivar_name,
+      status: r.status,
+      progressPct: Math.round((r.phases_completed / total) * 100),
+      expectedEndDate: r.planned_end_date,
+    };
+  });
+}
+
+async function getOverallYields(
+  companyId: string,
+): Promise<{ real: number | null; expected: number | null }> {
+  const [row] = (await db.execute(sql`
+    SELECT
+      AVG(pop.yield_pct) AS yield_real,
+      AVG(ppf.expected_yield_pct::numeric) AS yield_expected
+    FROM production_order_phases pop
+    INNER JOIN production_orders po ON pop.production_order_id = po.id
+    INNER JOIN cultivars cv ON po.cultivar_id = cv.id
+    INNER JOIN crop_types ct ON cv.crop_type_id = ct.id
+    LEFT JOIN phase_product_flows ppf ON ppf.phase_id = pop.phase_id
+      AND ppf.direction = 'output'
+    WHERE ct.company_id = ${companyId}
+      AND pop.yield_pct IS NOT NULL
+  `)) as unknown as {
+    yield_real: string | null;
+    yield_expected: string | null;
+  }[];
+
+  return {
+    real: row?.yield_real ? parseFloat(row.yield_real) : null,
+    expected: row?.yield_expected ? parseFloat(row.yield_expected) : null,
+  };
+}
+
+export async function getViewerDashboardData(
+  facilityId?: string,
+): Promise<ViewerDashboardData> {
+  const claims = await requireAuth();
+
+  const [facilities, kpis, orders, yields] = await Promise.all([
+    getFacilitiesInternal(claims.companyId),
+    getViewerKPIs(claims.companyId),
+    getViewerOrders(claims.companyId),
+    getOverallYields(claims.companyId),
+  ]);
+
+  return {
+    facilities,
+    kpis,
+    orders,
+    overallYieldReal: yields.real,
+    overallYieldExpected: yields.expected,
+  };
+}
+
+// ── Supervisor Queries (existing) ─────────────────────────────────
+
 export async function getSupervisorDashboardData(
   facilityId?: string,
 ): Promise<SupervisorDashboardData> {
