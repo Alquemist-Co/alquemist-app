@@ -64,7 +64,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-049 Offline completo | Done | 2026-02-16 |
 | F-050 Supabase Realtime | Done | 2026-02-16 |
 | F-056 Dashboard operador | Done | 2026-02-17 |
-| F-057 Dashboard supervisor | In Progress | — |
+| F-057 Dashboard supervisor | Done | 2026-02-18 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.

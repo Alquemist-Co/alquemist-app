@@ -12,12 +12,12 @@ Dashboard orientado a supervision que proporciona vision global del estado de zo
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-057-001 | Header con titulo, stats de zonas y filtro por facility | S | P0 | Planned |
-| US-057-002 | Stats strip de supervision | S | P0 | Planned |
-| US-057-003 | Grid de zonas con health indicator y sparklines | L | P0 | Planned |
-| US-057-004 | Panel de equipo con progreso de operadores | M | P1 | Planned |
-| US-057-005 | Timeline de actividades por hora | M | P1 | Planned |
-| US-057-006 | Quick actions del supervisor | S | P1 | Planned |
+| US-057-001 | Header con titulo, stats de zonas y filtro por facility | S | P0 | Done |
+| US-057-002 | Stats strip de supervision | S | P0 | Done |
+| US-057-003 | Grid de zonas con health indicator y sparklines | L | P0 | Done |
+| US-057-004 | Panel de equipo con progreso de operadores | M | P1 | Done |
+| US-057-005 | Timeline de actividades por hora | M | P1 | Done |
+| US-057-006 | Quick actions del supervisor | S | P1 | Done |
 
 ---
 

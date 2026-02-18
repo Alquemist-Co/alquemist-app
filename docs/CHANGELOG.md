@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-02-18
+
+### Fase 4: Polish y Lanzamiento — Continuacion
+
+#### F-057: Dashboard Supervisor — Done
+- US-057-001: Header "Supervision" con subtitulo de zonas/batches y facility select (oculto si solo 1)
+- US-057-002: 4 StatCards (batches activos, hoy, completadas, vencidas) con tap-to-filter
+- US-057-003: Grid de zonas con health indicator (verde/amarillo/rojo/gris), env readings compactos y occupancy
+- US-057-004: Panel de equipo con avatar iniciales, nombre, badge activo/inactivo (lastLoginAt < 2h)
+- US-057-005: Actividades agrupadas por status (overdue/pending/completed) con filter desde stats
+- US-057-006: Quick actions bar con links a nueva orden, actividades y centro de alertas
+- **Server actions**: `dashboard.ts` con queries agregadas para operators, zone alerts, active batches, activities filtradas por facility, conditions ambientales — todo en `getSupervisorDashboardData()` con `Promise.all`
+- **Arquitectura**: Client-side facility filter con `useTransition` para refetch non-blocking, reutiliza `PullToRefresh` de F-056
+- **Decisiones tecnicas**: Sin sparklines (O(N) queries por zona demasiado costoso — latest readings como texto), sin timeline por hora (planned_date no tiene componente hora), sin progreso por operador (assigned_to no existe en scheduled_activities)
+- 8 archivos nuevos: 7 componentes en `src/components/dashboard/` + `src/lib/actions/dashboard.ts`
+
+---
+
 ## 2026-02-17
 
 ### Fase 4: Polish y Lanzamiento — Iniciada
