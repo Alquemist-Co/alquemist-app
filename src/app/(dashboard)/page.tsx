@@ -2,7 +2,9 @@ import { requireAuth } from "@/lib/auth/require-auth";
 import { getTodayActivities } from "@/lib/actions/scheduled-activities";
 import { getAlerts, getAlertCounts } from "@/lib/actions/alerts";
 import { getFacilityNameById } from "@/lib/actions/areas";
+import { getSupervisorDashboardData } from "@/lib/actions/dashboard";
 import { OperatorDashboard } from "@/components/dashboard/operator-dashboard";
+import { SupervisorDashboard } from "@/components/dashboard/supervisor-dashboard";
 import { DashboardPlaceholder } from "@/components/dashboard/dashboard-placeholder";
 
 export default async function DashboardPage() {
@@ -28,6 +30,11 @@ export default async function DashboardPage() {
         alertCount={alertCounts.pending}
       />
     );
+  }
+
+  if (claims.role === "supervisor") {
+    const data = await getSupervisorDashboardData();
+    return <SupervisorDashboard initialData={data} />;
   }
 
   return <DashboardPlaceholder fullName={claims.fullName} role={claims.role} />;
