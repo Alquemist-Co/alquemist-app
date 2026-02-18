@@ -11,6 +11,7 @@ import {
   FolderTree,
   Activity,
   Building,
+  Calendar,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
@@ -44,6 +45,12 @@ const SETTINGS_LINKS = [
     icon: Zap,
     title: "Templates de actividad",
     description: "Recetas reutilizables con recursos, checklist y fases",
+  },
+  {
+    href: "/settings/schedules",
+    icon: Calendar,
+    title: "Planes de cultivo",
+    description: "Blueprints de actividades automaticas por cultivar y fase",
   },
   {
     href: "/settings/activity-types",
