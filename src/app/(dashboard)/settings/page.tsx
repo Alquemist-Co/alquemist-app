@@ -1,8 +1,32 @@
 import Link from "next/link";
-import { Sprout, FlaskConical, Users, Zap } from "lucide-react";
+import {
+  Sprout,
+  FlaskConical,
+  Users,
+  Zap,
+  Building2,
+  Map,
+  Truck,
+  Ruler,
+  FolderTree,
+  Activity,
+  Building,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const SETTINGS_LINKS = [
+  {
+    href: "/settings/facilities",
+    icon: Building2,
+    title: "Facilities",
+    description: "Invernaderos, bodegas y campos de cultivo",
+  },
+  {
+    href: "/settings/zones",
+    icon: Map,
+    title: "Zonas",
+    description: "Zonas dentro de cada facility con proposito y ambiente",
+  },
   {
     href: "/settings/crop-types",
     icon: Sprout,
@@ -22,10 +46,40 @@ const SETTINGS_LINKS = [
     description: "Recetas reutilizables con recursos, checklist y fases",
   },
   {
-    href: "/settings/users/new",
+    href: "/settings/activity-types",
+    icon: Activity,
+    title: "Tipos de actividad",
+    description: "Clasificacion de actividades para templates y reportes",
+  },
+  {
+    href: "/settings/categories",
+    icon: FolderTree,
+    title: "Categorias de recursos",
+    description: "Categorias jerarquicas para productos e inventario",
+  },
+  {
+    href: "/settings/units",
+    icon: Ruler,
+    title: "Unidades de medida",
+    description: "Unidades con conversiones y dimensiones",
+  },
+  {
+    href: "/settings/suppliers",
+    icon: Truck,
+    title: "Proveedores",
+    description: "Proveedores de insumos y materiales",
+  },
+  {
+    href: "/settings/users",
     icon: Users,
     title: "Usuarios",
     description: "Crear y gestionar usuarios del sistema",
+  },
+  {
+    href: "/settings/company",
+    icon: Building,
+    title: "Empresa",
+    description: "Datos de la empresa, zona horaria y moneda",
   },
 ];
 
