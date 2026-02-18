@@ -14,10 +14,10 @@ Permite al administrador y gerente crear, editar, listar y desactivar zonas (zon
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-071-001 | Lista de zonas con filtros por facility y status | S | P0 | Planned |
-| US-071-002 | Crear y editar zona | M | P0 | Planned |
-| US-071-003 | Gestionar estructuras de zona (sub-CRUD) | M | P1 | Planned |
-| US-071-004 | Desactivar zona con validacion de batches activos | S | P1 | Planned |
+| US-071-001 | Lista de zonas con filtros por facility y status | S | P0 | Done |
+| US-071-002 | Crear y editar zona | M | P0 | Done |
+| US-071-003 | Gestionar estructuras de zona (sub-CRUD) | M | P1 | Done |
+| US-071-004 | Desactivar zona con validacion de batches activos | S | P1 | Done |
 
 ---
 

@@ -8,7 +8,7 @@
 - **Total stories**: 278
 - **Fases**: 6 (0-5)
 - **Semanas**: 20+
-- **Planned**: 60 | **In Progress**: 0 | **Done**: 218
+- **Planned**: 34 | **In Progress**: 0 | **Done**: 244
 
 ## Resumen por Fase
 
@@ -124,14 +124,14 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-070 | CRUD de Facilities | 3 | P1 - High | Planned | [F-070](./planned/F-070-facility-crud.md) |
-| F-071 | CRUD de Zonas | 4 | P1 - High | Planned | [F-071](./planned/F-071-zone-crud.md) |
-| F-072 | CRUD de Proveedores | 3 | P1 - High | Planned | [F-072](./planned/F-072-supplier-crud.md) |
-| F-073 | Gestion de Unidades de Medida | 3 | P1 - High | Planned | [F-073](./planned/F-073-units-management.md) |
-| F-074 | Gestion de Categorias de Recursos | 3 | P1 - High | Planned | [F-074](./planned/F-074-category-management.md) |
-| F-075 | CRUD de Tipos de Actividad | 2 | P1 - High | Planned | [F-075](./planned/F-075-activity-types-crud.md) |
-| F-076 | CRUD de Cultivation Schedules | 5 | P0 - Critical | Planned | [F-076](./planned/F-076-cultivation-schedules.md) |
-| F-077 | Configuracion de Empresa | 3 | P1 - High | Planned | [F-077](./planned/F-077-company-settings.md) |
+| F-070 | CRUD de Facilities | 3 | P1 - High | Done | [F-070](./done/F-070-facility-crud.md) |
+| F-071 | CRUD de Zonas | 4 | P1 - High | Done | [F-071](./done/F-071-zone-crud.md) |
+| F-072 | CRUD de Proveedores | 3 | P1 - High | Done | [F-072](./done/F-072-supplier-crud.md) |
+| F-073 | Gestion de Unidades de Medida | 3 | P1 - High | Done | [F-073](./done/F-073-units-management.md) |
+| F-074 | Gestion de Categorias de Recursos | 3 | P1 - High | Done | [F-074](./done/F-074-category-management.md) |
+| F-075 | CRUD de Tipos de Actividad | 2 | P1 - High | Done | [F-075](./done/F-075-activity-types-crud.md) |
+| F-076 | CRUD de Cultivation Schedules | 5 | P0 - Critical | Done | [F-076](./done/F-076-cultivation-schedules.md) |
+| F-077 | Configuracion de Empresa | 3 | P1 - High | Done | [F-077](./done/F-077-company-settings.md) |
 
 ### Bloque B: Flujos Operacionales
 

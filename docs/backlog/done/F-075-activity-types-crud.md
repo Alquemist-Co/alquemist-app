@@ -12,8 +12,8 @@ Permite al administrador crear, editar, listar y desactivar tipos de actividad (
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-075-001 | Lista de tipos de actividad | S | P0 | Planned |
-| US-075-002 | Crear, editar y desactivar tipo de actividad | S | P0 | Planned |
+| US-075-001 | Lista de tipos de actividad | S | P0 | Done |
+| US-075-002 | Crear, editar y desactivar tipo de actividad | S | P0 | Done |
 
 ---
 

@@ -13,9 +13,9 @@ Permite al administrador crear, editar, listar y desactivar instalaciones (facil
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-070-001 | Lista de facilities con stats derivados | S | P0 | Planned |
-| US-070-002 | Crear y editar facility | M | P0 | Planned |
-| US-070-003 | Desactivar facility con validacion de zonas activas | S | P1 | Planned |
+| US-070-001 | Lista de facilities con stats derivados | S | P0 | Done |
+| US-070-002 | Crear y editar facility | M | P0 | Done |
+| US-070-003 | Desactivar facility con validacion de zonas activas | S | P1 | Done |
 
 ---
 

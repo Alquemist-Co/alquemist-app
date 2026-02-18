@@ -13,9 +13,9 @@ Permite al administrador gestionar el catalogo jerarquico de categorias de recur
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-074-001 | Lista jerarquica de categorias | S | P0 | Planned |
-| US-074-002 | Crear y editar categoria con selector de padre | M | P0 | Planned |
-| US-074-003 | Desactivar categoria con validacion de productos | S | P1 | Planned |
+| US-074-001 | Lista jerarquica de categorias | S | P0 | Done |
+| US-074-002 | Crear y editar categoria con selector de padre | M | P0 | Done |
+| US-074-003 | Desactivar categoria con validacion de productos | S | P1 | Done |
 
 ---
 

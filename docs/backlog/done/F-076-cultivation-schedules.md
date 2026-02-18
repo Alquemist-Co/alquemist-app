@@ -18,11 +18,11 @@ Referencia: flujos PROD-F01 y ACT-F02 en `docs/alquemist-user-flows.md`.
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-076-001 | Lista de cultivation schedules | S | P0 | Planned |
-| US-076-002 | Crear cultivation schedule (wizard) | L | P0 | Planned |
-| US-076-003 | Editar configuracion de fases y templates | M | P0 | Planned |
-| US-076-004 | Preview de actividades generadas | S | P1 | Planned |
-| US-076-005 | Desactivar schedule con validacion de batches | S | P1 | Planned |
+| US-076-001 | Lista de cultivation schedules | S | P0 | Done |
+| US-076-002 | Crear cultivation schedule (wizard) | L | P0 | Done |
+| US-076-003 | Editar configuracion de fases y templates | M | P0 | Done |
+| US-076-004 | Preview de actividades generadas | S | P1 | Done |
+| US-076-005 | Desactivar schedule con validacion de batches | S | P1 | Done |
 
 ---
 

@@ -14,9 +14,9 @@ Permite al administrador y gerente crear, editar, listar y desactivar proveedore
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-072-001 | Lista de proveedores con busqueda | S | P0 | Planned |
-| US-072-002 | Crear y editar proveedor | S | P0 | Planned |
-| US-072-003 | Desactivar proveedor con validacion | S | P1 | Planned |
+| US-072-001 | Lista de proveedores con busqueda | S | P0 | Done |
+| US-072-002 | Crear y editar proveedor | S | P0 | Done |
+| US-072-003 | Desactivar proveedor con validacion | S | P1 | Done |
 
 ---
 

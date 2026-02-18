@@ -13,9 +13,9 @@ Permite al administrador gestionar el catalogo de unidades de medida (units_of_m
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-073-001 | Lista de unidades agrupadas por dimension | S | P0 | Planned |
-| US-073-002 | Crear y editar unidad de medida | S | P0 | Planned |
-| US-073-003 | Validacion de conversiones misma dimension | S | P1 | Planned |
+| US-073-001 | Lista de unidades agrupadas por dimension | S | P0 | Done |
+| US-073-002 | Crear y editar unidad de medida | S | P0 | Done |
+| US-073-003 | Validacion de conversiones misma dimension | S | P1 | Done |
 
 ---
 

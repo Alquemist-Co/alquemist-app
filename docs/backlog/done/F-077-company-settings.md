@@ -16,9 +16,9 @@ Referencia: flujo SYS-F01 en `docs/alquemist-user-flows.md`.
 
 | ID | Story | Size | Priority | Status |
 |----|-------|------|----------|--------|
-| US-077-001 | Ver configuracion actual de la empresa | S | P0 | Planned |
-| US-077-002 | Editar datos basicos de la empresa | M | P0 | Planned |
-| US-077-003 | Gestionar features habilitados | S | P1 | Planned |
+| US-077-001 | Ver configuracion actual de la empresa | S | P0 | Done |
+| US-077-002 | Editar datos basicos de la empresa | M | P0 | Done |
+| US-077-003 | Gestionar features habilitados | S | P1 | Done |
 
 ---
 
