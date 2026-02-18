@@ -13,6 +13,7 @@ import {
   inventoryTransactions,
   recipes,
   recipeExecutions,
+  zones,
 } from "@/lib/db/schema";
 import { createProductSchema, updateProductSchema } from "@/lib/schemas/product";
 import { createRecipeSchema, executeRecipeSchema } from "@/lib/schemas/recipe";
@@ -1206,6 +1207,310 @@ export async function executeTransformation(input: unknown): Promise<ActionResul
 
     revalidatePath("/inventory");
     revalidatePath(`/batches/${batchId}`);
+    return { success: true as const };
+  });
+}
+
+// ────────────────────────────── Lot & Zone options for dialogs ──────────────────────────────
+
+export type LotOption = {
+  id: string;
+  productName: string;
+  batchNumber: string | null;
+  zoneName: string | null;
+  zoneId: string | null;
+  available: number;
+  unitCode: string;
+};
+
+export async function getLotOptions(): Promise<LotOption[]> {
+  await requireAuth();
+
+  const rows = await db
+    .select({
+      id: inventoryItems.id,
+      productName: products.name,
+      batchNumber: inventoryItems.batchNumber,
+      zoneName: zones.name,
+      zoneId: inventoryItems.zoneId,
+      available: inventoryItems.quantityAvailable,
+      unitCode: unitsOfMeasure.code,
+    })
+    .from(inventoryItems)
+    .innerJoin(products, eq(inventoryItems.productId, products.id))
+    .innerJoin(unitsOfMeasure, eq(inventoryItems.unitId, unitsOfMeasure.id))
+    .leftJoin(zones, eq(inventoryItems.zoneId, zones.id))
+    .where(
+      and(
+        sql`${inventoryItems.lotStatus} != 'depleted'`,
+        sql`${inventoryItems.lotStatus} != 'quarantine'`,
+      ),
+    )
+    .orderBy(products.name);
+
+  return rows.map((r) => ({
+    ...r,
+    available: Number(r.available),
+  }));
+}
+
+export async function getZoneOptions(): Promise<{ id: string; name: string }[]> {
+  await requireAuth();
+
+  return db
+    .select({ id: zones.id, name: zones.name })
+    .from(zones)
+    .where(eq(zones.status, "active"))
+    .orderBy(zones.name);
+}
+
+// ────────────────────────────── Stock Transfer (F-080) ──────────────────────────────
+
+export async function transferStock(input: {
+  inventoryItemId: string;
+  quantity: number;
+  destinationZoneId: string;
+  reason?: string;
+}): Promise<ActionResult> {
+  const claims = await requireAuth(["supervisor", "manager", "admin"]);
+
+  const { inventoryItemId, quantity, destinationZoneId, reason } = input;
+  if (quantity <= 0) return { success: false, error: "Cantidad debe ser positiva" };
+
+  return db.transaction(async (tx) => {
+    // Lock source item
+    const [src] = await tx.execute(sql`
+      SELECT id, product_id, zone_id, quantity_available, unit_id, cost_per_unit,
+             batch_number, supplier_lot_number, expiration_date, source_type, lot_status
+      FROM inventory_items WHERE id = ${inventoryItemId} FOR UPDATE
+    `);
+    const item = src as unknown as {
+      id: string; product_id: string; zone_id: string | null;
+      quantity_available: string; unit_id: string; cost_per_unit: string | null;
+      batch_number: string | null; supplier_lot_number: string | null;
+      expiration_date: string | null; source_type: string; lot_status: string;
+    };
+
+    if (!item) return { success: false as const, error: "Lote no encontrado" };
+    if (item.lot_status === "quarantine") return { success: false as const, error: "Lote en cuarentena" };
+    if (item.lot_status === "depleted") return { success: false as const, error: "Lote agotado" };
+    if (item.zone_id === destinationZoneId) return { success: false as const, error: "Zona destino es la misma que la origen" };
+
+    const available = Number(item.quantity_available);
+    if (quantity > available) return { success: false as const, error: `Solo hay ${available} disponibles` };
+
+    // Deduct from source
+    const newAvailable = available - quantity;
+    await tx
+      .update(inventoryItems)
+      .set({
+        quantityAvailable: newAvailable.toString(),
+        lotStatus: newAvailable <= 0 ? "depleted" : item.lot_status as "available",
+        updatedBy: claims.userId,
+      })
+      .where(eq(inventoryItems.id, inventoryItemId));
+
+    // Find or create destination item
+    const [existing] = await tx.execute(sql`
+      SELECT id, quantity_available FROM inventory_items
+      WHERE product_id = ${item.product_id}
+        AND zone_id = ${destinationZoneId}
+        AND unit_id = ${item.unit_id}
+        AND lot_status = 'available'
+        AND (batch_number = ${item.batch_number} OR (batch_number IS NULL AND ${item.batch_number} IS NULL))
+      LIMIT 1
+      FOR UPDATE
+    `);
+    const dest = existing as unknown as { id: string; quantity_available: string } | undefined;
+
+    let destItemId: string;
+    if (dest) {
+      destItemId = dest.id;
+      await tx
+        .update(inventoryItems)
+        .set({
+          quantityAvailable: (Number(dest.quantity_available) + quantity).toString(),
+          updatedBy: claims.userId,
+        })
+        .where(eq(inventoryItems.id, dest.id));
+    } else {
+      const [created] = await tx
+        .insert(inventoryItems)
+        .values({
+          productId: item.product_id,
+          zoneId: destinationZoneId,
+          quantityAvailable: quantity.toString(),
+          unitId: item.unit_id,
+          batchNumber: item.batch_number,
+          supplierLotNumber: item.supplier_lot_number,
+          costPerUnit: item.cost_per_unit,
+          expirationDate: item.expiration_date,
+          sourceType: item.source_type as "purchase",
+          lotStatus: "available",
+          createdBy: claims.userId,
+          updatedBy: claims.userId,
+        })
+        .returning({ id: inventoryItems.id });
+      destItemId = created.id;
+    }
+
+    // Create paired transactions
+    const [txOut] = await tx
+      .insert(inventoryTransactions)
+      .values({
+        type: "transfer_out",
+        inventoryItemId,
+        quantity: quantity.toString(),
+        unitId: item.unit_id,
+        zoneId: item.zone_id,
+        targetItemId: destItemId,
+        costPerUnit: item.cost_per_unit,
+        costTotal: item.cost_per_unit ? (quantity * Number(item.cost_per_unit)).toString() : null,
+        userId: claims.userId,
+        reason: reason || "Transferencia entre zonas",
+      })
+      .returning({ id: inventoryTransactions.id });
+
+    await tx.insert(inventoryTransactions).values({
+      type: "transfer_in",
+      inventoryItemId: destItemId,
+      quantity: quantity.toString(),
+      unitId: item.unit_id,
+      zoneId: destinationZoneId,
+      relatedTransactionId: txOut.id,
+      costPerUnit: item.cost_per_unit,
+      costTotal: item.cost_per_unit ? (quantity * Number(item.cost_per_unit)).toString() : null,
+      userId: claims.userId,
+      reason: reason || "Transferencia entre zonas",
+    });
+
+    revalidatePath("/inventory");
+    return { success: true as const };
+  });
+}
+
+// ────────────────────────────── Stock Adjustment (F-081) ──────────────────────────────
+
+export async function adjustStock(input: {
+  inventoryItemId: string;
+  adjustmentType: "positive" | "negative";
+  quantity: number;
+  reason: string;
+}): Promise<ActionResult> {
+  const claims = await requireAuth(["manager", "admin"]);
+
+  const { inventoryItemId, adjustmentType, quantity, reason } = input;
+  if (quantity <= 0) return { success: false, error: "Cantidad debe ser positiva" };
+  if (!reason || reason.trim().length < 10) {
+    return { success: false, error: "Razon debe tener al menos 10 caracteres" };
+  }
+
+  return db.transaction(async (tx) => {
+    const [src] = await tx.execute(sql`
+      SELECT id, quantity_available, unit_id, zone_id, cost_per_unit, lot_status
+      FROM inventory_items WHERE id = ${inventoryItemId} FOR UPDATE
+    `);
+    const item = src as unknown as {
+      id: string; quantity_available: string; unit_id: string;
+      zone_id: string | null; cost_per_unit: string | null; lot_status: string;
+    };
+
+    if (!item) return { success: false as const, error: "Lote no encontrado" };
+
+    const available = Number(item.quantity_available);
+    const newAvailable =
+      adjustmentType === "positive"
+        ? available + quantity
+        : available - quantity;
+
+    if (newAvailable < 0) {
+      return { success: false as const, error: `Solo hay ${available} disponibles para ajuste negativo` };
+    }
+
+    await tx
+      .update(inventoryItems)
+      .set({
+        quantityAvailable: newAvailable.toString(),
+        lotStatus: newAvailable <= 0 ? "depleted" : "available",
+        updatedBy: claims.userId,
+      })
+      .where(eq(inventoryItems.id, inventoryItemId));
+
+    await tx.insert(inventoryTransactions).values({
+      type: "adjustment",
+      inventoryItemId,
+      quantity: (adjustmentType === "negative" ? -quantity : quantity).toString(),
+      unitId: item.unit_id,
+      zoneId: item.zone_id,
+      costPerUnit: item.cost_per_unit,
+      costTotal: item.cost_per_unit ? (quantity * Number(item.cost_per_unit)).toString() : null,
+      userId: claims.userId,
+      reason: reason.trim(),
+    });
+
+    revalidatePath("/inventory");
+    return { success: true as const };
+  });
+}
+
+// ────────────────────────────── Register Waste (F-081) ──────────────────────────────
+
+export async function registerWaste(input: {
+  inventoryItemId: string;
+  quantity: number;
+  reason: string;
+  batchId?: string;
+}): Promise<ActionResult> {
+  const claims = await requireAuth(["supervisor", "manager", "admin"]);
+
+  const { inventoryItemId, quantity, reason, batchId } = input;
+  if (quantity <= 0) return { success: false, error: "Cantidad debe ser positiva" };
+  if (!reason || reason.trim().length < 10) {
+    return { success: false, error: "Razon debe tener al menos 10 caracteres" };
+  }
+
+  return db.transaction(async (tx) => {
+    const [src] = await tx.execute(sql`
+      SELECT id, quantity_available, unit_id, zone_id, cost_per_unit
+      FROM inventory_items WHERE id = ${inventoryItemId} FOR UPDATE
+    `);
+    const item = src as unknown as {
+      id: string; quantity_available: string; unit_id: string;
+      zone_id: string | null; cost_per_unit: string | null;
+    };
+
+    if (!item) return { success: false as const, error: "Lote no encontrado" };
+
+    const available = Number(item.quantity_available);
+    if (quantity > available) {
+      return { success: false as const, error: `Solo hay ${available} disponibles` };
+    }
+
+    const newAvailable = available - quantity;
+    await tx
+      .update(inventoryItems)
+      .set({
+        quantityAvailable: newAvailable.toString(),
+        lotStatus: newAvailable <= 0 ? "depleted" : "available",
+        updatedBy: claims.userId,
+      })
+      .where(eq(inventoryItems.id, inventoryItemId));
+
+    await tx.insert(inventoryTransactions).values({
+      type: "waste",
+      inventoryItemId,
+      quantity: (-quantity).toString(),
+      unitId: item.unit_id,
+      zoneId: item.zone_id,
+      batchId: batchId || null,
+      costPerUnit: item.cost_per_unit,
+      costTotal: item.cost_per_unit ? (quantity * Number(item.cost_per_unit)).toString() : null,
+      userId: claims.userId,
+      reason: reason.trim(),
+    });
+
+    revalidatePath("/inventory");
+    if (batchId) revalidatePath(`/batches/${batchId}`);
     return { success: true as const };
   });
 }

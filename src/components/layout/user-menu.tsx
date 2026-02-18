@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LogOut } from "lucide-react";
+import Link from "next/link";
+import { LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/hooks/use-auth";
 import { useLogout } from "@/hooks/use-logout";
@@ -83,6 +84,17 @@ export function UserMenu() {
             )}
           </div>
           <div className="py-1">
+            <Link
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className={cn(
+                "flex w-full items-center gap-2 px-4 py-2.5 text-sm text-text-secondary",
+                "hover:bg-surface hover:text-text-primary transition-colors duration-150",
+              )}
+            >
+              <User className="size-4" strokeWidth={1.5} />
+              Mi perfil
+            </Link>
             <button
               type="button"
               onClick={async () => {
