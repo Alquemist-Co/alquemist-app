@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import withSerwistInit from "@serwist/next";
+import withBundleAnalyzer from "@next/bundle-analyzer";
 
 const withSerwist = withSerwistInit({
   swSrc: "src/app/sw.ts",
@@ -11,6 +12,16 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  images: {
+    formats: ["image/webp", "image/avif"],
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react", "recharts"],
+  },
 };
 
-export default withSerwist(nextConfig);
+const analyzeBuild = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
+export default analyzeBuild(withSerwist(nextConfig));

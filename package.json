@@ -7,11 +7,14 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
+    "analyze": "ANALYZE=true next build --webpack",
     "db:start": "npx supabase start",
     "db:stop": "npx supabase stop",
     "db:reset": "npx supabase db reset",
     "db:status": "npx supabase status",
-    "db:studio": "echo 'Open http://127.0.0.1:54323'"
+    "db:studio": "echo 'Open http://127.0.0.1:54323'",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -36,16 +39,21 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.1.6",
     "@tailwindcss/postcss": "^4",
     "@tanstack/eslint-plugin-query": "^5.91.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.9",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "jsdom": "^28.1.0",
     "serwist": "^9.5.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.18"
   }
 }
