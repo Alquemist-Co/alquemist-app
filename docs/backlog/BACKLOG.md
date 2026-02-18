@@ -1,6 +1,6 @@
 # Product Backlog — Alquemist
 
-> Last updated: 2026-02-17
+> Last updated: 2026-02-18
 
 ## Summary
 
@@ -8,7 +8,7 @@
 - **Total stories**: 278
 - **Fases**: 6 (0-5)
 - **Semanas**: 20+
-- **Planned**: 94 | **In Progress**: 0 | **Done**: 184
+- **Planned**: 60 | **In Progress**: 0 | **Done**: 218
 
 ## Resumen por Fase
 
@@ -106,13 +106,13 @@
 |----|---------|---------|----------|--------|-----|
 | F-056 | Dashboard operador | 6 | P0 - Critical | Done | [F-056](./done/F-056-dashboard-operator.md) |
 | F-057 | Dashboard supervisor | 6 | P0 - Critical | Done | [F-057](./done/F-057-dashboard-supervisor.md) |
-| F-058 | Dashboard gerente | 6 | P0 - Critical | Planned | [F-058](./planned/F-058-dashboard-manager.md) |
-| F-059 | Dashboard viewer | 3 | P1 - High | Planned | [F-059](./planned/F-059-dashboard-viewer.md) |
-| F-060 | Busqueda global (Cmd+K) | 4 | P1 - High | Planned | [F-060](./planned/F-060-global-search.md) |
-| F-061 | Gestion de usuarios e invitaciones (CFG-02) | 5 | P0 - Critical | Planned | [F-061](./planned/F-061-user-management.md) |
-| F-062 | Optimizacion de performance | 5 | P0 - Critical | Planned | [F-062](./planned/F-062-performance-optimization.md) |
-| F-063 | Testing | 8 | P0 - Critical | Planned | [F-063](./planned/F-063-testing.md) |
-| F-064 | Documentacion | 3 | P1 - High | Planned | [F-064](./planned/F-064-documentation.md) |
+| F-058 | Dashboard gerente | 6 | P0 - Critical | Done | [F-058](./done/F-058-dashboard-manager.md) |
+| F-059 | Dashboard viewer | 3 | P1 - High | Done | [F-059](./done/F-059-dashboard-viewer.md) |
+| F-060 | Busqueda global (Cmd+K) | 4 | P1 - High | Done | [F-060](./done/F-060-global-search.md) |
+| F-061 | Gestion de usuarios e invitaciones (CFG-02) | 5 | P0 - Critical | Done | [F-061](./done/F-061-user-management.md) |
+| F-062 | Optimizacion de performance | 5 | P0 - Critical | Done | [F-062](./done/F-062-performance-optimization.md) |
+| F-063 | Testing | 8 | P0 - Critical | Done | [F-063](./done/F-063-testing.md) |
+| F-064 | Documentacion | 3 | P1 - High | Done | [F-064](./done/F-064-documentation.md) |
 
 ---
 

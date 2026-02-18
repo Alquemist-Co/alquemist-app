@@ -20,7 +20,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 ## Progreso
 
-**Fase actual**: 4 — Polish y Lanzamiento
+**Fase actual**: 4 — Polish y Lanzamiento (COMPLETA)
 
 | Feature | Status | Fecha |
 |---------|--------|-------|
@@ -65,6 +65,13 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-050 Supabase Realtime | Done | 2026-02-16 |
 | F-056 Dashboard operador | Done | 2026-02-17 |
 | F-057 Dashboard supervisor | Done | 2026-02-18 |
+| F-058 Dashboard gerente | Done | 2026-02-18 |
+| F-059 Dashboard viewer | Done | 2026-02-18 |
+| F-060 Busqueda global (Cmd+K) | Done | 2026-02-18 |
+| F-061 Gestion de usuarios | Done | 2026-02-18 |
+| F-062 Optimizacion de performance | Done | 2026-02-18 |
+| F-063 Testing | Done | 2026-02-18 |
+| F-064 Documentacion | Done | 2026-02-18 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.

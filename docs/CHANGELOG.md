@@ -2,7 +2,56 @@
 
 ## 2026-02-18
 
-### Fase 4: Polish y Lanzamiento — Continuacion
+### Fase 4: Polish y Lanzamiento — COMPLETA
+
+#### F-064: Documentacion — Done
+- US-064-001: README con quick setup, stack, scripts, estructura, roles y verificacion
+- US-064-002: Guia de onboarding (`docs/onboarding-guide.md`) con arquitectura, patrones de codigo, DB, auth, offline, gotchas
+- US-064-003: Runbook de operaciones (`docs/runbook.md`) con 10 secciones y 20+ escenarios diagnosticables
+- `.env.example` actualizado con todas las variables (IOT_API_KEY, CRON_SECRET)
+
+#### F-063: Testing — Done
+- US-063-001: Vitest v4 configurado con jsdom, @testing-library/jest-dom, path aliases
+- US-063-004: 28 tests para schemas Zod (login, user, order, product) — validaciones positivas y negativas
+- Tests de permisos: 9 tests para `canAccessModule` y `hasPermission` (5 roles, unknown module/action)
+- **Total**: 37 tests, `npm test` y `npm run test:watch` scripts
+- **Nota tecnica**: UUID v4 validation en Zod es estricta — UUIDs de seed (11111111-...) no pasan validacion, usar UUIDs v4 reales en tests
+
+#### F-062: Optimizacion de Performance — Done
+- US-062-005: Bundle analyzer (`@next/bundle-analyzer`) con script `npm run analyze`
+- US-062-003: `optimizePackageImports` para lucide-react y recharts
+- US-062-003: Image optimization (webp/avif) via `next.config.ts`
+- Recharts ya lazy-loaded via `next/dynamic` en yield-chart.tsx
+
+#### F-061: Gestion de Usuarios — Done
+- US-061-001: Lista de usuarios con search filter, role badges color-coded, toggle activo/inactivo
+- US-061-002: Editor de usuario con selects de rol, facility, campo telefono
+- US-061-004: Toggle active con proteccion last-admin (no se puede desactivar ultimo admin)
+- US-061-005: Validaciones de negocio: no auto-modificar rol, guard en updateUser
+- **Server actions**: `users.ts` con getUsers, getUserById, updateUser, toggleUserActive
+- Rutas: `/settings/users` (lista) y `/settings/users/[userId]` (edicion)
+
+#### F-060: Busqueda Global (Cmd+K) — Done
+- US-060-001: Modal con Cmd+K/Ctrl+K shortcut, debounce 300ms, keyboard navigation (ArrowUp/Down/Enter)
+- US-060-002: Busqueda multi-entidad (batches, orders, products, zones, users) con LIKE pattern matching
+- US-060-003: Historial en localStorage (max 10 busquedas recientes)
+- US-060-004: Click en resultado navega al detalle con iconos por tipo
+- Integrado en AppShell para disponibilidad global
+
+#### F-059: Dashboard Viewer — Done
+- US-059-001: Header read-only con titulo "Resumen de Produccion", subtitulo informativo, facility select
+- US-059-002: KPIs read-only (batches activos, ordenes en progreso, tasa de calidad) sin onClick
+- US-059-003: Tabla de ordenes simplificada (status, prioridad, fecha) + yield progress bar sin links
+
+#### F-058: Dashboard Gerente — Done
+- US-058-001: Header con facility filter (reutiliza patron de F-057)
+- US-058-002: KPIs 2x2 grid (batches, ordenes pendientes, yield promedio, COGS/batch)
+- US-058-003: Yield chart (Recharts BarChart lazy-loaded) — yield real vs esperado por cultivar
+- US-058-004: Ordenes en progreso con priority badges y progress bars
+- US-058-005: Cost distribution bar (materiales/labor/overhead) como barra horizontal proporcional
+- US-058-006: Quick actions (nueva orden, reporte costos, centro alertas)
+- Admin reutiliza dashboard de manager (mismas necesidades)
+- `yield-chart.tsx`: Recharts BarChart con dynamic import, custom tooltip, colores brand (#005E42/#ECF7A3)
 
 #### F-057: Dashboard Supervisor — Done
 - US-057-001: Header "Supervision" con subtitulo de zonas/batches y facility select (oculto si solo 1)
