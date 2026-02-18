@@ -10,6 +10,7 @@ import { BottomBar } from "./bottom-bar";
 import { MoreMenu } from "./more-menu";
 import { OfflineBanner } from "@/components/shared/offline-banner";
 import { RealtimeProvider } from "@/components/shared/realtime-provider";
+import { SearchModal } from "@/components/shared/search-modal";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { isHydrated } = useAuth();
@@ -49,6 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <BottomBar onMorePress={() => setMoreOpen(true)} />
         <MoreMenu open={moreOpen} onClose={() => setMoreOpen(false)} />
+        <SearchModal />
       </div>
     </RealtimeProvider>
   );
