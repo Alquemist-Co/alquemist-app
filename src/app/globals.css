@@ -66,6 +66,58 @@
   to { opacity: 1; transform: scale(1); }
 }
 
+/* F-090: Skip to content link */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.skip-to-content:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  width: auto;
+  height: auto;
+  padding: 8px 16px;
+  background: var(--color-brand);
+  color: white;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* F-090: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* F-090: High contrast mode */
+@media (prefers-contrast: more) {
+  :root {
+    --color-border: #333333;
+    --color-text-secondary: #333333;
+  }
+}
+
+.high-contrast {
+  --color-border: #333333;
+  --color-text-secondary: #333333;
+}
+
+.high-contrast .border {
+  border-width: 2px;
+}
+
 body {
   background: var(--color-surface);
   color: var(--color-text-primary);

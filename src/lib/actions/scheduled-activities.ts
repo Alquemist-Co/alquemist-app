@@ -449,6 +449,51 @@ export async function getTodayActivities(): Promise<TodayActivityItem[]> {
     );
 }
 
+// ── F-085: Calendar query ────────────────────────────────────────
+
+export type CalendarActivityItem = {
+  id: string;
+  templateName: string;
+  batchCode: string;
+  batchId: string;
+  zoneName: string;
+  plannedDate: string;
+  status: string;
+};
+
+export async function getCalendarActivities(
+  startDate: string,
+  endDate: string,
+): Promise<CalendarActivityItem[]> {
+  await requireAuth();
+
+  return db
+    .select({
+      id: scheduledActivities.id,
+      templateName: sql<string>`at.name`,
+      batchCode: sql<string>`b.code`,
+      batchId: sql<string>`b.id`,
+      zoneName: sql<string>`z.name`,
+      plannedDate: scheduledActivities.plannedDate,
+      status: scheduledActivities.status,
+    })
+    .from(scheduledActivities)
+    .innerJoin(
+      sql`activity_templates at`,
+      sql`at.id = ${scheduledActivities.templateId}`,
+    )
+    .innerJoin(sql`batches b`, sql`b.id = ${scheduledActivities.batchId}`)
+    .innerJoin(sql`zones z`, sql`z.id = b.zone_id`)
+    .where(
+      and(
+        sql`${scheduledActivities.plannedDate} >= ${startDate}`,
+        sql`${scheduledActivities.plannedDate} <= ${endDate}`,
+        sql`${scheduledActivities.status} != 'skipped'`,
+      ),
+    )
+    .orderBy(asc(scheduledActivities.plannedDate));
+}
+
 // ── Helpers ───────────────────────────────────────────────────────
 
 function addDays(date: Date, days: number): Date {

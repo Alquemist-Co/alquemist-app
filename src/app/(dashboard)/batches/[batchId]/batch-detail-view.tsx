@@ -23,6 +23,10 @@ import {
   Scissors,
   ArrowRightLeft,
   GitBranch,
+  Pause,
+  Play,
+  XCircle,
+  MapPin,
 } from "lucide-react";
 import { AdvancePhaseDialog } from "./advance-phase-dialog";
 import { ActivitiesTab } from "./activities-tab";
@@ -30,9 +34,11 @@ import { TransformDialog } from "./transform-dialog";
 import { BatchInventoryTab } from "./batch-inventory-tab";
 import { BatchQualityTab } from "./batch-quality-tab";
 import { BatchCostsTab } from "./batch-costs-tab";
+import { BatchActionsDialogs } from "./batch-actions-dialogs";
 
 type Props = {
   batch: BatchDetail;
+  zones: { id: string; name: string }[];
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -69,17 +75,22 @@ const TABS: { key: TabKey; label: string; icon: typeof Clock }[] = [
   { key: "quality", label: "Calidad", icon: Shield },
 ];
 
-export function BatchDetailView({ batch }: Props) {
+export function BatchDetailView({ batch, zones }: Props) {
   const router = useRouter();
   const role = useAuthStore((s) => s.role);
   const canAdvance = role ? hasPermission(role, "advance_phase") : false;
   const canSplit = role ? hasPermission(role, "split_batch") : false;
   const canTransform = role ? hasPermission(role, "create_inventory_transaction") : false;
+  const canManageBatch = role ? hasPermission(role, "advance_phase") : false;
   const [activeTab, setActiveTab] = useState<TabKey>("timeline");
   const [advanceDialogOpen, setAdvanceDialogOpen] = useState(false);
   const [transformDialogOpen, setTransformDialogOpen] = useState(false);
+  const [batchActionDialog, setBatchActionDialog] = useState<
+    "hold" | "resume" | "cancel" | "zone-change" | null
+  >(null);
 
   const isActive = batch.status === "active";
+  const isOnHold = batch.status === "on_hold";
 
   // Determine if batch is at exit phase (last non-skipped phase)
   const lastNonSkipped = [...batch.phases]
@@ -153,6 +164,36 @@ export function BatchDetailView({ batch }: Props) {
             Genealogia
           </Link>
           <div className="ml-auto flex items-center gap-2">
+            {canManageBatch && isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setBatchActionDialog("hold")}
+                icon={Pause}
+              >
+                Pausar
+              </Button>
+            )}
+            {canManageBatch && isOnHold && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setBatchActionDialog("resume")}
+                icon={Play}
+              >
+                Reanudar
+              </Button>
+            )}
+            {canManageBatch && isActive && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setBatchActionDialog("zone-change")}
+                icon={MapPin}
+              >
+                Zona
+              </Button>
+            )}
             {canTransform && isActive && (
               <Button
                 size="sm"
@@ -169,6 +210,17 @@ export function BatchDetailView({ batch }: Props) {
                   Dividir
                 </Button>
               </Link>
+            )}
+            {canManageBatch && (isActive || isOnHold) && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setBatchActionDialog("cancel")}
+                icon={XCircle}
+                className="text-error"
+              >
+                Cancelar
+              </Button>
             )}
             {canAdvance && isActive && (
               <Button
@@ -286,6 +338,16 @@ export function BatchDetailView({ batch }: Props) {
         batchId={batch.id}
         open={transformDialogOpen}
         onClose={() => setTransformDialogOpen(false)}
+      />
+
+      {/* Batch lifecycle dialogs */}
+      <BatchActionsDialogs
+        batchId={batch.id}
+        batchStatus={batch.status}
+        currentZoneId={batch.zoneId}
+        zones={zones.map((z) => ({ ...z, plantCapacity: 0, currentOccupancy: 0 }))}
+        dialog={batchActionDialog}
+        onClose={() => setBatchActionDialog(null)}
       />
     </>
   );

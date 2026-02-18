@@ -6,7 +6,9 @@ import type { BatchListItem, BatchFilterOptions } from "@/lib/actions/batches";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { cn } from "@/lib/utils/cn";
-import { Sprout } from "lucide-react";
+import { Sprout, PlusCircle } from "lucide-react";
+import { useAuthStore } from "@/stores/auth-store";
+import { hasPermission } from "@/lib/auth/permissions";
 
 type Props = {
   batches: BatchListItem[];
@@ -30,6 +32,8 @@ const STATUS_VARIANTS: Record<string, "success" | "warning" | "info" | "error" |
 };
 
 export function BatchList({ batches, filterOptions }: Props) {
+  const role = useAuthStore((s) => s.role);
+  const canCreate = role ? hasPermission(role, "advance_phase") : false;
   const [statusFilter, setStatusFilter] = useState("");
   const [phaseFilter, setPhaseFilter] = useState("");
   const [zoneFilter, setZoneFilter] = useState("");
@@ -61,11 +65,22 @@ export function BatchList({ batches, filterOptions }: Props) {
   return (
     <div className="flex flex-1 flex-col p-4 lg:p-6">
       {/* Header */}
-      <div className="mb-4">
-        <h1 className="text-lg font-bold text-primary">Batches</h1>
-        <p className="text-sm text-secondary">
-          {filtered.length} de {batches.length} batch(es)
-        </p>
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h1 className="text-lg font-bold text-primary">Batches</h1>
+          <p className="text-sm text-secondary">
+            {filtered.length} de {batches.length} batch(es)
+          </p>
+        </div>
+        {canCreate && (
+          <Link
+            href="/batches/new"
+            className="inline-flex items-center gap-1.5 rounded-button bg-brand px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-brand/90"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Crear batch
+          </Link>
+        )}
       </div>
 
       {/* Filters */}

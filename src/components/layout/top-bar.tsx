@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { useSidebarStore } from "@/stores/sidebar-store";
 import { Breadcrumbs } from "./breadcrumbs";
 import { UserMenu } from "./user-menu";
+import { FacilitySelector } from "./facility-selector";
 import { getModuleByHref } from "@/lib/nav/navigation";
 
 function getPageTitle(pathname: string): string {
@@ -59,6 +60,9 @@ export function TopBar() {
 
       {/* Right: actions */}
       <div className="flex items-center gap-2">
+        <div className="hidden sm:block">
+          <FacilitySelector />
+        </div>
         <button
           type="button"
           aria-label="Buscar (Cmd+K)"

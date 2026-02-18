@@ -31,6 +31,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <RealtimeProvider>
       <div className="min-h-screen bg-surface">
+        {/* F-090: Skip to content */}
+        <a href="#main-content" className="skip-to-content">
+          Saltar al contenido principal
+        </a>
+
         <Sidebar />
 
         <div
@@ -43,7 +48,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <TopBar />
           <OfflineBanner />
 
-          <main className="flex-1 pb-(--height-bottombar) lg:pb-0">
+          <main
+            id="main-content"
+            role="main"
+            className="flex-1 pb-(--height-bottombar) lg:pb-0"
+          >
             {children}
           </main>
         </div>

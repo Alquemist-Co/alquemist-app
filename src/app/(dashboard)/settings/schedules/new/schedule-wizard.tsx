@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,7 +63,6 @@ export function ScheduleWizard({ wizardData }: Props) {
   useEffect(() => {
     if (!cultivarId || fetchedCultivarRef.current === cultivarId) return;
     fetchedCultivarRef.current = cultivarId;
-    setLoadingPhases(true);
     getPhasesByCultivar(cultivarId)
       .then((result) => {
         const phaseStates: PhaseState[] = result.map((p) => ({
@@ -74,8 +73,8 @@ export function ScheduleWizard({ wizardData }: Props) {
         setPhases(phaseStates);
         const sum = phaseStates.reduce((s, p) => s + p.durationDays, 0);
         setTotalDays(sum);
-      })
-      .finally(() => setLoadingPhases(false));
+        setLoadingPhases(false);
+      });
   }, [cultivarId]);
 
   const durationSum = phases.reduce((s, p) => s + p.durationDays, 0);

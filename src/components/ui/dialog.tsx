@@ -87,6 +87,7 @@ function Dialog({ open, onClose, title, children, footer }: DialogProps) {
     <dialog
       ref={dialogRef}
       onClick={handleBackdropClick}
+      aria-label={title}
       className={cn(
         "m-0 max-h-[85vh] w-full border-none bg-transparent p-0",
         "backdrop:bg-overlay",

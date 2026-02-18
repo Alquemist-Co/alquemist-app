@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Toggle } from "@/components/ui/toggle";
 import { toast } from "@/lib/utils/toast-store";
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/stores/auth-store";
@@ -189,6 +190,9 @@ export function ProfileForm({ profile }: Props) {
         </form>
       </Card>
 
+      {/* Notifications card (F-088) */}
+      <NotificationsCard />
+
       {/* Password card */}
       <Card className="p-5">
         <h2 className="mb-4 text-sm font-bold text-text-primary">
@@ -244,5 +248,65 @@ export function ProfileForm({ profile }: Props) {
         </form>
       </Card>
     </div>
+  );
+}
+
+function NotificationsCard() {
+  const [pushSupported, setPushSupported] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const checkedRef = useRef(false);
+
+  useEffect(() => {
+    if (checkedRef.current) return;
+    checkedRef.current = true;
+    // Defer state updates to avoid synchronous setState in effect
+    Promise.resolve().then(() => {
+      if ("Notification" in window && "serviceWorker" in navigator) {
+        setPushSupported(true);
+        setPushEnabled(Notification.permission === "granted");
+      }
+    });
+  }, []);
+
+  async function togglePush(enabled: boolean) {
+    if (!enabled) {
+      // Can't programmatically revoke — just update UI
+      setPushEnabled(false);
+      localStorage.setItem("alquemist-push-enabled", "false");
+      toast.success("Notificaciones desactivadas");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      setPushEnabled(true);
+      localStorage.setItem("alquemist-push-enabled", "true");
+      toast.success("Notificaciones activadas");
+    } else {
+      toast.error("Permiso de notificaciones denegado");
+    }
+  }
+
+  if (!pushSupported) return null;
+
+  return (
+    <Card className="mb-4 p-5">
+      <h2 className="mb-4 text-sm font-bold text-text-primary">
+        Notificaciones
+      </h2>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-text-primary">Notificaciones push</p>
+          <p className="text-xs text-text-secondary">
+            Recibir alertas criticas en el navegador
+          </p>
+        </div>
+        <Toggle
+          checked={pushEnabled}
+          onChange={togglePush}
+          label="Notificaciones push"
+        />
+      </div>
+    </Card>
   );
 }

@@ -551,6 +551,314 @@ export async function advancePhase(
   return { success: true };
 }
 
+// ── F-082: Hold / Resume / Cancel / Zone Change ──────────────────
+
+const holdBatchSchema = z.object({
+  batchId: z.string().uuid(),
+  reason: z.string().min(10, "La razon debe tener al menos 10 caracteres."),
+});
+
+export async function holdBatch(
+  input: z.infer<typeof holdBatchSchema>,
+): Promise<ActionResult> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  const parsed = holdBatchSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { batchId, reason } = parsed.data;
+
+  const batchRows = await db
+    .select({ id: batches.id, status: batches.status })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+    .limit(1);
+
+  if (batchRows.length === 0) {
+    return { success: false, error: "Batch no encontrado." };
+  }
+  if (batchRows[0].status !== "active") {
+    return { success: false, error: "Solo se pueden pausar batches activos." };
+  }
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(batches)
+      .set({ status: "on_hold" })
+      .where(eq(batches.id, batchId));
+
+    // Suspend pending/overdue activities
+    await tx
+      .update(scheduledActivities)
+      .set({ status: "skipped" })
+      .where(
+        and(
+          eq(scheduledActivities.batchId, batchId),
+          inArray(scheduledActivities.status, ["pending", "overdue"]),
+        ),
+      );
+  });
+
+  void reason;
+  return { success: true };
+}
+
+const resumeBatchSchema = z.object({
+  batchId: z.string().uuid(),
+});
+
+export async function resumeBatch(
+  input: z.infer<typeof resumeBatchSchema>,
+): Promise<ActionResult> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  const parsed = resumeBatchSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: "Datos invalidos." };
+  }
+
+  const { batchId } = parsed.data;
+
+  const batchRows = await db
+    .select({ id: batches.id, status: batches.status, currentPhaseId: batches.currentPhaseId })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+    .limit(1);
+
+  if (batchRows.length === 0) {
+    return { success: false, error: "Batch no encontrado." };
+  }
+  if (batchRows[0].status !== "on_hold") {
+    return { success: false, error: "Solo se pueden resumir batches en pausa." };
+  }
+
+  await db
+    .update(batches)
+    .set({ status: "active" })
+    .where(eq(batches.id, batchId));
+
+  // Regenerate activities for current phase (non-blocking)
+  generateScheduledActivities(batchRows[0].id, batchRows[0].currentPhaseId).catch(() => {});
+
+  return { success: true };
+}
+
+const cancelBatchSchema = z.object({
+  batchId: z.string().uuid(),
+  reason: z.string().min(10, "La razon debe tener al menos 10 caracteres."),
+});
+
+export async function cancelBatch(
+  input: z.infer<typeof cancelBatchSchema>,
+): Promise<ActionResult> {
+  await requireAuth(["manager", "admin"]);
+
+  const parsed = cancelBatchSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { batchId, reason } = parsed.data;
+
+  const batchRows = await db
+    .select({ id: batches.id, status: batches.status })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+    .limit(1);
+
+  if (batchRows.length === 0) {
+    return { success: false, error: "Batch no encontrado." };
+  }
+  if (batchRows[0].status === "completed" || batchRows[0].status === "cancelled") {
+    return { success: false, error: "El batch ya esta completado o cancelado." };
+  }
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(batches)
+      .set({ status: "cancelled" })
+      .where(eq(batches.id, batchId));
+
+    await tx
+      .update(scheduledActivities)
+      .set({ status: "skipped" })
+      .where(
+        and(
+          eq(scheduledActivities.batchId, batchId),
+          inArray(scheduledActivities.status, ["pending", "overdue"]),
+        ),
+      );
+  });
+
+  void reason;
+  return { success: true };
+}
+
+const changeBatchZoneSchema = z.object({
+  batchId: z.string().uuid(),
+  newZoneId: z.string().uuid(),
+  reason: z.string().min(5).optional(),
+});
+
+export async function changeBatchZone(
+  input: z.infer<typeof changeBatchZoneSchema>,
+): Promise<ActionResult> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  const parsed = changeBatchZoneSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { batchId, newZoneId } = parsed.data;
+
+  const batchRows = await db
+    .select({ id: batches.id, status: batches.status, zoneId: batches.zoneId })
+    .from(batches)
+    .where(eq(batches.id, batchId))
+    .limit(1);
+
+  if (batchRows.length === 0) {
+    return { success: false, error: "Batch no encontrado." };
+  }
+  if (batchRows[0].status !== "active") {
+    return { success: false, error: "Solo se puede cambiar la zona de batches activos." };
+  }
+  if (batchRows[0].zoneId === newZoneId) {
+    return { success: false, error: "El batch ya esta en esa zona." };
+  }
+
+  const zoneRows = await db
+    .select({ id: zones.id })
+    .from(zones)
+    .where(and(eq(zones.id, newZoneId), eq(zones.status, "active")))
+    .limit(1);
+
+  if (zoneRows.length === 0) {
+    return { success: false, error: "Zona destino no encontrada o inactiva." };
+  }
+
+  await db.update(batches).set({ zoneId: newZoneId }).where(eq(batches.id, batchId));
+
+  return { success: true };
+}
+
+// ── F-083: Manual Batch Creation ─────────────────────────────────
+
+export type ManualBatchFormData = {
+  cultivars: { id: string; name: string; cropTypeName: string }[];
+  phases: { id: string; name: string; cropTypeId: string; sortOrder: number }[];
+  zones: { id: string; name: string; plantCapacity: number; currentOccupancy: number }[];
+};
+
+export async function getManualBatchFormData(): Promise<ManualBatchFormData> {
+  await requireAuth(["supervisor", "manager", "admin"]);
+
+  const [cultivarRows, phaseRows, zoneRows] = await Promise.all([
+    db
+      .select({
+        id: cultivars.id,
+        name: cultivars.name,
+        cropTypeName: cropTypes.name,
+      })
+      .from(cultivars)
+      .innerJoin(cropTypes, eq(cultivars.cropTypeId, cropTypes.id))
+      .where(eq(cultivars.isActive, true))
+      .orderBy(cultivars.name),
+    db
+      .select({
+        id: productionPhases.id,
+        name: productionPhases.name,
+        cropTypeId: productionPhases.cropTypeId,
+        sortOrder: productionPhases.sortOrder,
+      })
+      .from(productionPhases)
+      .orderBy(asc(productionPhases.cropTypeId), asc(productionPhases.sortOrder)),
+    db
+      .select({
+        id: zones.id,
+        name: zones.name,
+        plantCapacity: zones.plantCapacity,
+        currentOccupancy: sql<number>`COALESCE(
+          (SELECT SUM(b.plant_count) FROM batches b WHERE b.zone_id = ${zones.id} AND b.status = 'active'),
+          0
+        )`,
+      })
+      .from(zones)
+      .where(eq(zones.status, "active"))
+      .orderBy(zones.name),
+  ]);
+
+  return {
+    cultivars: cultivarRows,
+    phases: phaseRows,
+    zones: zoneRows.map((z) => ({ ...z, currentOccupancy: Number(z.currentOccupancy) })),
+  };
+}
+
+const createManualBatchSchema = z.object({
+  cultivarId: z.string().uuid(),
+  phaseId: z.string().uuid(),
+  zoneId: z.string().uuid(),
+  plantCount: z.number().int().positive(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  areaM2: z.number().positive().optional(),
+});
+
+export async function createManualBatch(
+  input: z.infer<typeof createManualBatchSchema>,
+): Promise<ActionResult<{ id: string }>> {
+  const claims = await requireAuth(["supervisor", "manager", "admin"]);
+
+  const parsed = createManualBatchSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  const { cultivarId, phaseId, zoneId, plantCount, startDate, areaM2 } = parsed.data;
+
+  // Generate batch code: PREFIX-YY-NNNN
+  const facilityRow = await db
+    .select({ code: sql<string>`f.code` })
+    .from(zones)
+    .innerJoin(sql`facilities f`, sql`f.id = ${zones.facilityId}`)
+    .where(eq(zones.id, zoneId))
+    .limit(1);
+
+  const prefix = facilityRow[0]?.code?.substring(0, 3).toUpperCase() ?? "BAT";
+  const year = new Date().getFullYear().toString().slice(-2);
+
+  const countRow = await db
+    .select({ count: sql<number>`COUNT(*)::int` })
+    .from(batches)
+    .where(sql`${batches.code} LIKE ${`${prefix}-${year}-%`}`);
+
+  const seq = (countRow[0]?.count ?? 0) + 1;
+  const code = `${prefix}-${year}-${String(seq).padStart(4, "0")}`;
+
+  const [newBatch] = await db
+    .insert(batches)
+    .values({
+      code,
+      cultivarId,
+      currentPhaseId: phaseId,
+      zoneId,
+      plantCount,
+      startDate,
+      areaM2: areaM2?.toString(),
+      status: "active",
+      createdBy: claims.userId,
+      updatedBy: claims.userId,
+    })
+    .returning({ id: batches.id });
+
+  generateScheduledActivities(newBatch.id, phaseId).catch(() => {});
+
+  return { success: true, data: { id: newBatch.id } };
+}
+
 // Helper: complete batch at exit phase
 async function completeBatch(
   batch: { id: string; productionOrderId: string | null },

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getBatch } from "@/lib/actions/batches";
+import { getBatch, getBatchFilterOptions } from "@/lib/actions/batches";
 import { BatchDetailView } from "./batch-detail-view";
 
 type Props = {
@@ -8,7 +8,10 @@ type Props = {
 
 export default async function BatchDetailPage({ params }: Props) {
   const { batchId } = await params;
-  const batch = await getBatch(batchId);
+  const [batch, filterOptions] = await Promise.all([
+    getBatch(batchId),
+    getBatchFilterOptions(),
+  ]);
 
   if (!batch) {
     notFound();
@@ -16,7 +19,7 @@ export default async function BatchDetailPage({ params }: Props) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <BatchDetailView batch={batch} />
+      <BatchDetailView batch={batch} zones={filterOptions.zones} />
     </div>
   );
 }
