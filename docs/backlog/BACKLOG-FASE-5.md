@@ -5,7 +5,7 @@
 ## Summary
 - **Total features**: 19
 - **Total stories**: 60
-- **Planned**: 34 | **In Progress**: 0 | **Done**: 26
+- **Planned**: 0 | **In Progress**: 0 | **Done**: 60
 
 ## Fase
 - **Fase**: 5 - Configuracion, Flujos Operacionales y Calidad
@@ -31,22 +31,22 @@
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-080 | Transferencia de Stock entre Zonas | 3 | P0 - Critical | Planned | [F-080](./planned/F-080-stock-transfer.md) |
-| F-081 | Ajuste de Stock y Registro de Waste | 3 | P0 - Critical | Planned | [F-081](./planned/F-081-stock-adjustment-waste.md) |
-| F-082 | Hold, Cancel y Zone Change de Batch | 4 | P0 - Critical | Planned | [F-082](./planned/F-082-batch-hold-cancel-move.md) |
-| F-083 | Creacion Manual de Batch | 3 | P1 - High | Planned | [F-083](./planned/F-083-manual-batch.md) |
-| F-084 | Observaciones Rapidas con Fotos | 3 | P0 - Critical | Planned | [F-084](./planned/F-084-quick-observations.md) |
-| F-085 | Calendario de Actividades (Supervisor) | 4 | P1 - High | Planned | [F-085](./planned/F-085-activity-calendar.md) |
-| F-086 | Edicion de Perfil de Usuario | 2 | P1 - High | Planned | [F-086](./planned/F-086-user-profile.md) |
-| F-087 | Cambio de Facility Activa | 2 | P0 - Critical | Planned | [F-087](./planned/F-087-facility-switch.md) |
+| F-080 | Transferencia de Stock entre Zonas | 3 | P0 - Critical | Done | [F-080](./done/F-080-stock-transfer.md) |
+| F-081 | Ajuste de Stock y Registro de Waste | 3 | P0 - Critical | Done | [F-081](./done/F-081-stock-adjustment-waste.md) |
+| F-082 | Hold, Cancel y Zone Change de Batch | 4 | P0 - Critical | Done | [F-082](./done/F-082-batch-hold-cancel-move.md) |
+| F-083 | Creacion Manual de Batch | 3 | P1 - High | Done | [F-083](./done/F-083-manual-batch.md) |
+| F-084 | Observaciones Rapidas con Fotos | 3 | P0 - Critical | Done | [F-084](./done/F-084-quick-observations.md) |
+| F-085 | Calendario de Actividades (Supervisor) | 4 | P1 - High | Done | [F-085](./done/F-085-activity-calendar.md) |
+| F-086 | Edicion de Perfil de Usuario | 2 | P1 - High | Done | [F-086](./done/F-086-user-profile.md) |
+| F-087 | Cambio de Facility Activa | 2 | P0 - Critical | Done | [F-087](./done/F-087-facility-switch.md) |
 
 ### Bloque D: Calidad Transversal
 
 | ID | Feature | Stories | Priority | Status | Doc |
 |----|---------|---------|----------|--------|-----|
-| F-088 | Push Notifications | 3 | P1 - High | Planned | [F-088](./planned/F-088-push-notifications.md) |
-| F-089 | Hardening IoT Webhook | 3 | P1 - High | Planned | [F-089](./planned/F-089-iot-hardening.md) |
-| F-090 | Accesibilidad y UX Mejorada | 4 | P2 - Medium | Planned | [F-090](./planned/F-090-accessibility.md) |
+| F-088 | Push Notifications | 3 | P1 - High | Done | [F-088](./done/F-088-push-notifications.md) |
+| F-089 | Hardening IoT Webhook | 3 | P1 - High | Done | [F-089](./done/F-089-iot-hardening.md) |
+| F-090 | Accesibilidad y UX Mejorada | 4 | P2 - Medium | Done | [F-090](./done/F-090-accessibility.md) |
 
 ## Resumen de Stories por Feature
 

@@ -20,7 +20,7 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 
 ## Progreso
 
-**Fase actual**: 4 — Polish y Lanzamiento (COMPLETA)
+**Todas las fases completas** (0-5). 67 features, 278 stories.
 
 | Feature | Status | Fecha |
 |---------|--------|-------|
@@ -72,6 +72,25 @@ Consultar estos documentos **antes** de tomar decisiones de arquitectura o imple
 | F-062 Optimizacion de performance | Done | 2026-02-18 |
 | F-063 Testing | Done | 2026-02-18 |
 | F-064 Documentacion | Done | 2026-02-18 |
+| F-070 CRUD Facilities | Done | 2026-02-18 |
+| F-071 CRUD Zones | Done | 2026-02-18 |
+| F-072 CRUD Suppliers | Done | 2026-02-18 |
+| F-073 CRUD Units | Done | 2026-02-18 |
+| F-074 CRUD Resource Categories | Done | 2026-02-18 |
+| F-075 CRUD Activity Types | Done | 2026-02-18 |
+| F-076 CRUD Cultivation Schedules | Done | 2026-02-18 |
+| F-077 CRUD Company Settings | Done | 2026-02-18 |
+| F-080 Stock Transfer | Done | 2026-02-18 |
+| F-081 Stock Adjustment/Waste | Done | 2026-02-18 |
+| F-082 Batch Hold/Cancel/Zone Change | Done | 2026-02-18 |
+| F-083 Manual Batch Creation | Done | 2026-02-18 |
+| F-084 Quick Observations | Done | 2026-02-18 |
+| F-085 Activity Calendar | Done | 2026-02-18 |
+| F-086 User Profile | Done | 2026-02-18 |
+| F-087 Facility Switch | Done | 2026-02-18 |
+| F-088 Push Notifications | Done | 2026-02-18 |
+| F-089 IoT Hardening | Done | 2026-02-18 |
+| F-090 Accessibility | Done | 2026-02-18 |
 
 Backlog organizado por estado en `docs/backlog/{planned,in-progress,done}/`.
 Log de cambios en `docs/CHANGELOG.md`.

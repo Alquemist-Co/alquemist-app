@@ -2,6 +2,115 @@
 
 ## 2026-02-18
 
+### Fase 5: Configuracion, Flujos Operacionales y Calidad — COMPLETA
+
+#### Bloque A: CRUD de Configuracion — Done
+
+##### F-070: CRUD de Facilities — Done
+- US-070-001/002/003: Lista de facilities con stats, crear/editar, desactivar con validacion
+- Server actions en `src/lib/actions/facilities.ts`
+- Ruta: `/settings/facilities`
+
+##### F-071: CRUD de Zonas — Done
+- US-071-001/002/003/004: Lista con filtros, crear/editar, sub-CRUDs de estructuras, desactivar
+- Server actions en `src/lib/actions/zone-config.ts`
+- Ruta: `/settings/zones`
+
+##### F-072: CRUD de Proveedores — Done
+- US-072-001/002/003: Lista con busqueda, crear/editar, desactivar
+- Server actions en `src/lib/actions/suppliers.ts`
+- Ruta: `/settings/suppliers`
+
+##### F-073: Gestion de Unidades de Medida — Done
+- US-073-001/002/003: Lista agrupada por dimension, crear/editar, validacion conversiones
+- Server actions en `src/lib/actions/units.ts`
+- Ruta: `/settings/units`
+
+##### F-074: Gestion de Categorias de Recursos — Done
+- US-074-001/002/003: Lista jerarquica, crear/editar con padre, desactivar
+- Server actions en `src/lib/actions/categories.ts`
+- Ruta: `/settings/categories`
+
+##### F-075: CRUD de Tipos de Actividad — Done
+- US-075-001/002: Lista, crear/editar/desactivar
+- Server actions en `src/lib/actions/activity-type-config.ts`
+- Ruta: `/settings/activity-types`
+
+##### F-076: CRUD de Cultivation Schedules — Done
+- US-076-001/002/003/004/005: Lista, wizard multi-step, editar fases/templates, preview, desactivar
+- Server actions en `src/lib/actions/schedule-config.ts`
+- Wizard de 4 pasos: basico → fases → templates → preview
+- Ruta: `/settings/schedules`
+
+##### F-077: Configuracion de Empresa — Done
+- US-077-001/002/003: Ver config, editar datos, gestionar features
+- Server actions en `src/lib/actions/company-settings.ts`
+- Ruta: `/settings/company`
+
+#### Bloque B: Flujos Operacionales — Done
+
+##### F-080: Transferencia de Stock entre Zonas — Done
+- US-080-001/002/003: Seleccion de lote y destino, preview, edge cases (parcial, agotado)
+- Dialog de transferencia en pagina de stock
+- Server action `transferStock()` en `src/lib/actions/inventory.ts`
+
+##### F-081: Ajuste de Stock y Registro de Waste — Done
+- US-081-001/002/003: Ajuste con razon, registro de merma, filtros en log
+- Dialogs en pagina de stock
+- Server actions `adjustStock()`, `registerWaste()` en `src/lib/actions/inventory.ts`
+
+##### F-082: Hold, Cancel y Zone Change de Batch — Done
+- US-082-001/002/003/004: Hold con razon, resume (regenera actividades), cancel (irreversible, manager+), zone change
+- `batch-actions-dialogs.tsx` con 4 dialogs
+- Server actions `holdBatch()`, `resumeBatch()`, `cancelBatch()`, `changeBatchZone()` en `src/lib/actions/batches.ts`
+- Hold suspende actividades pendientes; resume regenera via `generateScheduledActivities()`
+
+##### F-083: Creacion Manual de Batch — Done
+- US-083-001/002/003: Formulario con cultivar/fase/zona, schedule assignment, codigo auto-generado `PREFIX-YY-NNNN`
+- Server actions `getManualBatchFormData()`, `createManualBatch()` en `src/lib/actions/batches.ts`
+- Ruta: `/batches/new`
+
+##### F-084: Observaciones Rapidas — Done
+- US-084-001/002/003: Formulario con selector de batch, tipos y severidades, auto-alerta para critical/high
+- Server actions en `src/lib/actions/observations.ts`
+- Crea activity (tipo "Observacion") + observation en transaccion
+- Ruta: `/activities/observations`
+
+##### F-085: Calendario de Actividades — Done
+- US-085-001/002/003/004: Vista semanal y mensual, drag-to-reschedule (desktop), navegacion temporal
+- `getCalendarActivities()` en `src/lib/actions/scheduled-activities.ts`
+- CSS Grid 7 cols, status colors, "Hoy" button
+- Ruta: `/activities/calendar`
+
+##### F-086: Edicion de Perfil de Usuario — Done
+- US-086-001/002: Datos personales (nombre, telefono), cambiar contrasena
+- Server actions en `src/lib/actions/profile.ts`
+- Ruta: `/profile`
+
+##### F-087: Cambio de Facility Activa — Done
+- US-087-001/002: Selector en TopBar, filtrado global
+- Server actions en `src/lib/actions/facility-switch.ts`
+- `FacilitySelector` en `src/components/layout/facility-selector.tsx`
+
+#### Bloque D: Calidad Transversal — Done
+
+##### F-088: Push Notifications — Done
+- US-088-001/002/003: Toggle de permisos en perfil, `Notification.requestPermission()`, localStorage flag
+- `NotificationsCard` en `profile-form.tsx`
+
+##### F-089: Hardening IoT Webhook — Done
+- US-089-001/002/003: Rate limiter in-memory (100/min), validacion de rangos fisicos, idempotencia, ingestion por lotes (max 100, 207 Multi-Status)
+- Reescritura completa de `/api/webhooks/iot/route.ts`
+- Timestamp drift tolerance 5min, backward compatible con formato single
+
+##### F-090: Accesibilidad y UX Mejorada — Done
+- US-090-001/002/003/004: Skip-to-content, ARIA landmarks, reduced motion, high contrast
+- CSS en `globals.css`: `@media (prefers-reduced-motion: reduce)`, `@media (prefers-contrast: more)`
+- AppShell: `<a href="#main-content">`, `role="main"`, `id="main-content"`
+- Dialog: `aria-label={title}`
+
+---
+
 ### Fase 4: Polish y Lanzamiento — COMPLETA
 
 #### F-064: Documentacion — Done
