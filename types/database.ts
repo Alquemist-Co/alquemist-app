@@ -34,6 +34,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_types: {
+        Row: {
+          id: string
+          company_id: string
+          name: string
+          category: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          name: string
+          category?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          name?: string
+          category?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           country: string
@@ -78,6 +122,135 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      resource_categories: {
+        Row: {
+          id: string
+          company_id: string
+          parent_id: string | null
+          code: string
+          name: string
+          icon: string | null
+          color: string | null
+          is_consumable: boolean
+          is_depreciable: boolean
+          is_transformable: boolean
+          default_lot_tracking: Database["public"]["Enums"]["lot_tracking"]
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          parent_id?: string | null
+          code: string
+          name: string
+          icon?: string | null
+          color?: string | null
+          is_consumable?: boolean
+          is_depreciable?: boolean
+          is_transformable?: boolean
+          default_lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          parent_id?: string | null
+          code?: string
+          name?: string
+          icon?: string | null
+          color?: string | null
+          is_consumable?: boolean
+          is_depreciable?: boolean
+          is_transformable?: boolean
+          default_lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_categories_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "resource_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      units_of_measure: {
+        Row: {
+          id: string
+          company_id: string
+          code: string
+          name: string
+          dimension: Database["public"]["Enums"]["unit_dimension"]
+          base_unit_id: string | null
+          to_base_factor: number
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          code: string
+          name: string
+          dimension: Database["public"]["Enums"]["unit_dimension"]
+          base_unit_id?: string | null
+          to_base_factor?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          code?: string
+          name?: string
+          dimension?: Database["public"]["Enums"]["unit_dimension"]
+          base_unit_id?: string | null
+          to_base_factor?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "units_of_measure_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_of_measure_base_unit_id_fkey"
+            columns: ["base_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -146,6 +319,8 @@ export type Database = {
       get_my_company_id: { Args: never; Returns: string }
     }
     Enums: {
+      lot_tracking: "required" | "optional" | "none"
+      unit_dimension: "mass" | "volume" | "count" | "area" | "energy" | "time" | "concentration"
       user_role: "admin" | "manager" | "supervisor" | "operator" | "viewer"
     }
     CompositeTypes: {
@@ -277,6 +452,8 @@ export const Constants = {
   },
   public: {
     Enums: {
+      lot_tracking: ["required", "optional", "none"],
+      unit_dimension: ["mass", "volume", "count", "area", "energy", "time", "concentration"],
       user_role: ["admin", "manager", "supervisor", "operator", "viewer"],
     },
   },
