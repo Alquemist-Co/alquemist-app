@@ -34,6 +34,237 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_template_checklist: {
+        Row: {
+          id: string
+          template_id: string
+          step_order: number
+          instruction: string
+          is_critical: boolean
+          requires_photo: boolean
+          expected_value: string | null
+          tolerance: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          step_order?: number
+          instruction: string
+          is_critical?: boolean
+          requires_photo?: boolean
+          expected_value?: string | null
+          tolerance?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          step_order?: number
+          instruction?: string
+          is_critical?: boolean
+          requires_photo?: boolean
+          expected_value?: string | null
+          tolerance?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_template_checklist_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_template_phases: {
+        Row: {
+          id: string
+          template_id: string
+          phase_id: string
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          phase_id: string
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          phase_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_template_phases_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_template_phases_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_template_resources: {
+        Row: {
+          id: string
+          template_id: string
+          product_id: string | null
+          quantity: number
+          quantity_basis: Database["public"]["Enums"]["quantity_basis"]
+          is_optional: boolean
+          sort_order: number
+          notes: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          product_id?: string | null
+          quantity: number
+          quantity_basis: Database["public"]["Enums"]["quantity_basis"]
+          is_optional?: boolean
+          sort_order?: number
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          product_id?: string | null
+          quantity?: number
+          quantity_basis?: Database["public"]["Enums"]["quantity_basis"]
+          is_optional?: boolean
+          sort_order?: number
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_template_resources_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_templates: {
+        Row: {
+          id: string
+          company_id: string
+          code: string
+          activity_type_id: string
+          name: string
+          frequency: Database["public"]["Enums"]["activity_frequency"]
+          estimated_duration_min: number
+          trigger_day_from: number | null
+          trigger_day_to: number | null
+          depends_on_template_id: string | null
+          triggers_phase_change_id: string | null
+          triggers_transformation: boolean
+          metadata: Json | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          code: string
+          activity_type_id: string
+          name: string
+          frequency: Database["public"]["Enums"]["activity_frequency"]
+          estimated_duration_min: number
+          trigger_day_from?: number | null
+          trigger_day_to?: number | null
+          depends_on_template_id?: string | null
+          triggers_phase_change_id?: string | null
+          triggers_transformation?: boolean
+          metadata?: Json | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          code?: string
+          activity_type_id?: string
+          name?: string
+          frequency?: Database["public"]["Enums"]["activity_frequency"]
+          estimated_duration_min?: number
+          trigger_day_from?: number | null
+          trigger_day_to?: number | null
+          depends_on_template_id?: string | null
+          triggers_phase_change_id?: string | null
+          triggers_transformation?: boolean
+          metadata?: Json | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_templates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_templates_activity_type_id_fkey"
+            columns: ["activity_type_id"]
+            isOneToOne: false
+            referencedRelation: "activity_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_templates_depends_on_template_id_fkey"
+            columns: ["depends_on_template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_templates_triggers_phase_change_id_fkey"
+            columns: ["triggers_phase_change_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_types: {
         Row: {
           id: string
@@ -196,6 +427,63 @@ export type Database = {
             columns: ["crop_type_id"]
             isOneToOne: false
             referencedRelation: "crop_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cultivation_schedules: {
+        Row: {
+          id: string
+          company_id: string
+          name: string
+          cultivar_id: string
+          total_days: number | null
+          phase_config: Json | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          name: string
+          cultivar_id: string
+          total_days?: number | null
+          phase_config?: Json | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          name?: string
+          cultivar_id?: string
+          total_days?: number | null
+          phase_config?: Json | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cultivation_schedules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cultivation_schedules_cultivar_id_fkey"
+            columns: ["cultivar_id"]
+            isOneToOne: false
+            referencedRelation: "cultivars"
             referencedColumns: ["id"]
           },
         ]
@@ -622,10 +910,12 @@ export type Database = {
       get_my_company_id: { Args: never; Returns: string }
     }
     Enums: {
+      activity_frequency: "daily" | "weekly" | "biweekly" | "once" | "on_demand"
       crop_category: "annual" | "perennial" | "biennial"
       flow_direction: "input" | "output"
       lot_tracking: "required" | "optional" | "none"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
+      quantity_basis: "fixed" | "per_plant" | "per_m2" | "per_zone" | "per_L_solution"
       unit_dimension: "mass" | "volume" | "count" | "area" | "energy" | "time" | "concentration"
       user_role: "admin" | "manager" | "supervisor" | "operator" | "viewer"
     }
@@ -758,10 +1048,12 @@ export const Constants = {
   },
   public: {
     Enums: {
+      activity_frequency: ["daily", "weekly", "biweekly", "once", "on_demand"],
       crop_category: ["annual", "perennial", "biennial"],
       flow_direction: ["input", "output"],
       lot_tracking: ["required", "optional", "none"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
+      quantity_basis: ["fixed", "per_plant", "per_m2", "per_zone", "per_L_solution"],
       unit_dimension: ["mass", "volume", "count", "area", "energy", "time", "concentration"],
       user_role: ["admin", "manager", "supervisor", "operator", "viewer"],
     },
