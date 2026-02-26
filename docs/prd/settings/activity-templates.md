@@ -328,3 +328,18 @@ phase_config: z.array(z.object({
   - `/activities/execute/[id]` (Fase 5) — activities ejecutadas usando template como receta
 - **React Query**: Cache keys `['activity-templates']`, `['template-phases', templateId]`, `['template-resources', templateId]`, `['template-checklist', templateId]`, `['cultivation-schedules']`
 - **Supabase client**: `src/lib/supabase/browser.ts` — PostgREST para CRUD
+
+## Implementation Notes
+
+- **Implemented**: 2026-02-26
+- **Migration**: `supabase/migrations/00000000000006_activity_templates.sql` — activity_frequency + quantity_basis ENUMs. 5 tables: activity_templates (Pattern 1), activity_template_phases (junction), activity_template_resources, activity_template_checklist (Pattern 2), cultivation_schedules (Pattern 1). product_id FK in resources deferred to Phase 3
+- **Schemas**: `packages/schemas/src/activity-templates.ts` — activityTemplateSchema (with trigger_day_to >= trigger_day_from refinement), templateResourceSchema, templateChecklistSchema, cultivationScheduleSchema
+- **Page**: `app/(dashboard)/settings/activity-templates/page.tsx` — Server Component, parallel fetch of 9 datasets. JSONB fields cast to typed Records
+- **Client**: `components/settings/activity-templates-client.tsx` — 2 tabs via shadcn Tabs with URL param sync
+- **Tab 1 — Templates**: Filterable list (by type, frequency, crop_type, inactive toggle). Cards with expandable detail showing 3 sub-sections: phases (toggle buttons per crop_type), resources (inline CRUD with quantity_basis select), checklist (sorteable via up/down buttons, inline editing with critical/photo toggles)
+- **Tab 2 — Cultivation Schedules**: Card list with cultivar name, total days, phase count. Create/edit dialog with cultivar select → auto-loads phases → duration inputs + template toggle buttons per phase → serializes to phase_config JSONB
+- **Advanced config**: Collapsible section in template dialog for trigger_day_from/to, depends_on_template_id, triggers_phase_change_id, triggers_transformation
+- **Duplicate**: Copies template + phases + resources + checklist with "-COPY" code suffix
+- **Products**: product_id FK deferred since products table doesn't exist yet. Resources stored without product_id, warning icon shown
+- **Metadata JSONB**: Template metadata field not exposed in UI (advanced users can edit via API). Stored as Json type
+- **Cache invalidation**: Uses router.refresh() to re-trigger Server Component
