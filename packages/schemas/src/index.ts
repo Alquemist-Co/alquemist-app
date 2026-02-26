@@ -34,3 +34,8 @@ export {
   unitOfMeasureSchema, type UnitOfMeasureInput,
   activityTypeSchema, type ActivityTypeInput,
 } from './catalog'
+export {
+  regulatoryDocTypeSchema, type RegulatoryDocTypeInput,
+  productRequirementSchema, type ProductRequirementInput,
+  shipmentRequirementSchema, type ShipmentRequirementInput,
+} from './regulatory'
