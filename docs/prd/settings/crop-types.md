@@ -243,3 +243,18 @@ Con refinamiento: si `is_transformation = false`, entonces `is_destructive` debe
   - `/production/orders` (Fase 4) — las órdenes seleccionan entry/exit phase de las production_phases
 - **React Query**: Cache keys `['crop-types']`, `['production-phases', cropTypeId]`
 - **Supabase client**: `src/lib/supabase/browser.ts` — PostgREST para CRUD
+
+## Implementation Notes
+
+- **Implemented**: 2026-02-26
+- **Migration**: `supabase/migrations/00000000000004_crop_types.sql` — crop_category ENUM, crop_types (Pattern 1 RLS), production_phases (Pattern 2 FK-based RLS via crop_type_id subquery)
+- **Schemas**: `packages/schemas/src/crop-types.ts` — cropTypeSchema, productionPhaseSchema with refinement (is_destructive requires is_transformation)
+- **Page**: `app/(dashboard)/settings/crop-types/page.tsx` — Server Component, parallel fetch of crop types (with phase counts via join) and all phases
+- **Client**: `components/settings/crop-types-client.tsx` — master-detail layout
+- **Master panel**: Card-based crop type list with category badges, phase counts, inline edit/deactivate. Selected item highlighted with border
+- **Detail panel**: Phases list with sort_order, flag badges (Transforma, Destructiva, Cambio de zona, Opcional, Entry, Exit), bifurcation indicator with GitBranch icon
+- **Reordering**: Up/down arrow buttons (not drag-and-drop) for simplicity. Swaps sort_order values between adjacent phases
+- **Phase dialog**: All 6 boolean flags as Switch toggles. is_destructive auto-disabled when is_transformation is off. depends_on_phase select with cycle prevention
+- **Drag-and-drop**: Deferred — using up/down buttons for now. Can add DnD library later if needed
+- **CRUD approach**: PostgREST via browser Supabase client. company_id auto-injected via DEFAULT for crop_types. production_phases uses crop_type_id FK
+- **Cache invalidation**: Uses router.refresh() to re-trigger Server Component
