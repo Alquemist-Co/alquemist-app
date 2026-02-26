@@ -199,3 +199,17 @@ Mismo schema que invitación pero sin `email` (read-only).
 - **Supabase Auth**: `auth.admin.inviteUserByEmail()` para envío de invitaciones
 - **React Query**: Cache key `['users-list']` para invalidación
 - **Facilities** (Fase 3): El select de facility referencia a `facilities` — si no hay facilities creadas, el campo es opcional y muestra estado vacío apropiado
+
+## Implementation Notes
+
+- **Implemented**: 2026-02-26
+- **Schemas**: `packages/schemas/src/users.ts` — `inviteUserSchema`, `editUserSchema`
+- **Server Actions**: `app/(dashboard)/settings/users/actions.ts` — `inviteUser`, `editUser`, `toggleUserActive`, `resendInvite`
+- **Page**: `app/(dashboard)/settings/users/page.tsx` — Server Component with URL search param filters + pagination
+- **Client Component**: `components/settings/users-client.tsx` — single client component orchestrating filters, table, invite/edit dialogs, toggle active alert dialog
+- **Shared roles**: `lib/data/roles.ts` — extracted `roleBadgeStyles`, `roleLabels`, `allRoles` from `profile-info-form.tsx`
+- **Facility field**: Omitted from dialogs since `facilities` table doesn't exist yet (Phase 3). `assigned_facility_id` defaults to `null`. Will be added when Phase 3 is implemented
+- **Facility column**: Omitted from table for same reason — column will be added in Phase 3
+- **Invite sets `is_active: false`**: Invited users start inactive; they become active upon accepting the invitation (handled in invite activation flow)
+- **Cache invalidation**: Uses `router.refresh()` to re-trigger Server Component after mutations instead of React Query `['users-list']` key (page is a Server Component, not client-side fetched)
+- **Debounced search**: 300ms debounce on search input before updating URL params
