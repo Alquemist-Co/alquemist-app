@@ -123,6 +123,143 @@ export type Database = {
         }
         Relationships: []
       }
+      crop_types: {
+        Row: {
+          id: string
+          company_id: string
+          code: string
+          name: string
+          scientific_name: string | null
+          category: Database["public"]["Enums"]["crop_category"]
+          regulatory_framework: string | null
+          icon: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          code: string
+          name: string
+          scientific_name?: string | null
+          category: Database["public"]["Enums"]["crop_category"]
+          regulatory_framework?: string | null
+          icon?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          code?: string
+          name?: string
+          scientific_name?: string | null
+          category?: Database["public"]["Enums"]["crop_category"]
+          regulatory_framework?: string | null
+          icon?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crop_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_phases: {
+        Row: {
+          id: string
+          crop_type_id: string
+          code: string
+          name: string
+          sort_order: number
+          default_duration_days: number | null
+          is_transformation: boolean
+          is_destructive: boolean
+          requires_zone_change: boolean
+          can_skip: boolean
+          can_be_entry_point: boolean
+          can_be_exit_point: boolean
+          depends_on_phase_id: string | null
+          icon: string | null
+          color: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          crop_type_id: string
+          code: string
+          name: string
+          sort_order?: number
+          default_duration_days?: number | null
+          is_transformation?: boolean
+          is_destructive?: boolean
+          requires_zone_change?: boolean
+          can_skip?: boolean
+          can_be_entry_point?: boolean
+          can_be_exit_point?: boolean
+          depends_on_phase_id?: string | null
+          icon?: string | null
+          color?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          crop_type_id?: string
+          code?: string
+          name?: string
+          sort_order?: number
+          default_duration_days?: number | null
+          is_transformation?: boolean
+          is_destructive?: boolean
+          requires_zone_change?: boolean
+          can_skip?: boolean
+          can_be_entry_point?: boolean
+          can_be_exit_point?: boolean
+          depends_on_phase_id?: string | null
+          icon?: string | null
+          color?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_phases_crop_type_id_fkey"
+            columns: ["crop_type_id"]
+            isOneToOne: false
+            referencedRelation: "crop_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_phases_depends_on_phase_id_fkey"
+            columns: ["depends_on_phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resource_categories: {
         Row: {
           id: string
@@ -319,6 +456,7 @@ export type Database = {
       get_my_company_id: { Args: never; Returns: string }
     }
     Enums: {
+      crop_category: "annual" | "perennial" | "biennial"
       lot_tracking: "required" | "optional" | "none"
       unit_dimension: "mass" | "volume" | "count" | "area" | "energy" | "time" | "concentration"
       user_role: "admin" | "manager" | "supervisor" | "operator" | "viewer"
@@ -452,6 +590,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      crop_category: ["annual", "perennial", "biennial"],
       lot_tracking: ["required", "optional", "none"],
       unit_dimension: ["mass", "volume", "count", "area", "energy", "time", "concentration"],
       user_role: ["admin", "manager", "supervisor", "operator", "viewer"],
