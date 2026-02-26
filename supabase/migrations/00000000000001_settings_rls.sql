@@ -3,9 +3,9 @@
 
 -- Helper: get the current user's role from JWT app_metadata
 CREATE OR REPLACE FUNCTION get_my_role()
-RETURNS user_role LANGUAGE sql STABLE SECURITY DEFINER
+RETURNS public.user_role LANGUAGE sql STABLE SECURITY DEFINER
 SET search_path = '' AS $$
-  SELECT (auth.jwt() -> 'app_metadata' ->> 'role')::user_role
+  SELECT (auth.jwt() -> 'app_metadata' ->> 'role')::public.user_role
 $$;
 
 -- =============================================================
