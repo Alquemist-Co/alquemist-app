@@ -334,3 +334,30 @@ Con refinamiento: exactamente uno de product_id o category_id debe ser NOT NULL.
 - **React Query**: Cache keys `['regulatory-doc-types']`, `['product-regulatory-requirements']`, `['shipment-doc-requirements']`
 - **Supabase client**: `src/lib/supabase/browser.ts` — PostgREST para CRUD
 - **Feature flag**: `company.settings.features_enabled.regulatory` — si false, página en modo read-only con banner
+
+---
+
+## Implementation Notes
+
+**Implemented**: 2026-02-26
+
+### Files
+
+| File | Description |
+|------|-------------|
+| `supabase/migrations/00000000000007_regulatory_config.sql` | 4 ENUMs + 3 tables, Pattern 1/2 RLS, CHECK constraints |
+| `types/database.ts` | Added 3 tables + 4 ENUMs to Enums and Constants |
+| `packages/schemas/src/regulatory.ts` | 3 Zod schemas with superRefine (unique keys, select options) and XOR refinements |
+| `packages/schemas/src/index.ts` | Exports for regulatory schemas |
+| `app/(dashboard)/settings/regulatory-config/page.tsx` | Server Component, feature flag check, parallel fetch |
+| `components/settings/regulatory-config-client.tsx` | 3-tab UI with form builder, product reqs, shipment reqs |
+
+### Adjustments from PRD
+
+- **No drag-and-drop**: Form builder uses up/down buttons (ChevronUp/ChevronDown) instead of DnD for field reordering — simpler implementation, consistent with PRD 12 pattern
+- **No React Query**: Uses `router.refresh()` pattern for cache invalidation (Server Component re-fetch), consistent with all other settings pages
+- **Products deferred**: product_id in requirements tables is plain UUID without FK — FK to products deferred to Phase 3 migration when products table exists
+- **No RF-09**: Warning about existing regulatory_documents when editing doc_type fields is deferred — regulatory_documents table doesn't exist yet (Phase 5)
+- **No RF-15**: Duplicate requirement prevention (same product/category + doc_type + scope) deferred to when it can be practically tested with real data
+- **Zod defaults removed**: `.default()` modifiers removed from schemas to avoid react-hook-form resolver type mismatch — defaults set in form `defaultValues` instead
+- **Feature flag**: Read from company.settings in server component, passed as `regulatoryEnabled` prop. When disabled, yellow banner shown + all write operations blocked
