@@ -123,6 +123,83 @@ export type Database = {
         }
         Relationships: []
       }
+      cultivars: {
+        Row: {
+          id: string
+          crop_type_id: string
+          code: string
+          name: string
+          breeder: string | null
+          genetics: string | null
+          default_cycle_days: number | null
+          phase_durations: Json | null
+          expected_yield_per_plant_g: number | null
+          expected_dry_ratio: number | null
+          target_profile: Json | null
+          quality_grade: string | null
+          optimal_conditions: Json | null
+          density_plants_per_m2: number | null
+          notes: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          crop_type_id: string
+          code: string
+          name: string
+          breeder?: string | null
+          genetics?: string | null
+          default_cycle_days?: number | null
+          phase_durations?: Json | null
+          expected_yield_per_plant_g?: number | null
+          expected_dry_ratio?: number | null
+          target_profile?: Json | null
+          quality_grade?: string | null
+          optimal_conditions?: Json | null
+          density_plants_per_m2?: number | null
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          crop_type_id?: string
+          code?: string
+          name?: string
+          breeder?: string | null
+          genetics?: string | null
+          default_cycle_days?: number | null
+          phase_durations?: Json | null
+          expected_yield_per_plant_g?: number | null
+          expected_dry_ratio?: number | null
+          target_profile?: Json | null
+          quality_grade?: string | null
+          optimal_conditions?: Json | null
+          density_plants_per_m2?: number | null
+          notes?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cultivars_crop_type_id_fkey"
+            columns: ["crop_type_id"]
+            isOneToOne: false
+            referencedRelation: "crop_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crop_types: {
         Row: {
           id: string
@@ -256,6 +333,95 @@ export type Database = {
             columns: ["depends_on_phase_id"]
             isOneToOne: false
             referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      phase_product_flows: {
+        Row: {
+          id: string
+          cultivar_id: string
+          phase_id: string
+          direction: Database["public"]["Enums"]["flow_direction"]
+          product_role: Database["public"]["Enums"]["product_role"]
+          product_id: string | null
+          product_category_id: string | null
+          expected_yield_pct: number | null
+          expected_quantity_per_input: number | null
+          unit_id: string | null
+          is_required: boolean
+          sort_order: number
+          notes: string | null
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          cultivar_id: string
+          phase_id: string
+          direction: Database["public"]["Enums"]["flow_direction"]
+          product_role: Database["public"]["Enums"]["product_role"]
+          product_id?: string | null
+          product_category_id?: string | null
+          expected_yield_pct?: number | null
+          expected_quantity_per_input?: number | null
+          unit_id?: string | null
+          is_required?: boolean
+          sort_order?: number
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          cultivar_id?: string
+          phase_id?: string
+          direction?: Database["public"]["Enums"]["flow_direction"]
+          product_role?: Database["public"]["Enums"]["product_role"]
+          product_id?: string | null
+          product_category_id?: string | null
+          expected_yield_pct?: number | null
+          expected_quantity_per_input?: number | null
+          unit_id?: string | null
+          is_required?: boolean
+          sort_order?: number
+          notes?: string | null
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phase_product_flows_cultivar_id_fkey"
+            columns: ["cultivar_id"]
+            isOneToOne: false
+            referencedRelation: "cultivars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phase_product_flows_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phase_product_flows_product_category_id_fkey"
+            columns: ["product_category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phase_product_flows_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
             referencedColumns: ["id"]
           },
         ]
@@ -457,7 +623,9 @@ export type Database = {
     }
     Enums: {
       crop_category: "annual" | "perennial" | "biennial"
+      flow_direction: "input" | "output"
       lot_tracking: "required" | "optional" | "none"
+      product_role: "primary" | "secondary" | "byproduct" | "waste"
       unit_dimension: "mass" | "volume" | "count" | "area" | "energy" | "time" | "concentration"
       user_role: "admin" | "manager" | "supervisor" | "operator" | "viewer"
     }
@@ -591,7 +759,9 @@ export const Constants = {
   public: {
     Enums: {
       crop_category: ["annual", "perennial", "biennial"],
+      flow_direction: ["input", "output"],
       lot_tracking: ["required", "optional", "none"],
+      product_role: ["primary", "secondary", "byproduct", "waste"],
       unit_dimension: ["mass", "volume", "count", "area", "energy", "time", "concentration"],
       user_role: ["admin", "manager", "supervisor", "operator", "viewer"],
     },
