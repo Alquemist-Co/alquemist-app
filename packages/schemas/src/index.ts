@@ -20,6 +20,10 @@ export {
   productionPhaseSchema, type ProductionPhaseInput,
 } from './crop-types'
 export {
+  cultivarSchema, type CultivarInput,
+  phaseProductFlowSchema, type PhaseProductFlowInput,
+} from './cultivars'
+export {
   resourceCategorySchema, type ResourceCategoryInput,
   unitOfMeasureSchema, type UnitOfMeasureInput,
   activityTypeSchema, type ActivityTypeInput,
