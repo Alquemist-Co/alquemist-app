@@ -20,7 +20,7 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 - [x] 08 · `settings/users` — `/settings/users` · prd ✓
 - [x] 09 · `settings/catalog` — `/settings/catalog` · prd ✓
 - [x] 10 · `settings/crop-types` — `/settings/crop-types` · prd ✓
-- [ ] 11 · `settings/cultivars` — `/settings/cultivars` · prd ✓
+- [x] 11 · `settings/cultivars` — `/settings/cultivars` · prd ✓
 - [ ] 12 · `settings/activity-templates` — `/settings/activity-templates` · prd ✓
 - [ ] 13 · `settings/regulatory-config` — `/settings/regulatory-config` · prd ✓
 
@@ -82,7 +82,7 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | Phase                               | PRDs Written | Implemented |
 | ----------------------------------- | ------------ | ----------- |
 | 1 Auth                              | 5/5          | 5/5         |
-| 2 Settings                          | 8/8          | 5/8         |
+| 2 Settings                          | 8/8          | 6/8         |
 | 3 Areas + Inventory                 | 7/8          | 0/8         |
 | 4 Production                        | 0/4          | 0/4         |
 | 5 Activities + Quality + Regulatory | 0/7          | 0/7         |
@@ -90,4 +90,4 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | 7 Inventory Ops                     | 0/2          | 0/2         |
 | 8 Field                             | 0/4          | 0/4         |
 | 9 Dashboard                         | 0/1          | 0/1         |
-| **Total**                           | **20/43**    | **10/43**   |
+| **Total**                           | **20/43**    | **11/43**   |

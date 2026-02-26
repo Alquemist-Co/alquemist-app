@@ -326,3 +326,22 @@ Con refinamiento: al menos uno de `product_id` o `product_category_id` debe esta
   - `/production/orders` (Fase 4) — órdenes seleccionan cultivar y usan sus flows para cálculo de yields
 - **React Query**: Cache keys `['cultivars', cropTypeId]`, `['phase-product-flows', cultivarId]`, `['products']` (global), `['resource-categories']` (global), `['units-of-measure']` (global)
 - **Supabase client**: `src/lib/supabase/browser.ts` — PostgREST para CRUD
+
+## Implementation Notes
+
+- **Implemented**: 2026-02-26
+- **Migration**: `supabase/migrations/00000000000005_cultivars.sql` — flow_direction + product_role ENUMs, cultivars (Pattern 2 RLS via crop_type_id), phase_product_flows (Pattern 2 nested RLS via cultivar_id → crop_types). product_id FK to products deferred to Phase 3
+- **Schemas**: `packages/schemas/src/cultivars.ts` — cultivarSchema (no code regex constraint — codes can be uppercase like GELATO-41), phaseProductFlowSchema
+- **Page**: `app/(dashboard)/settings/cultivars/page.tsx` — Server Component, parallel fetch of crop types, cultivars, phases, flows, categories, units. JSONB fields cast to typed Records
+- **Client**: `components/settings/cultivars-client.tsx` — master-detail with crop type filter select
+- **Master panel**: Card-based cultivar list with flow count badges, inline edit/duplicate/deactivate
+- **Detail panel**: 5 collapsible sections (general info, phase durations, target profile, optimal conditions, phase product flows)
+- **Phase durations**: Editable table derived from production_phases with cultivar override values stored in phase_durations JSONB. Auto-computes total cycle days
+- **Target profile**: Key-value editor, stored as JSONB Record<string, string>
+- **Optimal conditions**: Key-min-max-unit editor, stored as JSONB Record<string, {min, max, unit}>
+- **Phase product flows**: Grouped by phase with expandable accordions. Inputs/outputs separated by direction. Inline editing for role, category, yield%, qty/input, unit, is_required. Warning indicator when product_id and product_category_id are both null
+- **Copy flows**: Dialog selects source cultivar, fetches flows, deletes existing + inserts copies. Warning if replacing existing flows
+- **Duplicate cultivar**: Creates copy with "-COPY" suffix code, copies all flows
+- **Products**: product_id FK deferred since products table doesn't exist yet. Message shown: "Los productos se configuran en Inventario > Productos. Puedes usar categorías mientras tanto"
+- **Cache invalidation**: Uses router.refresh() to re-trigger Server Component
+- **Drag-and-drop for flows**: Not implemented — flows use inline editing and delete/re-add pattern
