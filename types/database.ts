@@ -786,6 +786,191 @@ export type Database = {
           },
         ]
       }
+      regulatory_doc_types: {
+        Row: {
+          id: string
+          company_id: string
+          code: string
+          name: string
+          description: string | null
+          category: Database["public"]["Enums"]["doc_category"]
+          valid_for_days: number | null
+          issuing_authority: string | null
+          required_fields: Json
+          sort_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          company_id?: string
+          code: string
+          name: string
+          description?: string | null
+          category: Database["public"]["Enums"]["doc_category"]
+          valid_for_days?: number | null
+          issuing_authority?: string | null
+          required_fields?: Json
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          company_id?: string
+          code?: string
+          name?: string
+          description?: string | null
+          category?: Database["public"]["Enums"]["doc_category"]
+          valid_for_days?: number | null
+          issuing_authority?: string | null
+          required_fields?: Json
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regulatory_doc_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_regulatory_requirements: {
+        Row: {
+          id: string
+          product_id: string | null
+          category_id: string | null
+          doc_type_id: string
+          is_mandatory: boolean
+          applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
+          frequency: Database["public"]["Enums"]["compliance_frequency"]
+          notes: string | null
+          sort_order: number
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          product_id?: string | null
+          category_id?: string | null
+          doc_type_id: string
+          is_mandatory?: boolean
+          applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
+          frequency: Database["public"]["Enums"]["compliance_frequency"]
+          notes?: string | null
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          product_id?: string | null
+          category_id?: string | null
+          doc_type_id?: string
+          is_mandatory?: boolean
+          applies_to_scope?: Database["public"]["Enums"]["compliance_scope"]
+          frequency?: Database["public"]["Enums"]["compliance_frequency"]
+          notes?: string | null
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_regulatory_requirements_doc_type_id_fkey"
+            columns: ["doc_type_id"]
+            isOneToOne: false
+            referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_regulatory_requirements_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipment_doc_requirements: {
+        Row: {
+          id: string
+          product_id: string | null
+          category_id: string | null
+          doc_type_id: string
+          is_mandatory: boolean
+          applies_when: Database["public"]["Enums"]["shipment_doc_applies_when"]
+          notes: string | null
+          sort_order: number
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          product_id?: string | null
+          category_id?: string | null
+          doc_type_id: string
+          is_mandatory?: boolean
+          applies_when: Database["public"]["Enums"]["shipment_doc_applies_when"]
+          notes?: string | null
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          product_id?: string | null
+          category_id?: string | null
+          doc_type_id?: string
+          is_mandatory?: boolean
+          applies_when?: Database["public"]["Enums"]["shipment_doc_applies_when"]
+          notes?: string | null
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_doc_requirements_doc_type_id_fkey"
+            columns: ["doc_type_id"]
+            isOneToOne: false
+            referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_doc_requirements_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       units_of_measure: {
         Row: {
           id: string
@@ -911,11 +1096,15 @@ export type Database = {
     }
     Enums: {
       activity_frequency: "daily" | "weekly" | "biweekly" | "once" | "on_demand"
+      compliance_frequency: "once" | "per_production" | "annual" | "per_shipment"
+      compliance_scope: "per_batch" | "per_lot" | "per_product" | "per_facility"
       crop_category: "annual" | "perennial" | "biennial"
+      doc_category: "quality" | "transport" | "compliance" | "origin" | "safety" | "commercial"
       flow_direction: "input" | "output"
       lot_tracking: "required" | "optional" | "none"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
       quantity_basis: "fixed" | "per_plant" | "per_m2" | "per_zone" | "per_L_solution"
+      shipment_doc_applies_when: "always" | "interstate" | "international" | "regulated_material"
       unit_dimension: "mass" | "volume" | "count" | "area" | "energy" | "time" | "concentration"
       user_role: "admin" | "manager" | "supervisor" | "operator" | "viewer"
     }
@@ -1049,11 +1238,15 @@ export const Constants = {
   public: {
     Enums: {
       activity_frequency: ["daily", "weekly", "biweekly", "once", "on_demand"],
+      compliance_frequency: ["once", "per_production", "annual", "per_shipment"],
+      compliance_scope: ["per_batch", "per_lot", "per_product", "per_facility"],
       crop_category: ["annual", "perennial", "biennial"],
+      doc_category: ["quality", "transport", "compliance", "origin", "safety", "commercial"],
       flow_direction: ["input", "output"],
       lot_tracking: ["required", "optional", "none"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
       quantity_basis: ["fixed", "per_plant", "per_m2", "per_zone", "per_L_solution"],
+      shipment_doc_applies_when: ["always", "interstate", "international", "regulated_material"],
       unit_dimension: ["mass", "volume", "count", "area", "energy", "time", "concentration"],
       user_role: ["admin", "manager", "supervisor", "operator", "viewer"],
     },
