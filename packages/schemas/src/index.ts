@@ -6,3 +6,7 @@ export {
   forgotPasswordSchema, type ForgotPasswordInput,
   resetPasswordSchema, type ResetPasswordInput,
 } from './auth'
+export {
+  profileInfoSchema, type ProfileInfoInput,
+  changePasswordSchema, type ChangePasswordInput,
+} from './settings'
