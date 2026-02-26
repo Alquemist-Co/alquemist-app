@@ -255,3 +255,18 @@ category: z.string().max(100).optional().or(z.literal(''))
 - **Supabase client**: `src/lib/supabase/browser.ts` — PostgREST para CRUD
 - **React Query**: Cache keys `['resource-categories']`, `['units-of-measure']`, `['activity-types']`
 - **Seed data**: Se recomienda proveer seed data inicial para unidades comunes (g, kg, L, mL, und) al crear una empresa
+
+## Implementation Notes
+
+- **Implemented**: 2026-02-26
+- **Migration**: `supabase/migrations/00000000000003_catalog_tables.sql` — 2 ENUMs (lot_tracking, unit_dimension), 3 tables with RLS (Pattern 1 + 3), unique code indexes, auto-timestamps trigger
+- **Schemas**: `packages/schemas/src/catalog.ts` — resourceCategorySchema, unitOfMeasureSchema, activityTypeSchema
+- **Page**: `app/(dashboard)/settings/catalog/page.tsx` — Server Component, parallel data fetch, role check
+- **Client**: `components/settings/catalog-client.tsx` — single file with 3 tab components + 3 dialog components
+- **CRUD approach**: PostgREST via browser Supabase client (no server actions). `company_id` auto-injected via DEFAULT `get_my_company_id()`, validated by RLS
+- **Tab state**: Synced to `?tab=` URL param via `router.push()` for deep-linking
+- **Categories tree**: Flat list with depth-based indentation. Expand/collapse state in client. Deactivation warns if node has active children
+- **Units grouping**: Client-side grouping by dimension. First unit in a dimension auto-becomes base (factor=1). Delete guarded by FK and base-unit check
+- **Activity types**: Simple table with soft-delete toggle. No pagination (expected ~15-30 records)
+- **Read-only mode**: Non-admin/manager roles see data without action buttons
+- **Cache invalidation**: Uses `router.refresh()` to re-trigger Server Component after mutations
