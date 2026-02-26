@@ -199,8 +199,18 @@ logo_url: z.string().url().nullable().optional()
   - `/signup` — redirige aquí post-registro para completar configuración
   - `/settings/profile` — información de empresa visible en perfil
   - Sidebar layout — lee `settings.features_enabled` para mostrar/ocultar módulos
-- **Supabase client**: `src/lib/supabase/browser.ts` — PostgREST para companies
-- **Supabase Storage**: Bucket `company-logos` para upload de logo
-- **Store**: `src/stores/auth-store.ts` — actualizar datos de empresa post-save
-- **React Query**: Cache key `['company']` para invalidación
-- **Datos estáticos**: Lista de países (ISO 3166-1), timezones por país, monedas por país (compartido con signup)
+- **Supabase client**: `lib/supabase/client.ts` (browser) / `lib/supabase/server.ts` (SSR) — PostgREST for companies
+- **Supabase Storage**: Bucket `company-logos` — migration `00000000000002_company_logos_bucket.sql`
+- **Auth context**: `lib/auth/context.tsx` — `useAuth()` for role check + `refreshUser()` post-save (invalidates `['auth-user']` query)
+- **Datos estáticos**: `lib/data/countries.ts` — COUNTRIES, TIMEZONES_BY_COUNTRY, CURRENCY_BY_COUNTRY (shared with signup)
+- **Zod schema**: `packages/schemas/src/settings.ts` — `companySettingsSchema`
+
+## Implementation Notes
+
+- Auth store replaced by `useAuth()` context + React Query (`['auth-user']` key)
+- RLS policies: `companies_select_tenant` (SELECT), `companies_update_admin` (UPDATE) — defined in `00000000000001_settings_rls.sql`
+- Storage RLS: 4 policies on `storage.objects` — insert/update/delete for admin, public select
+- Logo compression: Canvas API client-side (max 400x400, quality 0.9), SVGs skip compression
+- Currency is read-only input (auto-derived from country), not a select
+- Server Component page at `app/(dashboard)/settings/company/page.tsx` fetches company + user role
+- Client form at `components/settings/company-settings-form.tsx` handles all 4 sections
