@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- **Ruta**: `/reset-password/[token]`
+- **Ruta**: `/reset-password` (token exchanged via `/auth/confirm` callback)
 - **Roles con acceso**: Público (acceso controlado por token de recovery)
 - **Tipo componente**: Client Component (`'use client'`)
 - **Edge Functions**: Ninguna — usa `supabase.auth.updateUser({ password })` (built-in)

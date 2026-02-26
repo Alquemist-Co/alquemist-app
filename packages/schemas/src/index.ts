@@ -1,2 +1,8 @@
 export { uuidSchema, paginationSchema, type Pagination } from './common'
-export { loginSchema, type LoginInput, signupSchema, type SignupInput } from './auth'
+export {
+  loginSchema, type LoginInput,
+  signupSchema, type SignupInput,
+  inviteActivationSchema, type InviteActivationInput,
+  forgotPasswordSchema, type ForgotPasswordInput,
+  resetPasswordSchema, type ResetPasswordInput,
+} from './auth'

@@ -37,6 +37,23 @@
 - [x] PRD 35: operations-sensors
 - [x] PRD 36: operations-costs
 
+## Auth Invite, Forgot/Reset Password (PRDs 03, 04, 05)
+
+- [x] Add Zod schemas — `inviteActivationSchema`, `forgotPasswordSchema`, `resetPasswordSchema`
+- [x] Extract `getRoleRedirect` to shared util `lib/auth/utils.ts`
+- [x] Create auth callback Route Handler — `app/auth/confirm/route.ts`
+- [x] Update middleware — add `/auth/confirm` and `/invite` as public routes
+- [x] Implement PRD 04 — `/forgot-password` page (email input → success message)
+- [x] Implement PRD 05 — `/reset-password` page (session check, password form, sign out after)
+- [x] Implement PRD 03 — `/invite` page + server action (user activation, auto-login)
+- [x] Install shadcn badge component
+- [x] Update PRD docs (route changes) and implementation tracker
+
+### Verification
+
+- [x] `pnpm type-check` — passes
+- [x] `pnpm lint` — passes (0 errors, 0 warnings)
+
 ## Auth Signup (PRD 02)
 
 - [x] Create static data — `lib/data/countries.ts` (countries, timezones, currencies)

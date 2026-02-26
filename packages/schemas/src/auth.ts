@@ -24,3 +24,28 @@ export const signupSchema = z.object({
   path: ['confirm_password'],
 })
 export type SignupInput = z.infer<typeof signupSchema>
+
+export const inviteActivationSchema = z.object({
+  full_name: z.string().min(1, 'El nombre es requerido').max(200, 'Máximo 200 caracteres'),
+  phone: z.string().max(20, 'Máximo 20 caracteres').optional().or(z.literal('')),
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
+  confirm_password: z.string().min(1, 'Confirma la contraseña'),
+}).refine((d) => d.password === d.confirm_password, {
+  message: 'Las contraseñas no coinciden',
+  path: ['confirm_password'],
+})
+export type InviteActivationInput = z.infer<typeof inviteActivationSchema>
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().min(1, 'El email es requerido').email('Formato de email inválido'),
+})
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+
+export const resetPasswordSchema = z.object({
+  password: z.string().min(8, 'Mínimo 8 caracteres'),
+  confirm_password: z.string().min(1, 'Confirma la contraseña'),
+}).refine((d) => d.password === d.confirm_password, {
+  message: 'Las contraseñas no coinciden',
+  path: ['confirm_password'],
+})
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>

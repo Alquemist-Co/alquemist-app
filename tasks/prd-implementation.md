@@ -9,9 +9,9 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 
 - [x] 01 · `auth/login` — `/login` · prd ✓
 - [x] 02 · `auth/signup` — `/signup` · prd ✓
-- [ ] 03 · `auth/invite` — `/invite/[token]` · prd ✓
-- [ ] 04 · `auth/forgot-password` — `/forgot-password` · prd ✓
-- [ ] 05 · `auth/reset-password` — `/reset-password/[token]` · prd ✓
+- [x] 03 · `auth/invite` — `/invite` · prd ✓
+- [x] 04 · `auth/forgot-password` — `/forgot-password` · prd ✓
+- [x] 05 · `auth/reset-password` — `/reset-password` · prd ✓
 
 ## Phase 2 — Settings (8 PRDs)
 
@@ -81,7 +81,7 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 
 | Phase                               | PRDs Written | Implemented |
 | ----------------------------------- | ------------ | ----------- |
-| 1 Auth                              | 5/5          | 2/5         |
+| 1 Auth                              | 5/5          | 5/5         |
 | 2 Settings                          | 8/8          | 0/8         |
 | 3 Areas + Inventory                 | 7/8          | 0/8         |
 | 4 Production                        | 0/4          | 0/4         |
@@ -90,4 +90,4 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | 7 Inventory Ops                     | 0/2          | 0/2         |
 | 8 Field                             | 0/4          | 0/4         |
 | 9 Dashboard                         | 0/1          | 0/1         |
-| **Total**                           | **20/43**    | **2/43**    |
+| **Total**                           | **20/43**    | **5/43**    |

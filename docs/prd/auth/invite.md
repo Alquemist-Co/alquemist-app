@@ -2,7 +2,7 @@
 
 ## Metadata
 
-- **Ruta**: `/invite/[token]`
+- **Ruta**: `/invite` (token exchanged via `/auth/confirm` callback)
 - **Roles con acceso**: Público (acceso controlado por token)
 - **Tipo componente**: Client Component (`'use client'`)
 - **Edge Functions**: Ninguna — usa Server Action con `admin.ts` (service role) para activar cuenta
@@ -68,7 +68,7 @@ Página pública fuera del layout de dashboard. Diseño de activación de cuenta
   - admin, manager, viewer → `/` (dashboard)
   - supervisor → `/activities/schedule`
   - operator → `/field/today`
-- **RF-09**: Si el usuario ya tiene sesión activa y navega a `/invite/[token]`, mostrar mensaje: "Ya tienes una sesión activa" con opción de cerrar sesión y continuar, o ir al dashboard
+- **RF-09**: Si el usuario ya tiene sesión activa y navega a `/invite`, mostrar mensaje: "Ya tienes una sesión activa" con opción de cerrar sesión y continuar, o ir al dashboard
 
 ## Requisitos no funcionales
 
@@ -84,7 +84,7 @@ Página pública fuera del layout de dashboard. Diseño de activación de cuenta
 
 1. Admin invita usuario desde `/settings/users` (Fase 2 — crea auth.users + users con is_active=false)
 2. Supabase envía email con link de invitación conteniendo token
-3. Usuario hace click en el link → navega a `/invite/[token]`
+3. Usuario hace click en el link → navega a `/invite`
 4. Página carga: token válido, extrae datos del usuario
 5. Muestra: "Has sido invitado a AgroTech Colombia como Manager"
 6. Email read-only pre-llenado, nombre completo editable

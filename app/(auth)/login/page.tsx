@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginInput } from '@/schemas/auth'
 import { createClient } from '@/lib/supabase/client'
+import { getRoleRedirect } from '@/lib/auth/utils'
 import { toast } from 'sonner'
 import { Sprout } from 'lucide-react'
 import Link from 'next/link'
@@ -28,17 +29,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-
-function getRoleRedirect(role: string): string {
-  switch (role) {
-    case 'supervisor':
-      return '/activities/schedule'
-    case 'operator':
-      return '/field/today'
-    default:
-      return '/'
-  }
-}
 
 export default function LoginPage() {
   const router = useRouter()

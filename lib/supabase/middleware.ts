@@ -37,6 +37,12 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const authRoutes = ['/login', '/signup', '/forgot-password', '/reset-password']
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
+  const isPublicRoute = pathname.startsWith('/auth/confirm') || pathname.startsWith('/invite')
+
+  if (isPublicRoute) {
+    // Auth callback and invite pages — pass through without redirects
+    return supabaseResponse
+  }
 
   if (user && isAuthRoute) {
     // Authenticated user on auth page → redirect to role-based route
