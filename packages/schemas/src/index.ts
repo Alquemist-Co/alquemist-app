@@ -9,4 +9,5 @@ export {
 export {
   profileInfoSchema, type ProfileInfoInput,
   changePasswordSchema, type ChangePasswordInput,
+  companySettingsSchema, type CompanySettingsInput,
 } from './settings'
