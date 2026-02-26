@@ -307,39 +307,54 @@ packages/
 app/
   (auth)/
     login/
-    register/
+    signup/
+    invite/[token]/
+    forgot-password/
+    reset-password/[token]/
   (dashboard)/             ← Layout con sidebar, requiere auth
     layout.tsx             ← Server Component: valida sesión, carga company
-    page.tsx               ← Dashboard principal
+    page.tsx               ← Dashboard principal (fase 9)
     production/
       orders/              ← Listado y creación de órdenes
+      orders/[id]/         ← Detalle de orden
       batches/             ← Seguimiento de batches activos
       batches/[id]/        ← Detalle de batch con timeline
     areas/
       facilities/
       zones/
+      zones/[id]/          ← Detalle de zona
     inventory/
       products/
-      items/               ← Stock actual
-      transactions/        ← Log inmutable (solo lectura)
+      suppliers/
+      shipments/
+      shipments/[id]/      ← Detalle de envío
+      recipes/
+      items/               ← Stock actual (fase 7)
+      transactions/        ← Log inmutable, solo lectura (fase 7)
     activities/
       schedule/            ← Calendar view de scheduled_activities
       execute/[id]/        ← Formulario de ejecución (Client Component)
       history/
     quality/
       tests/
+      tests/[id]/          ← Detalle de test
     regulatory/
       documents/
-      shipments/
+      documents/[id]/      ← Detalle de documento
     operations/
       alerts/
       environmental/
+      sensors/
       costs/
     settings/
+      profile/
       company/
       users/
+      catalog/
       crop-types/
       cultivars/
+      activity-templates/
+      regulatory-config/
   (field)/                 ← Rutas optimizadas para operarios en campo
     layout.tsx             ← Layout simplificado para móvil
     today/                 ← Actividades del día para este operario

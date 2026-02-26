@@ -92,10 +92,30 @@ Cada archivo PRD sigue esta estructura:
 ```
 docs/prd/
   00-prd-master-plan.md              ← Este documento
-  auth-login/auth-login.md
-  auth-signup/auth-signup.md
-  auth-invite/auth-invite.md
-  ...etc (una carpeta por página)
+  auth/
+    login.md, signup.md, invite.md, forgot-password.md, reset-password.md
+  settings/
+    profile.md, company.md, users.md, catalog.md, crop-types.md,
+    cultivars.md, activity-templates.md, regulatory-config.md
+  areas/
+    facilities.md, zones.md, zone-detail.md
+  inventory/
+    products.md, suppliers.md, shipments.md, shipment-detail.md,
+    recipes.md, items.md, transactions.md
+  production/
+    orders.md, order-detail.md, batches.md, batch-detail.md
+  activities/
+    schedule.md, execute.md, history.md
+  quality/
+    tests.md, test-detail.md
+  regulatory/
+    documents.md, document-detail.md
+  operations/
+    alerts.md, environmental.md, sensors.md, costs.md
+  field/
+    today.md, execute.md, observe.md, scan.md
+  dashboard/
+    home.md
 ```
 
 ---
@@ -139,11 +159,11 @@ Autenticación, onboarding de empresa, e invitación de usuarios.
 
 ### Archivos PRD
 
-- [x] 01 · `auth-login/auth-login.md` — `/login` — Login con email/password, manejo de sesión, redirect post-login por rol
-- [x] 02 · `auth-signup/auth-signup.md` — `/signup` — Onboarding inicial: primer admin registra empresa + su cuenta de administrador
-- [x] 03 · `auth-invite/auth-invite.md` — `/invite/[token]` — Activación de cuenta vía invitación: set password, completar perfil
-- [x] 04 · `auth-forgot-password/auth-forgot-password.md` — `/forgot-password` — Solicitar restablecimiento de contraseña por email
-- [x] 05 · `auth-reset-password/auth-reset-password.md` — `/reset-password/[token]` — Establecer nueva contraseña desde link del email
+- [x] 01 · `auth/login.md` — `/login` — Login con email/password, manejo de sesión, redirect post-login por rol
+- [x] 02 · `auth/signup.md` — `/signup` — Onboarding inicial: primer admin registra empresa + su cuenta de administrador
+- [x] 03 · `auth/invite.md` — `/invite/[token]` — Activación de cuenta vía invitación: set password, completar perfil
+- [x] 04 · `auth/forgot-password.md` — `/forgot-password` — Solicitar restablecimiento de contraseña por email
+- [x] 05 · `auth/reset-password.md` — `/reset-password/[token]` — Establecer nueva contraseña desde link del email
 
 ### Dependencias
 
@@ -206,14 +226,14 @@ Todo lo que debe existir antes de crear una orden o un batch.
 
 ### Archivos PRD
 
-- [x] 06 · `settings-profile/settings-profile.md` — `/settings/profile` — Perfil personal del usuario: editar nombre, teléfono, cambiar contraseña
-- [x] 07 · `settings-company/settings-company.md` — `/settings/company` — Perfil empresa: timezone, moneda, features habilitados, regulatory_mode
-- [x] 08 · `settings-users/settings-users.md` — `/settings/users` — Invitar usuarios, asignar rol, facility y permissions JSONB
-- [x] 09 · `settings-catalog/settings-catalog.md` — `/settings/catalog` — Tablas de referencia: resource_categories, units_of_measure, activity_types
-- [x] 10 · `settings-crop-types/settings-crop-types.md` — `/settings/crop-types` — CRUD crop_types + production_phases configurables por tipo
-- [x] 11 · `settings-cultivars/settings-cultivars.md` — `/settings/cultivars` — CRUD cultivars + phase_product_flows por cultivar
-- [x] 12 · `settings-activity-templates/settings-activity-templates.md` — `/settings/activity-templates` — CRUD templates + recursos + checklist + fases + cultivation_schedules
-- [x] 13 · `settings-regulatory-config/settings-regulatory-config.md` — `/settings/regulatory-config` — CRUD regulatory_doc_types + product_regulatory_requirements + shipment_doc_requirements
+- [x] 06 · `settings/profile.md` — `/settings/profile` — Perfil personal del usuario: editar nombre, teléfono, cambiar contraseña
+- [x] 07 · `settings/company.md` — `/settings/company` — Perfil empresa: timezone, moneda, features habilitados, regulatory_mode
+- [x] 08 · `settings/users.md` — `/settings/users` — Invitar usuarios, asignar rol, facility y permissions JSONB
+- [x] 09 · `settings/catalog.md` — `/settings/catalog` — Tablas de referencia: resource_categories, units_of_measure, activity_types
+- [x] 10 · `settings/crop-types.md` — `/settings/crop-types` — CRUD crop_types + production_phases configurables por tipo
+- [x] 11 · `settings/cultivars.md` — `/settings/cultivars` — CRUD cultivars + phase_product_flows por cultivar
+- [x] 12 · `settings/activity-templates.md` — `/settings/activity-templates` — CRUD templates + recursos + checklist + fases + cultivation_schedules
+- [x] 13 · `settings/regulatory-config.md` — `/settings/regulatory-config` — CRUD regulatory_doc_types + product_regulatory_requirements + shipment_doc_requirements
 
 ### Dependencias
 
@@ -277,14 +297,14 @@ La infraestructura física y los recursos que el sistema va a manejar.
 
 ### Archivos PRD
 
-- [x] 14 · `areas-facilities/areas-facilities.md` — `/areas/facilities` — CRUD instalaciones, capacidades calculadas
-- [x] 15 · `areas-zones/areas-zones.md` — `/areas/zones` — CRUD zonas, zone_structures inline, filtro por facility
-- [x] 16 · `areas-zone-detail/areas-zone-detail.md` — `/areas/zones/[id]` — Detalle zona: estructuras, posiciones, batch activo, sensores
-- [x] 17 · `inventory-products/inventory-products.md` — `/inventory/products` — Catálogo de productos, requerimientos regulatorios del producto
-- [x] 18 · `inventory-suppliers/inventory-suppliers.md` — `/inventory/suppliers` — CRUD proveedores
-- [x] 19 · `inventory-shipments/inventory-shipments.md` — `/inventory/shipments` — Lista envíos inbound/outbound, crear shipment
-- [x] 20 · `inventory-shipment-detail/inventory-shipment-detail.md` — `/inventory/shipments/[id]` — Detalle envío: líneas, docs requeridos, inspección, confirmar recepción → genera inventory_items
-- [x] 21 · `inventory-recipes/inventory-recipes.md` — `/inventory/recipes` — CRUD fórmulas/BOM, ejecutar receta → genera transacciones
+- [x] 14 · `areas/facilities.md` — `/areas/facilities` — CRUD instalaciones, capacidades calculadas
+- [x] 15 · `areas/zones.md` — `/areas/zones` — CRUD zonas, zone_structures inline, filtro por facility
+- [x] 16 · `areas/zone-detail.md` — `/areas/zones/[id]` — Detalle zona: estructuras, posiciones, batch activo, sensores
+- [x] 17 · `inventory/products.md` — `/inventory/products` — Catálogo de productos, requerimientos regulatorios del producto
+- [x] 18 · `inventory/suppliers.md` — `/inventory/suppliers` — CRUD proveedores
+- [x] 19 · `inventory/shipments.md` — `/inventory/shipments` — Lista envíos inbound/outbound, crear shipment
+- [x] 20 · `inventory/shipment-detail.md` — `/inventory/shipments/[id]` — Detalle envío: líneas, docs requeridos, inspección, confirmar recepción → genera inventory_items
+- [x] 21 · `inventory/recipes.md` — `/inventory/recipes` — CRUD fórmulas/BOM, ejecutar receta → genera transacciones
 
 ### Dependencias
 
@@ -333,10 +353,10 @@ El ciclo productivo central.
 
 ### Archivos PRD
 
-- [ ] 22 · `production-orders/production-orders.md` — `/production/orders` — Listado órdenes, crear orden con entry/exit point, cálculo yields en cascada
-- [ ] 23 · `production-order-detail/production-order-detail.md` — `/production/orders/[id]` — Detalle orden: fases, progreso, aprobar, cancelar, link al batch generado
-- [ ] 24 · `production-batches/production-batches.md` — `/production/batches` — Lista batches activos, filtros por fase/zona/cultivar
-- [ ] 25 · `production-batch-detail/production-batch-detail.md` — `/production/batches/[id]` — Centro del sistema: timeline, actividades, transacciones, quality tests, docs regulatorios, split/merge
+- [x] 22 · `production/orders.md` — `/production/orders` — Listado órdenes, crear orden con entry/exit point, cálculo yields en cascada
+- [x] 23 · `production/order-detail.md` — `/production/orders/[id]` — Detalle orden: fases, progreso, aprobar, cancelar, link al batch generado
+- [x] 24 · `production/batches.md` — `/production/batches` — Lista batches activos, filtros por fase/zona/cultivar
+- [x] 25 · `production/batch-detail.md` — `/production/batches/[id]` — Centro del sistema: timeline, actividades, transacciones, quality tests, docs regulatorios, split/merge
 
 ### Dependencias
 
@@ -392,13 +412,13 @@ Lo que ocurre durante la ejecución del batch.
 
 ### Archivos PRD
 
-- [ ] 26 · `activities-schedule/activities-schedule.md` — `/activities/schedule` — Vista calendario de scheduled_activities, filtros, re-programar
-- [ ] 27 · `activities-execute/activities-execute.md` — `/activities/execute/[id]` — Formulario ejecución: recursos escalados, checklist, observaciones, fotos
-- [ ] 28 · `activities-history/activities-history.md` — `/activities/history` — Historial actividades ejecutadas con filtros y detalle
-- [ ] 29 · `quality-tests/quality-tests.md` — `/quality/tests` — Lista tests, crear test, filtros por batch/estado/tipo
-- [ ] 30 · `quality-test-detail/quality-test-detail.md` — `/quality/tests/[id]` — Capturar resultados por parámetro, vincular CoA, overall_pass
-- [ ] 31 · `regulatory-documents/regulatory-documents.md` — `/regulatory/documents` — Lista documentos con status (valid/expiring/expired), subir nuevo
-- [ ] 32 · `regulatory-document-detail/regulatory-document-detail.md` — `/regulatory/documents/[id]` — Formulario dinámico por doc_type, adjunto, historial versiones
+- [x] 26 · `activities/schedule.md` — `/activities/schedule` — Vista calendario de scheduled_activities, filtros, re-programar
+- [x] 27 · `activities/execute.md` — `/activities/execute/[id]` — Formulario ejecución: recursos escalados, checklist, observaciones, fotos
+- [x] 28 · `activities/history.md` — `/activities/history` — Historial actividades ejecutadas con filtros y detalle
+- [x] 29 · `quality/tests.md` — `/quality/tests` — Lista tests, crear test, filtros por batch/estado/tipo
+- [x] 30 · `quality/test-detail.md` — `/quality/tests/[id]` — Capturar resultados por parámetro, vincular CoA, overall_pass
+- [x] 31 · `regulatory/documents.md` — `/regulatory/documents` — Lista documentos con status (valid/expiring/expired), subir nuevo
+- [x] 32 · `regulatory/document-detail.md` — `/regulatory/documents/[id]` — Formulario dinámico por doc_type, adjunto, historial versiones
 
 ### Dependencias
 
@@ -446,10 +466,10 @@ Soporte transversal: IoT, alertas, costos, inventario visible.
 
 ### Archivos PRD
 
-- [ ] 33 · `operations-alerts/operations-alerts.md` — `/operations/alerts` — Lista alertas activas/resueltas, acknowledge, resolve, filtros por severidad
-- [ ] 34 · `operations-environmental/operations-environmental.md` — `/operations/environmental` — Monitor ambiental: lecturas tiempo real, series temporales por zona/parámetro
-- [ ] 35 · `operations-sensors/operations-sensors.md` — `/operations/sensors` — CRUD sensores, calibración, estado activo/inactivo
-- [ ] 36 · `operations-costs/operations-costs.md` — `/operations/costs` — Registro overhead costs, prorrateo, COGS por batch
+- [x] 33 · `operations/alerts.md` — `/operations/alerts` — Lista alertas activas/resueltas, acknowledge, resolve, filtros por severidad
+- [x] 34 · `operations/environmental.md` — `/operations/environmental` — Monitor ambiental: lecturas tiempo real, series temporales por zona/parámetro
+- [x] 35 · `operations/sensors.md` — `/operations/sensors` — CRUD sensores, calibración, estado activo/inactivo
+- [x] 36 · `operations/costs.md` — `/operations/costs` — Registro overhead costs, prorrateo, COGS por batch
 
 ### Dependencias
 
@@ -490,8 +510,8 @@ Van aquí porque dependen de que existan productos, zonas y batches ya definidos
 
 ### Archivos PRD
 
-- [ ] 37 · `inventory-items/inventory-items.md` — `/inventory/items` — Stock actual por producto/zona/lote, ajustes manuales, transferencias
-- [ ] 38 · `inventory-transactions/inventory-transactions.md` — `/inventory/transactions` — Log inmutable (read-only), filtros por batch/zona/fase/tipo, exportar CSV
+- [ ] 37 · `inventory/items.md` — `/inventory/items` — Stock actual por producto/zona/lote, ajustes manuales, transferencias
+- [ ] 38 · `inventory/transactions.md` — `/inventory/transactions` — Log inmutable (read-only), filtros por batch/zona/fase/tipo, exportar CSV
 
 ### Dependencias
 
@@ -533,10 +553,10 @@ Reutiliza los ENUMs de fases anteriores: scheduled_activity_status, activity_sta
 
 ### Archivos PRD
 
-- [ ] 39 · `field-today/field-today.md` — `/field/today` — Vista móvil: actividades del día del operario, estado, acceso rápido
-- [ ] 40 · `field-execute/field-execute.md` — `/field/execute/[id]` — Ejecución optimizada móvil: recursos, checklist, fotos, indicador cola de reintentos
-- [ ] 41 · `field-observe/field-observe.md` — `/field/observe` — Observación ad-hoc: tipo, severidad, batch/zona, foto
-- [ ] 42 · `field-scan/field-scan.md` — `/field/scan` — Escáner QR: identifica batch o zona → acciones contextuales
+- [ ] 39 · `field/today.md` — `/field/today` — Vista móvil: actividades del día del operario, estado, acceso rápido
+- [ ] 40 · `field/execute.md` — `/field/execute/[id]` — Ejecución optimizada móvil: recursos, checklist, fotos, indicador cola de reintentos
+- [ ] 41 · `field/observe.md` — `/field/observe` — Observación ad-hoc: tipo, severidad, batch/zona, foto
+- [ ] 42 · `field/scan.md` — `/field/scan` — Escáner QR: identifica batch o zona → acciones contextuales
 
 ### Dependencias
 
@@ -581,7 +601,7 @@ Reutiliza ENUMs de todas las fases (read-only).
 
 ### Archivos PRD
 
-- [ ] 43 · `dashboard-home/dashboard-home.md` — `/` — KPIs clave, batches activos, alertas pendientes, actividades del día, accesos rápidos por rol
+- [ ] 43 · `dashboard/home.md` — `/` — KPIs clave, batches activos, alertas pendientes, actividades del día, accesos rápidos por rol
 
 ### Dependencias
 
