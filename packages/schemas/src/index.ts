@@ -15,3 +15,8 @@ export {
   inviteUserSchema, type InviteUserInput,
   editUserSchema, type EditUserInput,
 } from './users'
+export {
+  resourceCategorySchema, type ResourceCategoryInput,
+  unitOfMeasureSchema, type UnitOfMeasureInput,
+  activityTypeSchema, type ActivityTypeInput,
+} from './catalog'
