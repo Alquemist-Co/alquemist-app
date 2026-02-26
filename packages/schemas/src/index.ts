@@ -11,3 +11,7 @@ export {
   changePasswordSchema, type ChangePasswordInput,
   companySettingsSchema, type CompanySettingsInput,
 } from './settings'
+export {
+  inviteUserSchema, type InviteUserInput,
+  editUserSchema, type EditUserInput,
+} from './users'
