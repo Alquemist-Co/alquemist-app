@@ -52,7 +52,7 @@ Página dentro del layout de dashboard con sidebar. Estructura en dos secciones 
 
 ## Requisitos funcionales
 
-- **RF-01**: Al cargar la página, obtener datos del usuario actual via Server Component: `supabase.from('users').select('*, company:companies(name), facility:facilities(name)').eq('id', auth.uid()).single()`
+- **RF-01**: Al cargar la página, obtener datos del usuario actual via Server Component: `supabase.from('users').select('id, email, full_name, phone, role, company:companies(name)').eq('id', auth.uid()).single()` — facility join diferido hasta Phase 3 cuando exista la tabla facilities
 - **RF-02**: Sección de info personal: permitir editar solo `full_name` y `phone`. Email, rol, empresa y facility son read-only
 - **RF-03**: Validar campos de info personal con Zod antes de enviar
 - **RF-04**: Al guardar info personal, ejecutar `supabase.from('users').update({ full_name, phone }).eq('id', auth.uid())`
@@ -62,8 +62,8 @@ Página dentro del layout de dashboard con sidebar. Estructura en dos secciones 
 - **RF-08**: Para cambiar contraseña, primero verificar la contraseña actual intentando `supabase.auth.signInWithPassword({ email, password: currentPassword })`. Si falla, mostrar error "Contraseña actual incorrecta"
 - **RF-09**: Si verificación exitosa, ejecutar `supabase.auth.updateUser({ password: newPassword })` para cambiar la contraseña
 - **RF-10**: Tras cambio exitoso de contraseña, limpiar los 3 campos y mostrar toast de éxito
-- **RF-11**: Tras guardar info personal exitosamente, actualizar el auth-store con los nuevos datos y mostrar toast de éxito
-- **RF-12**: Invalidar query cache de React Query para `['user-profile']` tras actualización exitosa
+- **RF-11**: Tras guardar info personal exitosamente, llamar `refreshUser()` del AuthProvider (React Context + React Query) para actualizar sidebar y mostrar toast de éxito
+- **RF-12**: `refreshUser()` invalida query cache de React Query para `['auth-user']` — re-fetch automático
 
 ## Requisitos no funcionales
 
@@ -168,6 +168,6 @@ Con refinamiento: `confirm_password` debe coincidir con `new_password`. Mensaje:
 - **Páginas relacionadas**:
   - `/settings/users` — admin puede cambiar roles desde allí (no desde perfil)
   - `/settings/company` — información de empresa visible en perfil
-- **Supabase client**: `src/lib/supabase/browser.ts` — para auth.updateUser y PostgREST
-- **Store**: `src/stores/auth-store.ts` — actualizar full_name y phone post-save
-- **React Query**: Cache key `['user-profile']` para invalidación
+- **Supabase client**: `lib/supabase/client.ts` — para auth.updateUser y PostgREST
+- **Auth context**: `lib/auth/context.tsx` — React Context + React Query (`AuthProvider`, `useAuth()`, `refreshUser()`)
+- **React Query**: Cache key `['auth-user']` para invalidación post-save
