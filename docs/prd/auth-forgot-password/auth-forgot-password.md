@@ -15,9 +15,9 @@ Usuarios principales: cualquier usuario registrado que no recuerda su contraseñ
 
 ## Tablas del modelo involucradas
 
-| Tabla | Operaciones | Notas |
-|---|---|---|
-| auth.users | R | Supabase verifica internamente si el email existe y genera recovery token |
+| Tabla      | Operaciones | Notas                                                                     |
+| ---------- | ----------- | ------------------------------------------------------------------------- |
+| auth.users | R           | Supabase verifica internamente si el email existe y genera recovery token |
 
 No se accede directamente a tablas del modelo de Alquemist. Todo el flujo es manejado por Supabase Auth.
 
@@ -95,12 +95,12 @@ Página pública fuera del layout de dashboard. Diseño minimalista.
 
 ### Estados de UI
 
-| Estado | Descripción |
-|---|---|
-| idle | Formulario visible, campo vacío |
-| submitting | Botón deshabilitado, spinner |
-| success | Formulario reemplazado por mensaje de éxito y link a login |
-| error | Toast con error de red o rate limit, formulario re-habilitado |
+| Estado     | Descripción                                                   |
+| ---------- | ------------------------------------------------------------- |
+| idle       | Formulario visible, campo vacío                               |
+| submitting | Botón deshabilitado, spinner                                  |
+| success    | Formulario reemplazado por mensaje de éxito y link a login    |
+| error      | Toast con error de red o rate limit, formulario re-habilitado |
 
 ### Validaciones Zod
 
@@ -110,12 +110,12 @@ email: z.string().min(1, 'El email es requerido').email('Formato de email invál
 
 ### Errores esperados
 
-| Escenario | Mensaje al usuario |
-|---|---|
-| Email formato inválido | "Formato de email inválido" |
-| Network error | "Error de conexión. Intenta nuevamente" |
-| Rate limited | "Demasiados intentos. Espera unos minutos" |
-| Email no existe | (NO se muestra error — misma respuesta de éxito) |
+| Escenario              | Mensaje al usuario                               |
+| ---------------------- | ------------------------------------------------ |
+| Email formato inválido | "Formato de email inválido"                      |
+| Network error          | "Error de conexión. Intenta nuevamente"          |
+| Rate limited           | "Demasiados intentos. Espera unos minutos"       |
+| Email no existe        | (NO se muestra error — misma respuesta de éxito) |
 
 ## Dependencias
 

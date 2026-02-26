@@ -1,0 +1,7 @@
+.next
+out
+build
+node_modules
+public
+supabase/functions
+pnpm-lock.yaml

@@ -15,16 +15,16 @@ Usuarios principales: cualquier persona invitada a una empresa (cualquier rol).
 
 ## Tablas del modelo involucradas
 
-| Tabla | Operaciones | Notas |
-|---|---|---|
-| users | R/W | R: verificar estado actual del usuario (email, role, company_id, is_active). W: activar cuenta (is_active=true), guardar full_name y phone |
-| auth.users | W | Establecer password definitivo via Supabase Admin API |
-| companies | R | Mostrar nombre de la empresa al usuario invitado |
+| Tabla      | Operaciones | Notas                                                                                                                                      |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| users      | R/W         | R: verificar estado actual del usuario (email, role, company_id, is_active). W: activar cuenta (is_active=true), guardar full_name y phone |
+| auth.users | W           | Establecer password definitivo via Supabase Admin API                                                                                      |
+| companies  | R           | Mostrar nombre de la empresa al usuario invitado                                                                                           |
 
 ## ENUMs utilizados
 
-| ENUM | Valores | Tabla.campo |
-|---|---|---|
+| ENUM      | Valores                                              | Tabla.campo                                                       |
+| --------- | ---------------------------------------------------- | ----------------------------------------------------------------- |
 | user_role | admin \| manager \| supervisor \| operator \| viewer | users.role — asignado por el admin al invitar, mostrado como info |
 
 ## Layout y componentes principales
@@ -119,15 +119,15 @@ Página pública fuera del layout de dashboard. Diseño de activación de cuenta
 
 ### Estados de UI
 
-| Estado | Descripción |
-|---|---|
-| loading | Verificando token (spinner) |
-| invalid-token | Token inválido o expirado — pantalla de error |
-| already-active | Cuenta ya activada — mensaje con link a login |
-| ready | Token válido — formulario de activación visible |
-| submitting | Botón deshabilitado, spinner |
-| error | Error de servidor — toast con mensaje |
-| success | Activación exitosa → auto-login → redirect |
+| Estado         | Descripción                                     |
+| -------------- | ----------------------------------------------- |
+| loading        | Verificando token (spinner)                     |
+| invalid-token  | Token inválido o expirado — pantalla de error   |
+| already-active | Cuenta ya activada — mensaje con link a login   |
+| ready          | Token válido — formulario de activación visible |
+| submitting     | Botón deshabilitado, spinner                    |
+| error          | Error de servidor — toast con mensaje           |
+| success        | Activación exitosa → auto-login → redirect      |
 
 ### Validaciones Zod
 
@@ -142,14 +142,14 @@ Con refinamiento: `confirm_password` debe coincidir con `password`.
 
 ### Errores esperados
 
-| Escenario | Mensaje al usuario |
-|---|---|
-| Token inválido | "El link de invitación no es válido" |
-| Token expirado | "El link de invitación ha expirado. Contacta a tu administrador" |
-| Cuenta ya activa | "Tu cuenta ya fue activada. Inicia sesión" |
-| Password < 8 chars | "La contraseña debe tener al menos 8 caracteres" |
-| Passwords no coinciden | "Las contraseñas no coinciden" |
-| Error de servidor | "Error al activar la cuenta. Intenta nuevamente" |
+| Escenario              | Mensaje al usuario                                               |
+| ---------------------- | ---------------------------------------------------------------- |
+| Token inválido         | "El link de invitación no es válido"                             |
+| Token expirado         | "El link de invitación ha expirado. Contacta a tu administrador" |
+| Cuenta ya activa       | "Tu cuenta ya fue activada. Inicia sesión"                       |
+| Password < 8 chars     | "La contraseña debe tener al menos 8 caracteres"                 |
+| Passwords no coinciden | "Las contraseñas no coinciden"                                   |
+| Error de servidor      | "Error al activar la cuenta. Intenta nuevamente"                 |
 
 ## Dependencias
 

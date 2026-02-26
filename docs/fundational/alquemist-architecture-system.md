@@ -2,7 +2,7 @@
 
 ## Arquitectura de Sistema
 
-*Stack simplificado: Supabase + Next.js + Vercel*
+_Stack simplificado: Supabase + Next.js + Vercel_
 
 Febrero 2026 · v1.0
 
@@ -42,12 +42,12 @@ Se descarta la estrategia offline-first con sync bidireccional (PowerSync/Electr
 
 ### Estrategia de Conectividad
 
-| Escenario | Solución |
-|---|---|
-| Conexión normal | Operación directa contra Supabase |
-| Conexión lenta | La app funciona normalmente (queries optimizados, paginación) |
+| Escenario                        | Solución                                                                                                   |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Conexión normal                  | Operación directa contra Supabase                                                                          |
+| Conexión lenta                   | La app funciona normalmente (queries optimizados, paginación)                                              |
 | Sin conexión temporal (< 30 min) | Cola de reintentos en Service Worker — formularios se guardan localmente y se envían al recuperar conexión |
-| Sin conexión prolongada | El operario no puede usar la app — se documenta como limitación conocida |
+| Sin conexión prolongada          | El operario no puede usar la app — se documenta como limitación conocida                                   |
 
 La cola de reintentos NO es una base de datos local. Es un array de requests pendientes en IndexedDB que se procesan FIFO al recuperar conexión. No hay queries locales, no hay sync bidireccional, no hay resolución de conflictos.
 
@@ -57,29 +57,29 @@ La cola de reintentos NO es una base de datos local. Es un array de requests pen
 
 ### Stack Principal
 
-| Capa | Tecnología | Justificación |
-|---|---|---|
-| **Base de datos** | Supabase (PostgreSQL 15+) | RLS nativo, auth integrado, realtime, storage, PostgREST |
-| **Auth** | Supabase Auth | JWT, roles via app_metadata, integración directa con RLS |
-| **API CRUD** | Supabase PostgREST (auto-generada) | API REST automática para las ~25 tablas de catálogo/configuración |
-| **API de Orquestación** | Supabase Edge Functions (Deno) | Flujos transaccionales complejos (~8 operaciones críticas) |
-| **Frontend** | Next.js 15+ (App Router) | SSR para dashboards, client components para formularios operativos |
-| **Styling** | Tailwind CSS + shadcn/ui | Componentes accesibles, diseño consistente, desarrollo rápido |
-| **Deployment** | Vercel | Zero-config para Next.js, edge network, preview deployments |
-| **Storage** | Supabase Storage | Documentos regulatorios, fotos de observaciones, adjuntos |
-| **Realtime** | Supabase Realtime | Alertas, actualizaciones de estado de batch, notificaciones |
+| Capa                    | Tecnología                         | Justificación                                                      |
+| ----------------------- | ---------------------------------- | ------------------------------------------------------------------ |
+| **Base de datos**       | Supabase (PostgreSQL 15+)          | RLS nativo, auth integrado, realtime, storage, PostgREST           |
+| **Auth**                | Supabase Auth                      | JWT, roles via app_metadata, integración directa con RLS           |
+| **API CRUD**            | Supabase PostgREST (auto-generada) | API REST automática para las ~25 tablas de catálogo/configuración  |
+| **API de Orquestación** | Supabase Edge Functions (Deno)     | Flujos transaccionales complejos (~8 operaciones críticas)         |
+| **Frontend**            | Next.js 15+ (App Router)           | SSR para dashboards, client components para formularios operativos |
+| **Styling**             | Tailwind CSS + shadcn/ui           | Componentes accesibles, diseño consistente, desarrollo rápido      |
+| **Deployment**          | Vercel                             | Zero-config para Next.js, edge network, preview deployments        |
+| **Storage**             | Supabase Storage                   | Documentos regulatorios, fotos de observaciones, adjuntos          |
+| **Realtime**            | Supabase Realtime                  | Alertas, actualizaciones de estado de batch, notificaciones        |
 
 ### Dependencias Clave
 
-| Librería | Propósito |
-|---|---|
-| `@supabase/supabase-js` | Cliente Supabase para browser y server |
-| `@supabase/ssr` | Integración Next.js con cookies para auth server-side |
-| `zod` | Validación de schemas (compartida entre client y server) |
-| `react-hook-form` | Formularios con validación |
-| `@tanstack/react-query` | Cache, revalidación y estado del servidor |
-| `recharts` | Gráficas para dashboards |
-| `date-fns` | Manipulación de fechas con timezone |
+| Librería                     | Propósito                                                 |
+| ---------------------------- | --------------------------------------------------------- |
+| `@supabase/supabase-js`      | Cliente Supabase para browser y server                    |
+| `@supabase/ssr`              | Integración Next.js con cookies para auth server-side     |
+| `zod`                        | Validación de schemas (compartida entre client y server)  |
+| `react-hook-form`            | Formularios con validación                                |
+| `@tanstack/react-query`      | Cache, revalidación y estado del servidor                 |
+| `recharts`                   | Gráficas para dashboards                                  |
+| `date-fns`                   | Manipulación de fechas con timezone                       |
 | `next-pwa` o `@serwist/next` | Service Worker para cola de reintentos y cacheo de assets |
 
 ---
@@ -148,6 +148,7 @@ Tablas CRUD: companies, users, crop_types, cultivars, production_phases, facilit
 **Orquestación via Edge Functions (~30% de operaciones):** Flujos que involucran múltiples tablas en una transacción atómica, cálculos en cascada, o side-effects complejos. Se implementan como Edge Functions que ejecutan la lógica completa dentro de una transacción de Postgres.
 
 Flujos orquestados:
+
 1. **Aprobar orden → crear batch → programar actividades** (Flujo 1 del modelo)
 2. **Ejecutar actividad → registrar recursos → generar transacciones de inventario** (Flujo 2)
 3. **Cosecha multi-output → transformaciones → avance de fase** (Flujo 3)
@@ -169,27 +170,27 @@ Todas las 45 tablas viven en un único PostgreSQL gestionado por Supabase. El mo
 
 Los triggers de Postgres manejan efectos secundarios que deben ocurrir sincrónicamente con la escritura:
 
-| Trigger | Tabla | Efecto |
-|---|---|---|
-| `trg_update_inventory_balance` | inventory_transactions | Actualiza quantity_available/reserved/committed en inventory_items según el type de transacción |
-| `trg_update_timestamps` | * (todas) | Actualiza updated_at automáticamente |
-| `trg_calculate_zone_capacity` | zone_structures | Recalcula effective_growing_area_m2 y plant_capacity en zones |
-| `trg_calculate_facility_totals` | zones | Recalcula total_growing_area_m2 y total_plant_capacity en facilities |
-| `trg_check_regulatory_expiry` | regulatory_documents | Al insertar, auto-calcula expiry_date desde issue_date + valid_for_days si aplica |
-| `trg_batch_cost_update` | inventory_transactions | Actualiza total_cost en batches cuando se registra una transacción con batch_id |
+| Trigger                         | Tabla                  | Efecto                                                                                          |
+| ------------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------- |
+| `trg_update_inventory_balance`  | inventory_transactions | Actualiza quantity_available/reserved/committed en inventory_items según el type de transacción |
+| `trg_update_timestamps`         | \* (todas)             | Actualiza updated_at automáticamente                                                            |
+| `trg_calculate_zone_capacity`   | zone_structures        | Recalcula effective_growing_area_m2 y plant_capacity en zones                                   |
+| `trg_calculate_facility_totals` | zones                  | Recalcula total_growing_area_m2 y total_plant_capacity en facilities                            |
+| `trg_check_regulatory_expiry`   | regulatory_documents   | Al insertar, auto-calcula expiry_date desde issue_date + valid_for_days si aplica               |
+| `trg_batch_cost_update`         | inventory_transactions | Actualiza total_cost en batches cuando se registra una transacción con batch_id                 |
 
 ### pg_cron para Jobs Periódicos
 
 Jobs que corren en schedule fijo, implementados como funciones SQL invocadas por pg_cron:
 
-| Job | Frecuencia | Acción |
-|---|---|---|
-| `check_expiring_documents` | Diario 6:00 AM | Genera alertas type='regulatory_expiring' para documentos que vencen en los próximos 30 días |
-| `check_overdue_activities` | Cada hora | Genera alertas type='overdue_activity' para scheduled_activities con planned_date < hoy y status='pending' |
-| `check_low_inventory` | Diario 7:00 AM | Genera alertas type='low_inventory' para inventory_items bajo mínimo configurable |
-| `check_stale_batches` | Diario 8:00 AM | Genera alertas type='stale_batch' para batches sin actividad en N días |
-| `expire_documents` | Diario 1:00 AM | Cambia status='expired' en regulatory_documents donde expiry_date < hoy |
-| `check_env_readings` | Cada 15 min | Compara últimas environmental_readings contra cultivars.optimal_conditions y genera alertas env_out_of_range |
+| Job                        | Frecuencia     | Acción                                                                                                       |
+| -------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------ |
+| `check_expiring_documents` | Diario 6:00 AM | Genera alertas type='regulatory_expiring' para documentos que vencen en los próximos 30 días                 |
+| `check_overdue_activities` | Cada hora      | Genera alertas type='overdue_activity' para scheduled_activities con planned_date < hoy y status='pending'   |
+| `check_low_inventory`      | Diario 7:00 AM | Genera alertas type='low_inventory' para inventory_items bajo mínimo configurable                            |
+| `check_stale_batches`      | Diario 8:00 AM | Genera alertas type='stale_batch' para batches sin actividad en N días                                       |
+| `expire_documents`         | Diario 1:00 AM | Cambia status='expired' en regulatory_documents donde expiry_date < hoy                                      |
+| `check_env_readings`       | Cada 15 min    | Compara últimas environmental_readings contra cultivars.optimal_conditions y genera alertas env_out_of_range |
 
 ### Funciones SQL Reutilizables
 
@@ -258,7 +259,7 @@ Deno.serve(async (req) => {
   // 1. Autenticación — extraer JWT del header
   const authHeader = req.headers.get('Authorization')
   const supabase = createClient(URL, ANON_KEY, {
-    global: { headers: { Authorization: authHeader } }
+    global: { headers: { Authorization: authHeader } },
   })
 
   // 2. Validación — Zod schema compartido con frontend
@@ -269,7 +270,7 @@ Deno.serve(async (req) => {
   // 3. Ejecución en transacción — via función SQL o RPC
   const { data, error } = await supabase.rpc('approve_production_order', {
     order_id: parsed.data.orderId,
-    zone_id: parsed.data.zoneId
+    zone_id: parsed.data.zoneId,
   })
 
   // 4. Respuesta
@@ -382,12 +383,13 @@ React Query (`@tanstack/react-query`) gestiona el cache y la revalidación de da
 function useBatchActivities(batchId: string) {
   return useQuery({
     queryKey: ['batch-activities', batchId],
-    queryFn: () => supabase
-      .from('activities')
-      .select('*')
-      .eq('batch_id', batchId)
-      .order('performed_at', { ascending: false }),
-    staleTime: 30_000,  // 30s antes de refetch
+    queryFn: () =>
+      supabase
+        .from('activities')
+        .select('*')
+        .eq('batch_id', batchId)
+        .order('performed_at', { ascending: false }),
+    staleTime: 30_000, // 30s antes de refetch
   })
 }
 
@@ -399,7 +401,7 @@ function useExecuteActivity() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['batch-activities', variables.batchId] })
       queryClient.invalidateQueries({ queryKey: ['inventory-items'] })
-    }
+    },
   })
 }
 ```
@@ -416,7 +418,7 @@ La PWA se implementa con `@serwist/next` o `next-pwa` para:
 import { Queue } from 'workbox-background-sync'
 
 const activityQueue = new Queue('activity-submissions', {
-  maxRetentionTime: 24 * 60,  // Reintentar hasta 24 horas
+  maxRetentionTime: 24 * 60, // Reintentar hasta 24 horas
   onSync: async ({ queue }) => {
     let entry
     while ((entry = await queue.shiftRequest())) {
@@ -424,10 +426,10 @@ const activityQueue = new Queue('activity-submissions', {
         await fetch(entry.request)
       } catch (error) {
         await queue.unshiftRequest(entry)
-        throw error  // Detiene el procesamiento, reintenta después
+        throw error // Detiene el procesamiento, reintenta después
       }
     }
-  }
+  },
 })
 
 // Interceptar requests a Edge Functions
@@ -539,13 +541,13 @@ CREATE POLICY "catalog_write" ON products
 
 Los roles se almacenan en `app_metadata` del JWT (no en `user_metadata`, que es editable por el usuario):
 
-| Rol | Acceso Catálogos | Crear Órdenes | Ejecutar Actividades | Aprobar Órdenes | Admin |
-|---|---|---|---|---|---|
-| admin | CRUD | ✓ | ✓ | ✓ | ✓ |
-| manager | CRUD | ✓ | ✓ | ✓ | ✗ |
-| supervisor | Read | ✓ | ✓ | ✗ | ✗ |
-| operator | Read | ✗ | ✓ | ✗ | ✗ |
-| viewer | Read | ✗ | ✗ | ✗ | ✗ |
+| Rol        | Acceso Catálogos | Crear Órdenes | Ejecutar Actividades | Aprobar Órdenes | Admin |
+| ---------- | ---------------- | ------------- | -------------------- | --------------- | ----- |
+| admin      | CRUD             | ✓             | ✓                    | ✓               | ✓     |
+| manager    | CRUD             | ✓             | ✓                    | ✓               | ✗     |
+| supervisor | Read             | ✓             | ✓                    | ✗               | ✗     |
+| operator   | Read             | ✗             | ✓                    | ✗               | ✗     |
+| viewer     | Read             | ✗             | ✗                    | ✗               | ✗     |
 
 ### Índices Críticos para RLS
 
@@ -584,11 +586,11 @@ Esta arquitectura mantiene toda la lógica en un solo lugar (Postgres), es debug
 
 Si los flujos crecen en complejidad o necesitan retry con backoff, se migra a un servicio de colas. Opciones compatibles con el stack:
 
-| Opción | Ventaja | Cuándo migrar |
-|---|---|---|
-| **Trigger.dev** | Serverless, UI de monitoreo, retries configurables | Cuando necesites observabilidad de workflows |
-| **Inngest** | Event-driven, pasos con retry individual | Cuando los flujos tengan > 5 pasos encadenados |
-| **pg_boss** | Vive dentro de Postgres, zero infra adicional | Cuando pg_cron no sea suficiente pero no quieras salir de Postgres |
+| Opción          | Ventaja                                            | Cuándo migrar                                                      |
+| --------------- | -------------------------------------------------- | ------------------------------------------------------------------ |
+| **Trigger.dev** | Serverless, UI de monitoreo, retries configurables | Cuando necesites observabilidad de workflows                       |
+| **Inngest**     | Event-driven, pasos con retry individual           | Cuando los flujos tengan > 5 pasos encadenados                     |
+| **pg_boss**     | Vive dentro de Postgres, zero infra adicional      | Cuando pg_cron no sea suficiente pero no quieras salir de Postgres |
 
 La migración es incremental: cada flujo se puede mover individualmente de "función SQL invocada por Edge Function" a "job en cola" sin afectar los demás.
 
@@ -685,14 +687,18 @@ Las alertas generadas por desviaciones ambientales se pushean al frontend via Su
 // Client Component — escuchar alertas en tiempo real
 supabase
   .channel('alerts')
-  .on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'alerts',
-    filter: `company_id=eq.${companyId}`
-  }, (payload) => {
-    showNotification(payload.new)
-  })
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'alerts',
+      filter: `company_id=eq.${companyId}`,
+    },
+    (payload) => {
+      showNotification(payload.new)
+    }
+  )
   .subscribe()
 ```
 
@@ -702,11 +708,11 @@ supabase
 
 ### Environments
 
-| Ambiente | URL | Base de datos | Propósito |
-|---|---|---|---|
-| **Development** | localhost:3000 | Supabase local (Docker) | Desarrollo con datos seed |
-| **Preview** | *.vercel.app | Supabase proyecto staging | Preview por PR, QA |
-| **Production** | app.alquemist.co | Supabase proyecto producción | Usuarios reales |
+| Ambiente        | URL              | Base de datos                | Propósito                 |
+| --------------- | ---------------- | ---------------------------- | ------------------------- |
+| **Development** | localhost:3000   | Supabase local (Docker)      | Desarrollo con datos seed |
+| **Preview**     | \*.vercel.app    | Supabase proyecto staging    | Preview por PR, QA        |
+| **Production**  | app.alquemist.co | Supabase proyecto producción | Usuarios reales           |
 
 ### CI/CD Pipeline
 
@@ -743,14 +749,14 @@ Las migraciones incluyen tanto DDL (tablas, índices) como DML (seed de datos ba
 
 ### Límites Conocidos de Supabase
 
-| Recurso | Límite (Pro Plan) | Impacto en Alquemist |
-|---|---|---|
-| Conexiones DB | 60 directas + pooler | Suficiente para 50-200 usuarios con connection pooling |
-| Edge Function CPU | 2s por request | Flujos complejos delegan a funciones SQL (sin límite de CPU dentro de Postgres) |
-| Edge Function Wall Clock | 400s | Más que suficiente para orquestación |
-| Storage | 100GB incluido | Adecuado para documentos y fotos |
-| Realtime | 500 conexiones concurrentes | Suficiente para alertas y notificaciones |
-| Database size | 8GB (Pro), extensible | Monitorear environmental_readings y inventory_transactions |
+| Recurso                  | Límite (Pro Plan)           | Impacto en Alquemist                                                            |
+| ------------------------ | --------------------------- | ------------------------------------------------------------------------------- |
+| Conexiones DB            | 60 directas + pooler        | Suficiente para 50-200 usuarios con connection pooling                          |
+| Edge Function CPU        | 2s por request              | Flujos complejos delegan a funciones SQL (sin límite de CPU dentro de Postgres) |
+| Edge Function Wall Clock | 400s                        | Más que suficiente para orquestación                                            |
+| Storage                  | 100GB incluido              | Adecuado para documentos y fotos                                                |
+| Realtime                 | 500 conexiones concurrentes | Suficiente para alertas y notificaciones                                        |
+| Database size            | 8GB (Pro), extensible       | Monitorear environmental_readings y inventory_transactions                      |
 
 ### Estrategia de Escalamiento
 

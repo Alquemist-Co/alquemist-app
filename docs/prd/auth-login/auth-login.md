@@ -15,18 +15,18 @@ Usuarios principales: todos los roles (admin, manager, supervisor, operator, vie
 
 ## Tablas del modelo involucradas
 
-| Tabla | Operaciones | Notas |
-|---|---|---|
-| auth.users | R | Validación de credenciales (manejado internamente por Supabase Auth) |
-| auth.identities | R | Requerido para que `signInWithPassword` funcione |
-| users | R | Post-login: obtener perfil (role, company_id, permissions, is_active) |
-| companies | R | Post-login: verificar empresa activa, cargar config (timezone, currency, settings) |
+| Tabla           | Operaciones | Notas                                                                              |
+| --------------- | ----------- | ---------------------------------------------------------------------------------- |
+| auth.users      | R           | Validación de credenciales (manejado internamente por Supabase Auth)               |
+| auth.identities | R           | Requerido para que `signInWithPassword` funcione                                   |
+| users           | R           | Post-login: obtener perfil (role, company_id, permissions, is_active)              |
+| companies       | R           | Post-login: verificar empresa activa, cargar config (timezone, currency, settings) |
 
 ## ENUMs utilizados
 
-| ENUM | Valores | Tabla.campo |
-|---|---|---|
-| user_role | admin \| manager \| supervisor \| operator \| viewer | users.role |
+| ENUM      | Valores                                              | Tabla.campo |
+| --------- | ---------------------------------------------------- | ----------- |
+| user_role | admin \| manager \| supervisor \| operator \| viewer | users.role  |
 
 ## Layout y componentes principales
 
@@ -117,13 +117,13 @@ Página pública fuera del layout de dashboard. Sin sidebar ni topbar.
 
 ### Estados de UI
 
-| Estado | Descripción |
-|---|---|
-| idle | Formulario visible, campos vacíos o con valores previos |
-| validating | Validación Zod en curso (instantánea, no visible) |
-| submitting | Botón deshabilitado, spinner, campos read-only |
-| error | Toast visible con mensaje de error, formulario re-habilitado |
-| success | Redirect en curso (el usuario no ve este estado) |
+| Estado     | Descripción                                                  |
+| ---------- | ------------------------------------------------------------ |
+| idle       | Formulario visible, campos vacíos o con valores previos      |
+| validating | Validación Zod en curso (instantánea, no visible)            |
+| submitting | Botón deshabilitado, spinner, campos read-only               |
+| error      | Toast visible con mensaje de error, formulario re-habilitado |
+| success    | Redirect en curso (el usuario no ve este estado)             |
 
 ### Validaciones Zod
 
@@ -136,13 +136,13 @@ Nota: No se valida longitud mínima de password en login (solo en signup/reset).
 
 ### Errores esperados
 
-| Código Supabase | Mensaje al usuario |
-|---|---|
-| `invalid_credentials` | "Credenciales inválidas" |
+| Código Supabase       | Mensaje al usuario                          |
+| --------------------- | ------------------------------------------- |
+| `invalid_credentials` | "Credenciales inválidas"                    |
 | `email_not_confirmed` | "Confirma tu email antes de iniciar sesión" |
-| `user_banned` | "Tu cuenta ha sido suspendida" |
-| Network error | "Error de conexión. Intenta nuevamente" |
-| Rate limited | "Demasiados intentos. Espera un momento" |
+| `user_banned`         | "Tu cuenta ha sido suspendida"              |
+| Network error         | "Error de conexión. Intenta nuevamente"     |
+| Rate limited          | "Demasiados intentos. Espera un momento"    |
 
 ## Dependencias
 

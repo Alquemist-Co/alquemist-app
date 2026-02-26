@@ -15,9 +15,9 @@ Usuarios principales: cualquier usuario que solicitó un restablecimiento de con
 
 ## Tablas del modelo involucradas
 
-| Tabla | Operaciones | Notas |
-|---|---|---|
-| auth.users | W | Actualizar password (manejado internamente por Supabase Auth) |
+| Tabla      | Operaciones | Notas                                                         |
+| ---------- | ----------- | ------------------------------------------------------------- |
+| auth.users | W           | Actualizar password (manejado internamente por Supabase Auth) |
 
 No se accede directamente a tablas del modelo de Alquemist. Todo el flujo es manejado por Supabase Auth.
 
@@ -111,14 +111,14 @@ Página pública fuera del layout de dashboard. Diseño minimalista.
 
 ### Estados de UI
 
-| Estado | Descripción |
-|---|---|
-| loading | Procesando token (spinner mientras Supabase intercambia) |
+| Estado        | Descripción                                                            |
+| ------------- | ---------------------------------------------------------------------- |
+| loading       | Procesando token (spinner mientras Supabase intercambia)               |
 | invalid-token | Token inválido/expirado — pantalla de error con link a forgot-password |
-| ready | Token válido — formulario visible |
-| submitting | Botón deshabilitado, spinner |
-| error | Error de servidor — toast, formulario re-habilitado |
-| success | Contraseña actualizada — mensaje de éxito con link a login |
+| ready         | Token válido — formulario visible                                      |
+| submitting    | Botón deshabilitado, spinner                                           |
+| error         | Error de servidor — toast, formulario re-habilitado                    |
+| success       | Contraseña actualizada — mensaje de éxito con link a login             |
 
 ### Validaciones Zod
 
@@ -131,14 +131,14 @@ Con refinamiento: `confirm_password` debe coincidir con `password`.
 
 ### Errores esperados
 
-| Escenario | Mensaje al usuario |
-|---|---|
-| Token expirado | "El link ha expirado. Solicita uno nuevo" |
-| Token inválido | "El link no es válido" |
-| Token ya usado | "Este link ya fue utilizado" |
-| Password < 8 chars | "La contraseña debe tener al menos 8 caracteres" |
-| Passwords no coinciden | "Las contraseñas no coinciden" |
-| Error de servidor | "Error al actualizar la contraseña. Intenta nuevamente" |
+| Escenario              | Mensaje al usuario                                      |
+| ---------------------- | ------------------------------------------------------- |
+| Token expirado         | "El link ha expirado. Solicita uno nuevo"               |
+| Token inválido         | "El link no es válido"                                  |
+| Token ya usado         | "Este link ya fue utilizado"                            |
+| Password < 8 chars     | "La contraseña debe tener al menos 8 caracteres"        |
+| Passwords no coinciden | "Las contraseñas no coinciden"                          |
+| Error de servidor      | "Error al actualizar la contraseña. Intenta nuevamente" |
 
 ## Dependencias
 

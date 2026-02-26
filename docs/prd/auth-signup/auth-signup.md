@@ -15,18 +15,18 @@ Usuarios principales: fundador/admin de una nueva empresa agrícola.
 
 ## Tablas del modelo involucradas
 
-| Tabla | Operaciones | Notas |
-|---|---|---|
-| companies | W | Crear registro de empresa con datos básicos |
-| users | W | Crear primer usuario con role='admin' |
-| auth.users | W | Crear cuenta de autenticación via Supabase Admin API |
-| auth.identities | W | Crear identity row (requerido para signInWithPassword) |
+| Tabla           | Operaciones | Notas                                                  |
+| --------------- | ----------- | ------------------------------------------------------ |
+| companies       | W           | Crear registro de empresa con datos básicos            |
+| users           | W           | Crear primer usuario con role='admin'                  |
+| auth.users      | W           | Crear cuenta de autenticación via Supabase Admin API   |
+| auth.identities | W           | Crear identity row (requerido para signInWithPassword) |
 
 ## ENUMs utilizados
 
-| ENUM | Valores | Tabla.campo |
-|---|---|---|
-| user_role | admin | users.role — siempre 'admin' para el primer usuario |
+| ENUM      | Valores | Tabla.campo                                         |
+| --------- | ------- | --------------------------------------------------- |
+| user_role | admin   | users.role — siempre 'admin' para el primer usuario |
 
 ## Layout y componentes principales
 
@@ -120,14 +120,14 @@ Página pública fuera del layout de dashboard. Sin sidebar ni topbar. Diseño l
 
 ### Estados de UI
 
-| Estado | Descripción |
-|---|---|
-| step-1 | Formulario de empresa visible |
-| step-2 | Formulario de admin visible |
-| validating | Validación Zod por paso (instantánea) |
+| Estado     | Descripción                                                    |
+| ---------- | -------------------------------------------------------------- |
+| step-1     | Formulario de empresa visible                                  |
+| step-2     | Formulario de admin visible                                    |
+| validating | Validación Zod por paso (instantánea)                          |
 | submitting | Botón "Crear empresa" deshabilitado, spinner, campos read-only |
-| error | Toast con error, formulario re-habilitado en el paso relevante |
-| success | Auto-login + redirect en curso |
+| error      | Toast con error, formulario re-habilitado en el paso relevante |
+| success    | Auto-login + redirect en curso                                 |
 
 ### Validaciones Zod — Paso 1 (Empresa)
 
@@ -153,14 +153,14 @@ Con refinamiento: `confirm_password` debe coincidir con `password`.
 
 ### Errores esperados
 
-| Escenario | Mensaje al usuario |
-|---|---|
-| Email duplicado | "Ya existe una cuenta con este email" |
-| Password < 8 chars | "La contraseña debe tener al menos 8 caracteres" |
-| Passwords no coinciden | "Las contraseñas no coinciden" |
-| País no seleccionado | "Selecciona un país" |
-| Error de servidor | "Error al crear la cuenta. Intenta nuevamente" |
-| Network error | "Error de conexión. Intenta nuevamente" |
+| Escenario              | Mensaje al usuario                               |
+| ---------------------- | ------------------------------------------------ |
+| Email duplicado        | "Ya existe una cuenta con este email"            |
+| Password < 8 chars     | "La contraseña debe tener al menos 8 caracteres" |
+| Passwords no coinciden | "Las contraseñas no coinciden"                   |
+| País no seleccionado   | "Selecciona un país"                             |
+| Error de servidor      | "Error al crear la cuenta. Intenta nuevamente"   |
+| Network error          | "Error de conexión. Intenta nuevamente"          |
 
 ## Dependencias
 
