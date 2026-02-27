@@ -33,7 +33,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard, disabled: true },
   { label: 'Producción', href: '/production', icon: Sprout, disabled: true },
-  { label: 'Áreas', href: '/areas', icon: MapPin, disabled: true },
+  { label: 'Áreas', href: '/areas', icon: MapPin },
   { label: 'Inventario', href: '/inventory', icon: Package, disabled: true },
   { label: 'Actividades', href: '/activities', icon: CalendarDays, disabled: true },
   { label: 'Calidad', href: '/quality', icon: FileCheck, disabled: true, featureFlag: 'quality' },

@@ -39,3 +39,6 @@ export {
   productRequirementSchema, type ProductRequirementInput,
   shipmentRequirementSchema, type ShipmentRequirementInput,
 } from './regulatory'
+export {
+  facilitySchema, type FacilityInput,
+} from './facilities'
