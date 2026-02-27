@@ -1,6 +1,14 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { ActivityTemplatesClient } from '@/components/settings/activity-templates-client'
+import { TemplatesListClient } from '@/components/settings/templates-list-client'
+import { SchedulesListClient } from '@/components/settings/schedules-list-client'
+import { ActivityTemplatesTabs } from './tabs-wrapper'
+
+type PhaseConfigItem = {
+  phase_id: string
+  duration_days: number
+  templates: { template_id: string }[]
+}
 
 export default async function ActivityTemplatesPage() {
   const supabase = await createClient()
@@ -48,6 +56,25 @@ export default async function ActivityTemplatesPage() {
     supabase.from('cultivars').select('id, crop_type_id, code, name, phase_durations').eq('is_active', true).order('name'),
   ])
 
+  const templatesData = templates ?? []
+  const templatePhasesData = templatePhases ?? []
+  const templateResourcesData = templateResources ?? []
+  const templateChecklistData = templateChecklist ?? []
+  const activityTypesData = activityTypes ?? []
+  const cropTypesData = cropTypes ?? []
+  const phasesData = phases ?? []
+
+  const schedulesData = (schedules ?? []).map((s) => ({
+    ...s,
+    phase_config: s.phase_config as PhaseConfigItem[] | null,
+    cultivar: s.cultivar as { name: string; crop_type_id: string } | null,
+  }))
+
+  const cultivarsData = (cultivars ?? []).map((c) => ({
+    ...c,
+    phase_durations: c.phase_durations as Record<string, number> | null,
+  }))
+
   return (
     <div className="space-y-8">
       <div>
@@ -57,31 +84,31 @@ export default async function ActivityTemplatesPage() {
         </p>
       </div>
 
-      <ActivityTemplatesClient
-        templates={templates ?? []}
-        templatePhases={templatePhases ?? []}
-        templateResources={templateResources ?? []}
-        templateChecklist={templateChecklist ?? []}
-        schedules={(schedules ?? []).map((s) => ({
-          ...s,
-          phase_config: s.phase_config as PhaseConfigItem[] | null,
-          cultivar: s.cultivar as { name: string; crop_type_id: string } | null,
-        }))}
-        activityTypes={activityTypes ?? []}
-        cropTypes={cropTypes ?? []}
-        phases={phases ?? []}
-        cultivars={(cultivars ?? []).map((c) => ({
-          ...c,
-          phase_durations: c.phase_durations as Record<string, number> | null,
-        }))}
-        canWrite={canWrite}
+      <ActivityTemplatesTabs
+        templatesTab={
+          <TemplatesListClient
+            templates={templatesData}
+            templatePhases={templatePhasesData}
+            templateResources={templateResourcesData}
+            templateChecklist={templateChecklistData}
+            activityTypes={activityTypesData}
+            cropTypes={cropTypesData}
+            phases={phasesData}
+            allTemplates={templatesData}
+            canWrite={canWrite}
+          />
+        }
+        schedulesTab={
+          <SchedulesListClient
+            schedules={schedulesData}
+            cultivars={cultivarsData}
+            phases={phasesData}
+            templates={templatesData}
+            templatePhases={templatePhasesData}
+            canWrite={canWrite}
+          />
+        }
       />
     </div>
   )
-}
-
-type PhaseConfigItem = {
-  phase_id: string
-  duration_days: number
-  templates: { template_id: string }[]
 }

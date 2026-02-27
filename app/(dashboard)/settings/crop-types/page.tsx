@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { CropTypesClient } from '@/components/settings/crop-types-client'
+import { CropTypesListClient } from '@/components/settings/crop-types-list-client'
 
 export default async function CropTypesPage() {
   const supabase = await createClient()
@@ -31,7 +31,6 @@ export default async function CropTypesPage() {
     .select('*, phases:production_phases(id)')
     .order('name')
 
-  // Compute phase counts from the joined data
   const cropTypesWithCount = (cropTypes ?? []).map((ct) => ({
     id: ct.id,
     code: ct.code,
@@ -44,14 +43,8 @@ export default async function CropTypesPage() {
     phase_count: Array.isArray(ct.phases) ? ct.phases.length : 0,
   }))
 
-  // Fetch all production phases (for the selected crop type detail)
-  const { data: phases } = await supabase
-    .from('production_phases')
-    .select('*')
-    .order('sort_order')
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold">Tipos de Cultivo</h2>
         <p className="text-sm text-muted-foreground">
@@ -59,9 +52,8 @@ export default async function CropTypesPage() {
         </p>
       </div>
 
-      <CropTypesClient
+      <CropTypesListClient
         cropTypes={cropTypesWithCount}
-        phases={phases ?? []}
         canWrite={canWrite}
       />
     </div>

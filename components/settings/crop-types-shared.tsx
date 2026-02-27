@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -12,21 +11,8 @@ import {
 } from '@/schemas/crop-types'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import {
-  Plus,
-  Pencil,
-  Power,
-  Trash2,
-  ArrowUp,
-  ArrowDown,
-  Sprout,
-  GitBranch,
-} from 'lucide-react'
 
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import {
@@ -38,16 +24,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
   Form,
   FormControl,
   FormField,
@@ -58,7 +34,7 @@ import {
 
 // ---------- Types ----------
 
-type CropTypeRow = {
+export type CropTypeRow = {
   id: string
   code: string
   name: string
@@ -70,7 +46,7 @@ type CropTypeRow = {
   phase_count: number
 }
 
-type PhaseRow = {
+export type PhaseRow = {
   id: string
   crop_type_id: string
   code: string
@@ -88,229 +64,25 @@ type PhaseRow = {
   color: string | null
 }
 
-type Props = {
-  cropTypes: CropTypeRow[]
-  phases: PhaseRow[]
-  canWrite: boolean
-}
-
 // ---------- Constants ----------
 
-const categoryLabels: Record<string, string> = {
+export const categoryLabels: Record<string, string> = {
   annual: 'Anual',
   perennial: 'Perenne',
   biennial: 'Bienal',
 }
 
-const categoryBadgeStyles: Record<string, string> = {
+export const categoryBadgeStyles: Record<string, string> = {
   annual: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   perennial: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   biennial: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
 }
 
 // ================================================================
-// MAIN COMPONENT
-// ================================================================
-
-export function CropTypesClient({ cropTypes, phases, canWrite }: Props) {
-  const router = useRouter()
-  const [selectedId, setSelectedId] = useState<string | null>(
-    cropTypes.length > 0 ? cropTypes[0].id : null
-  )
-  const [showInactive, setShowInactive] = useState(false)
-  const [ctDialogOpen, setCtDialogOpen] = useState(false)
-  const [editingCt, setEditingCt] = useState<CropTypeRow | null>(null)
-  const [deactivatingCt, setDeactivatingCt] = useState<CropTypeRow | null>(null)
-
-  const filtered = showInactive ? cropTypes : cropTypes.filter((ct) => ct.is_active)
-  const selectedCt = cropTypes.find((ct) => ct.id === selectedId) ?? null
-  const selectedPhases = useMemo(
-    () => phases.filter((p) => p.crop_type_id === selectedId).sort((a, b) => a.sort_order - b.sort_order),
-    [phases, selectedId]
-  )
-
-  function openNewCt() {
-    setEditingCt(null)
-    setCtDialogOpen(true)
-  }
-
-  function openEditCt(ct: CropTypeRow) {
-    setEditingCt(ct)
-    setCtDialogOpen(true)
-  }
-
-  async function handleToggleCt(ct: CropTypeRow) {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('crop_types')
-      .update({ is_active: !ct.is_active })
-      .eq('id', ct.id)
-    if (error) {
-      toast.error('Error al cambiar el estado.')
-      return
-    }
-    toast.success(ct.is_active ? 'Tipo de cultivo desactivado.' : 'Tipo de cultivo reactivado.')
-    router.refresh()
-  }
-
-  return (
-    <div className="flex flex-col gap-6 lg:flex-row">
-      {/* Master panel — Crop types list */}
-      <div className="w-full space-y-4 lg:w-80 lg:shrink-0">
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Checkbox checked={showInactive} onCheckedChange={(v) => setShowInactive(!!v)} />
-            Inactivos
-          </label>
-          {canWrite && (
-            <Button size="sm" onClick={openNewCt}>
-              <Plus className="mr-1.5 h-4 w-4" />
-              Nuevo tipo
-            </Button>
-          )}
-        </div>
-
-        {filtered.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <Sprout className="mb-3 h-10 w-10" />
-              <p className="text-sm text-center">Crea tu primer tipo de cultivo para comenzar.</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {filtered.map((ct) => (
-              <Card
-                key={ct.id}
-                className={`cursor-pointer transition-colors ${
-                  ct.id === selectedId
-                    ? 'border-primary ring-1 ring-primary'
-                    : 'hover:border-muted-foreground/30'
-                } ${!ct.is_active ? 'opacity-50' : ''}`}
-                onClick={() => setSelectedId(ct.id)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        {ct.icon && <span className="text-base">{ct.icon}</span>}
-                        <span className="truncate font-medium text-sm">{ct.name}</span>
-                      </div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{ct.code}</span>
-                        <span>·</span>
-                        <span>{ct.phase_count} fases</span>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1">
-                      <Badge
-                        variant="secondary"
-                        className={`text-xs ${categoryBadgeStyles[ct.category] ?? ''}`}
-                      >
-                        {categoryLabels[ct.category] ?? ct.category}
-                      </Badge>
-                      {!ct.is_active && (
-                        <Badge variant="secondary" className="bg-gray-100 text-gray-500 text-xs">
-                          Inactivo
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Inline actions */}
-                  {canWrite && (
-                    <div className="mt-2 flex gap-1 border-t pt-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={(e) => { e.stopPropagation(); openEditCt(ct) }}
-                      >
-                        <Pencil className="mr-1 h-3 w-3" />
-                        Editar
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          if (ct.is_active && ct.phase_count > 0) {
-                            setDeactivatingCt(ct)
-                          } else {
-                            handleToggleCt(ct)
-                          }
-                        }}
-                      >
-                        <Power className="mr-1 h-3 w-3" />
-                        {ct.is_active ? 'Desactivar' : 'Reactivar'}
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Detail panel — Phases */}
-      <div className="flex-1 min-w-0">
-        {selectedCt ? (
-          <PhasesPanel
-            cropType={selectedCt}
-            phases={selectedPhases}
-            canWrite={canWrite}
-          />
-        ) : (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <Sprout className="mb-3 h-10 w-10" />
-              <p className="text-sm">Selecciona un tipo de cultivo para ver sus fases.</p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Crop Type Dialog */}
-      <CropTypeDialog
-        open={ctDialogOpen}
-        onOpenChange={(o) => { if (!o) { setCtDialogOpen(false); setEditingCt(null) } else setCtDialogOpen(true) }}
-        cropType={editingCt}
-        onSuccess={(newId) => {
-          setCtDialogOpen(false)
-          setEditingCt(null)
-          if (newId) setSelectedId(newId)
-          router.refresh()
-        }}
-      />
-
-      {/* Deactivate warning */}
-      <AlertDialog open={!!deactivatingCt} onOpenChange={(o) => !o && setDeactivatingCt(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Desactivar tipo de cultivo</AlertDialogTitle>
-            <AlertDialogDescription>
-              Este tipo de cultivo tiene {deactivatingCt?.phase_count ?? 0} fases configuradas. Desactivarlo impedirá crear nuevas órdenes con sus cultivares. ¿Continuar?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { if (deactivatingCt) handleToggleCt(deactivatingCt); setDeactivatingCt(null) }}>
-              Desactivar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  )
-}
-
-// ================================================================
 // CROP TYPE DIALOG
 // ================================================================
 
-function CropTypeDialog({
+export function CropTypeDialog({
   open,
   onOpenChange,
   cropType,
@@ -511,275 +283,10 @@ function CropTypeDialog({
 }
 
 // ================================================================
-// PHASES PANEL
-// ================================================================
-
-function PhasesPanel({
-  cropType,
-  phases,
-  canWrite,
-}: {
-  cropType: CropTypeRow
-  phases: PhaseRow[]
-  canWrite: boolean
-}) {
-  const router = useRouter()
-  const [phaseDialogOpen, setPhaseDialogOpen] = useState(false)
-  const [editingPhase, setEditingPhase] = useState<PhaseRow | null>(null)
-  const [deletingPhase, setDeletingPhase] = useState<PhaseRow | null>(null)
-
-  function openNewPhase() {
-    setEditingPhase(null)
-    setPhaseDialogOpen(true)
-  }
-
-  function openEditPhase(phase: PhaseRow) {
-    setEditingPhase(phase)
-    setPhaseDialogOpen(true)
-  }
-
-  async function handleDelete(phase: PhaseRow) {
-    // Check if other phases depend on this one
-    const dependents = phases.filter((p) => p.depends_on_phase_id === phase.id)
-    if (dependents.length > 0) {
-      toast.error(`No se puede eliminar: ${dependents.length} fase(s) dependen de esta.`)
-      setDeletingPhase(null)
-      return
-    }
-
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('production_phases')
-      .delete()
-      .eq('id', phase.id)
-
-    if (error) {
-      if (error.message?.includes('foreign key') || error.message?.includes('violates')) {
-        toast.error('No se puede eliminar: esta fase está en uso.')
-      } else {
-        toast.error('Error al eliminar la fase.')
-      }
-      setDeletingPhase(null)
-      return
-    }
-    toast.success('Fase eliminada.')
-    setDeletingPhase(null)
-    router.refresh()
-  }
-
-  async function handleReorder(phaseId: string, direction: 'up' | 'down') {
-    const idx = phases.findIndex((p) => p.id === phaseId)
-    if (idx < 0) return
-    const swapIdx = direction === 'up' ? idx - 1 : idx + 1
-    if (swapIdx < 0 || swapIdx >= phases.length) return
-
-    const supabase = createClient()
-    const a = phases[idx]
-    const b = phases[swapIdx]
-
-    // Swap sort_order values
-    const [{ error: e1 }, { error: e2 }] = await Promise.all([
-      supabase
-        .from('production_phases')
-        .update({ sort_order: b.sort_order })
-        .eq('id', a.id),
-      supabase
-        .from('production_phases')
-        .update({ sort_order: a.sort_order })
-        .eq('id', b.id),
-    ])
-
-    if (e1 || e2) {
-      toast.error('Error al reordenar.')
-      return
-    }
-    router.refresh()
-  }
-
-  // Get phase name by ID (for depends_on display)
-  function getPhaseName(id: string | null) {
-    if (!id) return null
-    return phases.find((p) => p.id === id)?.name ?? null
-  }
-
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div>
-          <CardTitle className="text-base">
-            {cropType.icon && <span className="mr-1.5">{cropType.icon}</span>}
-            Fases de {cropType.name}
-          </CardTitle>
-          {cropType.scientific_name && (
-            <p className="text-xs text-muted-foreground italic mt-0.5">{cropType.scientific_name}</p>
-          )}
-        </div>
-        {canWrite && (
-          <Button variant="outline" size="sm" onClick={openNewPhase}>
-            <Plus className="mr-1.5 h-4 w-4" />
-            Nueva fase
-          </Button>
-        )}
-      </CardHeader>
-      <CardContent className="p-0">
-        {phases.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-            <Sprout className="mb-3 h-10 w-10" />
-            <p className="text-sm text-center">
-              Configura las fases del ciclo productivo para {cropType.name}.
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {phases.map((phase, idx) => (
-              <div
-                key={phase.id}
-                className="flex items-start gap-3 px-4 py-3"
-              >
-                {/* Sort order + reorder buttons */}
-                <div className="flex flex-col items-center gap-0.5 pt-0.5">
-                  <span className="text-xs font-mono text-muted-foreground w-5 text-center">
-                    {phase.sort_order}
-                  </span>
-                  {canWrite && (
-                    <>
-                      <button
-                        type="button"
-                        disabled={idx === 0}
-                        onClick={() => handleReorder(phase.id, 'up')}
-                        className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                      >
-                        <ArrowUp className="h-3 w-3" />
-                      </button>
-                      <button
-                        type="button"
-                        disabled={idx === phases.length - 1}
-                        onClick={() => handleReorder(phase.id, 'down')}
-                        className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                      >
-                        <ArrowDown className="h-3 w-3" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Color dot */}
-                {phase.color && (
-                  <span
-                    className="mt-1 h-3 w-3 shrink-0 rounded-full"
-                    style={{ backgroundColor: phase.color }}
-                  />
-                )}
-
-                {/* Phase info */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{phase.name}</span>
-                    <span className="text-xs text-muted-foreground">{phase.code}</span>
-                  </div>
-
-                  {/* Duration + dependency */}
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-                    <span>
-                      {phase.default_duration_days
-                        ? `${phase.default_duration_days} días`
-                        : 'Indefinida'}
-                    </span>
-                    {phase.depends_on_phase_id && (
-                      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                        <GitBranch className="h-3 w-3" />
-                        Bifurca desde: {getPhaseName(phase.depends_on_phase_id)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Flag badges */}
-                  <div className="mt-1.5 flex flex-wrap gap-1">
-                    {phase.is_transformation && (
-                      <Badge variant="outline" className="text-xs">Transforma</Badge>
-                    )}
-                    {phase.is_destructive && (
-                      <Badge variant="outline" className="text-xs text-red-600 border-red-200">Destructiva</Badge>
-                    )}
-                    {phase.requires_zone_change && (
-                      <Badge variant="outline" className="text-xs">Cambio de zona</Badge>
-                    )}
-                    {phase.can_skip && (
-                      <Badge variant="outline" className="text-xs">Opcional</Badge>
-                    )}
-                    {phase.can_be_entry_point && (
-                      <Badge variant="outline" className="text-xs text-green-600 border-green-200">Entry</Badge>
-                    )}
-                    {phase.can_be_exit_point && (
-                      <Badge variant="outline" className="text-xs text-orange-600 border-orange-200">Exit</Badge>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                {canWrite && (
-                  <div className="flex shrink-0 gap-0.5">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => openEditPhase(phase)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => setDeletingPhase(phase)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-
-      {/* Phase Dialog */}
-      <PhaseDialog
-        open={phaseDialogOpen}
-        onOpenChange={(o) => { if (!o) { setPhaseDialogOpen(false); setEditingPhase(null) } else setPhaseDialogOpen(true) }}
-        phase={editingPhase}
-        cropTypeId={cropType.id}
-        allPhases={phases}
-        nextSortOrder={phases.length > 0 ? Math.max(...phases.map((p) => p.sort_order)) + 1 : 1}
-        onSuccess={() => { setPhaseDialogOpen(false); setEditingPhase(null); router.refresh() }}
-      />
-
-      {/* Delete phase confirmation */}
-      <AlertDialog open={!!deletingPhase} onOpenChange={(o) => !o && setDeletingPhase(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar fase</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Estás seguro de que deseas eliminar la fase &quot;{deletingPhase?.name}&quot;? Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deletingPhase && handleDelete(deletingPhase)}>
-              Eliminar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </Card>
-  )
-}
-
-// ================================================================
 // PHASE DIALOG
 // ================================================================
 
-function PhaseDialog({
+export function PhaseDialog({
   open,
   onOpenChange,
   phase,
