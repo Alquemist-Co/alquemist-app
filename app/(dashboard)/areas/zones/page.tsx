@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ZonesListClient } from '@/components/areas/zones-list-client'
+import type { ClimateConfig } from '@/components/areas/zones-shared'
 
 const PAGE_SIZE = 20
 
@@ -101,7 +102,7 @@ export default async function ZonesPage({
       effective_growing_area_m2: Number(z.effective_growing_area_m2),
       plant_capacity: z.plant_capacity,
       height_m: z.height_m ? Number(z.height_m) : null,
-      climate_config: z.climate_config as Record<string, unknown> | null,
+      climate_config: z.climate_config as ClimateConfig | null,
       status: z.status,
       structure_count: Array.isArray(z.structures) ? z.structures.length : 0,
     }

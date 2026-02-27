@@ -86,7 +86,11 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <MapPin className="mb-3 h-10 w-10" />
-            <p className="text-sm text-center">No hay instalaciones registradas.</p>
+            <p className="text-sm text-center">
+              {facilities.length > 0 && !showInactive
+                ? 'No hay instalaciones activas.'
+                : 'No hay instalaciones registradas.'}
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -196,7 +200,7 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { if (deactivatingFacility) handleToggle(deactivatingFacility); setDeactivatingFacility(null) }}>
+            <AlertDialogAction onClick={async () => { if (deactivatingFacility) await handleToggle(deactivatingFacility); setDeactivatingFacility(null) }}>
               Desactivar
             </AlertDialogAction>
           </AlertDialogFooter>

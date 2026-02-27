@@ -199,3 +199,9 @@ Página dentro del layout de dashboard con sidebar.
 - **Supabase client**: PostgREST para lecturas cross-domain
 - **React Query**: Cache keys `['zone-detail', zoneId]`, `['zone-batch', zoneId]`, `['zone-sensors', zoneId]`, `['zone-readings', zoneId]`
 - **Supabase Realtime** (opcional): Suscripción a `environmental_readings` para actualización en tiempo real de lecturas
+
+## Notas de implementación
+
+- **Secciones diferidas**: Las secciones de Batch Activo (Fase 4), Sensores (Fase 6), Lecturas Ambientales (Fase 6) y Posiciones de Plantas (Fase 4) se renderizan con estados vacíos naturales. Las queries a esas tablas se conectarán cuando se implementen las fases correspondientes.
+- **Sin React Query**: La carga inicial es Server Component. El polling de lecturas (RNF-03) se agregará en Fase 6 cuando existan las tablas.
+- **Edit flow**: Reutiliza `ZoneDialog` del PRD 15 directamente, sin código adicional.

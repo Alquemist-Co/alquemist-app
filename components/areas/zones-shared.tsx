@@ -85,7 +85,7 @@ export type StructureRow = {
   pot_size_l: number | null
 }
 
-type ClimateConfig = {
+export type ClimateConfig = {
   temperature?: number | null
   humidity?: number | null
   co2?: number | null
@@ -161,9 +161,10 @@ function StructureDialog({
   open: boolean
   onOpenChange: (open: boolean) => void
   structure: StructureRow | null
-  onSave: (values: ZoneStructureInput) => void
+  onSave: (values: ZoneStructureInput) => Promise<void>
 }) {
   const isEdit = !!structure
+  const [isSaving, setIsSaving] = useState(false)
 
   const form = useForm<ZoneStructureInput>({
     resolver: zodResolver(zoneStructureSchema),
@@ -180,13 +181,18 @@ function StructureDialog({
     },
   })
 
-  function onSubmit(values: ZoneStructureInput) {
-    onSave(values)
-    onOpenChange(false)
+  async function onSubmit(values: ZoneStructureInput) {
+    setIsSaving(true)
+    try {
+      await onSave(values)
+      onOpenChange(false)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(o) => { if (!isSaving) onOpenChange(o) }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Editar estructura' : 'Nueva estructura'}</DialogTitle>
@@ -354,11 +360,11 @@ function StructureDialog({
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
                 Cancelar
               </Button>
-              <Button type="submit">
-                {isEdit ? 'Guardar' : 'Agregar'}
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? 'Guardando...' : isEdit ? 'Guardar' : 'Agregar'}
               </Button>
             </DialogFooter>
           </form>
@@ -430,9 +436,14 @@ export function ZoneDialog({
     if (!open) {
       setStructures([])
       setPendingStructures([])
+      setClimateTemp(null)
+      setClimateHR(null)
+      setClimateCO2(null)
+      setClimatePhoto('')
       return
     }
     if (isEdit) {
+      let cancelled = false
       const supabase = createClient()
       supabase
         .from('zone_structures')
@@ -440,7 +451,7 @@ export function ZoneDialog({
         .eq('zone_id', zone.id)
         .order('name')
         .then(({ data }) => {
-          if (data) {
+          if (data && !cancelled) {
             setStructures(data.map((s) => ({
               ...s,
               length_m: Number(s.length_m),
@@ -450,6 +461,7 @@ export function ZoneDialog({
             })))
           }
         })
+      return () => { cancelled = true }
     }
   }, [open, isEdit, zone?.id])
 
