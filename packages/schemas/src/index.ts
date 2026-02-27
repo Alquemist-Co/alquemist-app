@@ -42,3 +42,7 @@ export {
 export {
   facilitySchema, type FacilityInput,
 } from './facilities'
+export {
+  zoneSchema, type ZoneInput,
+  zoneStructureSchema, type ZoneStructureInput,
+} from './zones'
