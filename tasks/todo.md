@@ -1,5 +1,18 @@
 # Task Tracking
 
+## PRD 15 — Zones Implementation
+
+- [x] Zod schemas: `packages/schemas/src/zones.ts` (zoneSchema + zoneStructureSchema)
+- [x] Shared component: `components/areas/zones-shared.tsx` (types, labels, ZoneDialog, StructureDialog)
+- [x] Client component: `components/areas/zones-list-client.tsx` (table, FilterPopover, URL params, pagination)
+- [x] Server page: `app/(dashboard)/areas/zones/page.tsx` (searchParams, server-side filtering + pagination)
+- [x] Tracker updates
+
+### Verification
+
+- [x] `pnpm tsc --noEmit` — no type errors
+- [x] `pnpm lint` — passes (0 new errors/warnings)
+
 ## PRD 14 — Facilities Implementation
 
 - [x] Database migration: facilities, zones, zone_structures + ENUMs + triggers + RLS
