@@ -26,7 +26,7 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 
 ## Phase 3 — Areas + Inventory (8 PRDs)
 
-- [ ] 14 · `areas/facilities` — `/areas/facilities` · prd ✓
+- [x] 14 · `areas/facilities` — `/areas/facilities` · prd ✓
 - [ ] 15 · `areas/zones` — `/areas/zones` · prd ✓
 - [ ] 16 · `areas/zone-detail` — `/areas/zones/[id]` · prd ✓
 - [ ] 17 · `inventory/products` — `/inventory/products` · prd ✓
@@ -83,11 +83,11 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | ----------------------------------- | ------------ | ----------- |
 | 1 Auth                              | 5/5          | 5/5         |
 | 2 Settings                          | 8/8          | 8/8         |
-| 3 Areas + Inventory                 | 7/8          | 0/8         |
+| 3 Areas + Inventory                 | 7/8          | 1/8         |
 | 4 Production                        | 0/4          | 0/4         |
 | 5 Activities + Quality + Regulatory | 0/7          | 0/7         |
 | 6 Operations                        | 0/4          | 0/4         |
 | 7 Inventory Ops                     | 0/2          | 0/2         |
 | 8 Field                             | 0/4          | 0/4         |
 | 9 Dashboard                         | 0/1          | 0/1         |
-| **Total**                           | **20/43**    | **13/43**   |
+| **Total**                           | **20/43**    | **14/43**   |

@@ -1,5 +1,24 @@
 # Task Tracking
 
+## PRD 14 — Facilities Implementation
+
+- [x] Database migration: facilities, zones, zone_structures + ENUMs + triggers + RLS
+- [x] Reset DB & regenerate TypeScript types
+- [x] Install shadcn Textarea component
+- [x] Zod schema: `packages/schemas/src/facilities.ts`
+- [x] Shared component: `components/areas/facilities-shared.tsx` (types, labels, icons, dialog)
+- [x] Client component: `components/areas/facilities-list-client.tsx` (card grid, filters, actions)
+- [x] Server page: `app/(dashboard)/areas/facilities/page.tsx`
+- [x] Areas redirect: `app/(dashboard)/areas/page.tsx` → `/areas/facilities`
+- [x] Sidebar nav: enabled Áreas link
+- [x] Tracker updates
+
+### Verification
+
+- [x] `supabase db reset` — migration applies cleanly
+- [x] `pnpm tsc --noEmit` — no type errors
+- [x] `pnpm lint` — passes (0 new errors/warnings)
+
 ## PRD Authoring
 
 ### Fase 3 — Áreas e Inventario (8 PRDs)
@@ -36,6 +55,11 @@
 - [x] PRD 34: operations-environmental
 - [x] PRD 35: operations-sensors
 - [x] PRD 36: operations-costs
+
+### Fase 7 — Inventario Operativo (2 PRDs)
+
+- [x] PRD 37: inventory-items
+- [x] PRD 38: inventory-transactions
 
 ## Auth Invite, Forgot/Reset Password (PRDs 03, 04, 05)
 
