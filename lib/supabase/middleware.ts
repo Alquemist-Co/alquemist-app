@@ -35,9 +35,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
-  const authRoutes = ['/login', '/signup', '/forgot-password', '/reset-password']
+  const authRoutes = ['/login', '/signup', '/forgot-password']
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
-  const isPublicRoute = pathname.startsWith('/auth/confirm') || pathname.startsWith('/invite')
+  const isPublicRoute = pathname.startsWith('/auth/confirm')
+    || pathname.startsWith('/invite')
+    || pathname.startsWith('/reset-password')
 
   if (isPublicRoute) {
     // Auth callback and invite pages — pass through without redirects

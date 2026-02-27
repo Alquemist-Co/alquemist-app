@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { forgotPasswordSchema, type ForgotPasswordInput } from '@/schemas/auth'
-import { createClient } from '@/lib/supabase/client'
+import { requestPasswordReset } from './actions'
 import { toast } from 'sonner'
 import { Sprout, Mail } from 'lucide-react'
 import Link from 'next/link'
@@ -31,7 +31,6 @@ import {
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
-  const supabase = createClient()
 
   const form = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -42,17 +41,11 @@ export default function ForgotPasswordPage() {
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(
-        values.email,
-        { redirectTo: `${window.location.origin}/auth/confirm?redirect_to=/reset-password` }
-      )
+      const result = await requestPasswordReset(values)
 
-      if (error) {
-        if (error.status === 429) {
-          toast.error('Demasiados intentos. Espera unos minutos.')
-          return
-        }
-        // Always show success to prevent email enumeration
+      if (!result.success) {
+        toast.error(result.error)
+        return
       }
 
       setSent(true)
