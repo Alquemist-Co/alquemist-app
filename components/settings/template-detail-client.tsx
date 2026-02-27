@@ -261,19 +261,6 @@ function TemplatePhasesSub({
           })
         )}
       </div>
-      {/* Show all assigned phases as badges (across crop types) */}
-      {templatePhases.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {templatePhases.map((tp) => {
-            const phase = phases.find((p) => p.id === tp.phase_id)
-            return (
-              <Badge key={tp.id} variant="secondary" className="text-xs">
-                {phase?.name ?? tp.phase_id}
-              </Badge>
-            )
-          })}
-        </div>
-      )}
     </div>
   )
 }

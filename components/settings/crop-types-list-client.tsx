@@ -89,7 +89,7 @@ export function CropTypesListClient({ cropTypes, canWrite }: Props) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {filtered.map((ct) => (
             <Card
               key={ct.id}
