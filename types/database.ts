@@ -36,45 +36,45 @@ export type Database = {
     Tables: {
       activity_template_checklist: {
         Row: {
+          created_at: string
+          created_by: string | null
+          expected_value: string | null
           id: string
-          template_id: string
-          step_order: number
           instruction: string
           is_critical: boolean
           requires_photo: boolean
-          expected_value: string | null
+          step_order: number
+          template_id: string
           tolerance: string | null
-          created_at: string
           updated_at: string
-          created_by: string | null
           updated_by: string | null
         }
         Insert: {
+          created_at?: string
+          created_by?: string | null
+          expected_value?: string | null
           id?: string
-          template_id: string
-          step_order?: number
           instruction: string
           is_critical?: boolean
           requires_photo?: boolean
-          expected_value?: string | null
+          step_order?: number
+          template_id: string
           tolerance?: string | null
-          created_at?: string
           updated_at?: string
-          created_by?: string | null
           updated_by?: string | null
         }
         Update: {
+          created_at?: string
+          created_by?: string | null
+          expected_value?: string | null
           id?: string
-          template_id?: string
-          step_order?: number
           instruction?: string
           is_critical?: boolean
           requires_photo?: boolean
-          expected_value?: string | null
+          step_order?: number
+          template_id?: string
           tolerance?: string | null
-          created_at?: string
           updated_at?: string
-          created_by?: string | null
           updated_by?: string | null
         }
         Relationships: [
@@ -90,27 +90,20 @@ export type Database = {
       activity_template_phases: {
         Row: {
           id: string
-          template_id: string
           phase_id: string
+          template_id: string
         }
         Insert: {
           id?: string
-          template_id: string
           phase_id: string
+          template_id: string
         }
         Update: {
           id?: string
-          template_id?: string
           phase_id?: string
+          template_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "activity_template_phases_template_id_fkey"
-            columns: ["template_id"]
-            isOneToOne: false
-            referencedRelation: "activity_templates"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "activity_template_phases_phase_id_fkey"
             columns: ["phase_id"]
@@ -118,49 +111,56 @@ export type Database = {
             referencedRelation: "production_phases"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "activity_template_phases_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
+            referencedColumns: ["id"]
+          },
         ]
       }
       activity_template_resources: {
         Row: {
+          created_at: string
+          created_by: string | null
           id: string
-          template_id: string
+          is_optional: boolean
+          notes: string | null
           product_id: string | null
           quantity: number
           quantity_basis: Database["public"]["Enums"]["quantity_basis"]
-          is_optional: boolean
           sort_order: number
-          notes: string | null
-          created_at: string
+          template_id: string
           updated_at: string
-          created_by: string | null
           updated_by: string | null
         }
         Insert: {
+          created_at?: string
+          created_by?: string | null
           id?: string
-          template_id: string
+          is_optional?: boolean
+          notes?: string | null
           product_id?: string | null
           quantity: number
           quantity_basis: Database["public"]["Enums"]["quantity_basis"]
-          is_optional?: boolean
           sort_order?: number
-          notes?: string | null
-          created_at?: string
+          template_id: string
           updated_at?: string
-          created_by?: string | null
           updated_by?: string | null
         }
         Update: {
+          created_at?: string
+          created_by?: string | null
           id?: string
-          template_id?: string
+          is_optional?: boolean
+          notes?: string | null
           product_id?: string | null
           quantity?: number
           quantity_basis?: Database["public"]["Enums"]["quantity_basis"]
-          is_optional?: boolean
           sort_order?: number
-          notes?: string | null
-          created_at?: string
+          template_id?: string
           updated_at?: string
-          created_by?: string | null
           updated_by?: string | null
         }
         Relationships: [
@@ -175,78 +175,78 @@ export type Database = {
       }
       activity_templates: {
         Row: {
-          id: string
-          company_id: string
-          code: string
           activity_type_id: string
-          name: string
-          frequency: Database["public"]["Enums"]["activity_frequency"]
+          code: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          depends_on_template_id: string | null
           estimated_duration_min: number
+          frequency: Database["public"]["Enums"]["activity_frequency"]
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          name: string
           trigger_day_from: number | null
           trigger_day_to: number | null
-          depends_on_template_id: string | null
           triggers_phase_change_id: string | null
           triggers_transformation: boolean
-          metadata: Json | null
-          is_active: boolean
-          created_at: string
           updated_at: string
-          created_by: string | null
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          company_id?: string
-          code: string
           activity_type_id: string
-          name: string
-          frequency: Database["public"]["Enums"]["activity_frequency"]
+          code: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          depends_on_template_id?: string | null
           estimated_duration_min: number
+          frequency: Database["public"]["Enums"]["activity_frequency"]
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          name: string
           trigger_day_from?: number | null
           trigger_day_to?: number | null
-          depends_on_template_id?: string | null
           triggers_phase_change_id?: string | null
           triggers_transformation?: boolean
-          metadata?: Json | null
-          is_active?: boolean
-          created_at?: string
           updated_at?: string
-          created_by?: string | null
           updated_by?: string | null
         }
         Update: {
-          id?: string
-          company_id?: string
-          code?: string
           activity_type_id?: string
-          name?: string
-          frequency?: Database["public"]["Enums"]["activity_frequency"]
+          code?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          depends_on_template_id?: string | null
           estimated_duration_min?: number
+          frequency?: Database["public"]["Enums"]["activity_frequency"]
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          name?: string
           trigger_day_from?: number | null
           trigger_day_to?: number | null
-          depends_on_template_id?: string | null
           triggers_phase_change_id?: string | null
           triggers_transformation?: boolean
-          metadata?: Json | null
-          is_active?: boolean
-          created_at?: string
           updated_at?: string
-          created_by?: string | null
           updated_by?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "activity_templates_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "activity_templates_activity_type_id_fkey"
             columns: ["activity_type_id"]
             isOneToOne: false
             referencedRelation: "activity_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_templates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
@@ -267,36 +267,36 @@ export type Database = {
       }
       activity_types: {
         Row: {
-          id: string
-          company_id: string
-          name: string
           category: string | null
-          is_active: boolean
+          company_id: string
           created_at: string
-          updated_at: string
           created_by: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          company_id?: string
-          name: string
           category?: string | null
-          is_active?: boolean
+          company_id?: string
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
-          company_id?: string
-          name?: string
           category?: string | null
-          is_active?: boolean
+          company_id?: string
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
@@ -354,71 +354,127 @@ export type Database = {
         }
         Relationships: []
       }
-      cultivars: {
+      crop_types: {
         Row: {
-          id: string
-          crop_type_id: string
+          category: Database["public"]["Enums"]["crop_category"]
           code: string
-          name: string
-          breeder: string | null
-          genetics: string | null
-          default_cycle_days: number | null
-          phase_durations: Json | null
-          expected_yield_per_plant_g: number | null
-          expected_dry_ratio: number | null
-          target_profile: Json | null
-          quality_grade: string | null
-          optimal_conditions: Json | null
-          density_plants_per_m2: number | null
-          notes: string | null
-          is_active: boolean
+          company_id: string
           created_at: string
-          updated_at: string
           created_by: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          regulatory_framework: string | null
+          scientific_name: string | null
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          crop_type_id: string
+          category: Database["public"]["Enums"]["crop_category"]
           code: string
-          name: string
-          breeder?: string | null
-          genetics?: string | null
-          default_cycle_days?: number | null
-          phase_durations?: Json | null
-          expected_yield_per_plant_g?: number | null
-          expected_dry_ratio?: number | null
-          target_profile?: Json | null
-          quality_grade?: string | null
-          optimal_conditions?: Json | null
-          density_plants_per_m2?: number | null
-          notes?: string | null
-          is_active?: boolean
+          company_id?: string
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          regulatory_framework?: string | null
+          scientific_name?: string | null
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
-          crop_type_id?: string
+          category?: Database["public"]["Enums"]["crop_category"]
           code?: string
-          name?: string
-          breeder?: string | null
-          genetics?: string | null
-          default_cycle_days?: number | null
-          phase_durations?: Json | null
-          expected_yield_per_plant_g?: number | null
-          expected_dry_ratio?: number | null
-          target_profile?: Json | null
-          quality_grade?: string | null
-          optimal_conditions?: Json | null
-          density_plants_per_m2?: number | null
-          notes?: string | null
-          is_active?: boolean
+          company_id?: string
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          regulatory_framework?: string | null
+          scientific_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crop_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cultivars: {
+        Row: {
+          breeder: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          crop_type_id: string
+          default_cycle_days: number | null
+          density_plants_per_m2: number | null
+          expected_dry_ratio: number | null
+          expected_yield_per_plant_g: number | null
+          genetics: string | null
+          id: string
+          is_active: boolean
+          name: string
+          notes: string | null
+          optimal_conditions: Json | null
+          phase_durations: Json | null
+          quality_grade: string | null
+          target_profile: Json | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          breeder?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          crop_type_id: string
+          default_cycle_days?: number | null
+          density_plants_per_m2?: number | null
+          expected_dry_ratio?: number | null
+          expected_yield_per_plant_g?: number | null
+          genetics?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          notes?: string | null
+          optimal_conditions?: Json | null
+          phase_durations?: Json | null
+          quality_grade?: string | null
+          target_profile?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          breeder?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          crop_type_id?: string
+          default_cycle_days?: number | null
+          density_plants_per_m2?: number | null
+          expected_dry_ratio?: number | null
+          expected_yield_per_plant_g?: number | null
+          genetics?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          notes?: string | null
+          optimal_conditions?: Json | null
+          phase_durations?: Json | null
+          quality_grade?: string | null
+          target_profile?: Json | null
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
@@ -433,42 +489,42 @@ export type Database = {
       }
       cultivation_schedules: {
         Row: {
-          id: string
           company_id: string
-          name: string
-          cultivar_id: string
-          total_days: number | null
-          phase_config: Json | null
-          is_active: boolean
           created_at: string
-          updated_at: string
           created_by: string | null
+          cultivar_id: string
+          id: string
+          is_active: boolean
+          name: string
+          phase_config: Json | null
+          total_days: number | null
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
           company_id?: string
-          name: string
-          cultivar_id: string
-          total_days?: number | null
-          phase_config?: Json | null
-          is_active?: boolean
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          cultivar_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phase_config?: Json | null
+          total_days?: number | null
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
           company_id?: string
-          name?: string
-          cultivar_id?: string
-          total_days?: number | null
-          phase_config?: Json | null
-          is_active?: boolean
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          cultivar_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phase_config?: Json | null
+          total_days?: number | null
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
@@ -488,55 +544,61 @@ export type Database = {
           },
         ]
       }
-      crop_types: {
+      facilities: {
         Row: {
-          id: string
+          address: string
           company_id: string
-          code: string
-          name: string
-          scientific_name: string | null
-          category: Database["public"]["Enums"]["crop_category"]
-          regulatory_framework: string | null
-          icon: string | null
-          is_active: boolean
           created_at: string
-          updated_at: string
           created_by: string | null
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          total_footprint_m2: number
+          total_growing_area_m2: number
+          total_plant_capacity: number
+          type: Database["public"]["Enums"]["facility_type"]
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
+          address: string
           company_id?: string
-          code: string
-          name: string
-          scientific_name?: string | null
-          category: Database["public"]["Enums"]["crop_category"]
-          regulatory_framework?: string | null
-          icon?: string | null
-          is_active?: boolean
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          total_footprint_m2: number
+          total_growing_area_m2?: number
+          total_plant_capacity?: number
+          type: Database["public"]["Enums"]["facility_type"]
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
+          address?: string
           company_id?: string
-          code?: string
-          name?: string
-          scientific_name?: string | null
-          category?: Database["public"]["Enums"]["crop_category"]
-          regulatory_framework?: string | null
-          icon?: string | null
-          is_active?: boolean
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          total_footprint_m2?: number
+          total_growing_area_m2?: number
+          total_plant_capacity?: number
+          type?: Database["public"]["Enums"]["facility_type"]
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "crop_types_company_id_fkey"
+            foreignKeyName: "facilities_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -544,143 +606,62 @@ export type Database = {
           },
         ]
       }
-      production_phases: {
-        Row: {
-          id: string
-          crop_type_id: string
-          code: string
-          name: string
-          sort_order: number
-          default_duration_days: number | null
-          is_transformation: boolean
-          is_destructive: boolean
-          requires_zone_change: boolean
-          can_skip: boolean
-          can_be_entry_point: boolean
-          can_be_exit_point: boolean
-          depends_on_phase_id: string | null
-          icon: string | null
-          color: string | null
-          created_at: string
-          updated_at: string
-          created_by: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          id?: string
-          crop_type_id: string
-          code: string
-          name: string
-          sort_order?: number
-          default_duration_days?: number | null
-          is_transformation?: boolean
-          is_destructive?: boolean
-          requires_zone_change?: boolean
-          can_skip?: boolean
-          can_be_entry_point?: boolean
-          can_be_exit_point?: boolean
-          depends_on_phase_id?: string | null
-          icon?: string | null
-          color?: string | null
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          id?: string
-          crop_type_id?: string
-          code?: string
-          name?: string
-          sort_order?: number
-          default_duration_days?: number | null
-          is_transformation?: boolean
-          is_destructive?: boolean
-          requires_zone_change?: boolean
-          can_skip?: boolean
-          can_be_entry_point?: boolean
-          can_be_exit_point?: boolean
-          depends_on_phase_id?: string | null
-          icon?: string | null
-          color?: string | null
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "production_phases_crop_type_id_fkey"
-            columns: ["crop_type_id"]
-            isOneToOne: false
-            referencedRelation: "crop_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_phases_depends_on_phase_id_fkey"
-            columns: ["depends_on_phase_id"]
-            isOneToOne: false
-            referencedRelation: "production_phases"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       phase_product_flows: {
         Row: {
-          id: string
-          cultivar_id: string
-          phase_id: string
-          direction: Database["public"]["Enums"]["flow_direction"]
-          product_role: Database["public"]["Enums"]["product_role"]
-          product_id: string | null
-          product_category_id: string | null
-          expected_yield_pct: number | null
-          expected_quantity_per_input: number | null
-          unit_id: string | null
-          is_required: boolean
-          sort_order: number
-          notes: string | null
           created_at: string
-          updated_at: string
           created_by: string | null
+          cultivar_id: string
+          direction: Database["public"]["Enums"]["flow_direction"]
+          expected_quantity_per_input: number | null
+          expected_yield_pct: number | null
+          id: string
+          is_required: boolean
+          notes: string | null
+          phase_id: string
+          product_category_id: string | null
+          product_id: string | null
+          product_role: Database["public"]["Enums"]["product_role"]
+          sort_order: number
+          unit_id: string | null
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          cultivar_id: string
-          phase_id: string
-          direction: Database["public"]["Enums"]["flow_direction"]
-          product_role: Database["public"]["Enums"]["product_role"]
-          product_id?: string | null
-          product_category_id?: string | null
-          expected_yield_pct?: number | null
-          expected_quantity_per_input?: number | null
-          unit_id?: string | null
-          is_required?: boolean
-          sort_order?: number
-          notes?: string | null
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          cultivar_id: string
+          direction: Database["public"]["Enums"]["flow_direction"]
+          expected_quantity_per_input?: number | null
+          expected_yield_pct?: number | null
+          id?: string
+          is_required?: boolean
+          notes?: string | null
+          phase_id: string
+          product_category_id?: string | null
+          product_id?: string | null
+          product_role: Database["public"]["Enums"]["product_role"]
+          sort_order?: number
+          unit_id?: string | null
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
-          cultivar_id?: string
-          phase_id?: string
-          direction?: Database["public"]["Enums"]["flow_direction"]
-          product_role?: Database["public"]["Enums"]["product_role"]
-          product_id?: string | null
-          product_category_id?: string | null
-          expected_yield_pct?: number | null
-          expected_quantity_per_input?: number | null
-          unit_id?: string | null
-          is_required?: boolean
-          sort_order?: number
-          notes?: string | null
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          cultivar_id?: string
+          direction?: Database["public"]["Enums"]["flow_direction"]
+          expected_quantity_per_input?: number | null
+          expected_yield_pct?: number | null
+          id?: string
+          is_required?: boolean
+          notes?: string | null
+          phase_id?: string
+          product_category_id?: string | null
+          product_id?: string | null
+          product_role?: Database["public"]["Enums"]["product_role"]
+          sort_order?: number
+          unit_id?: string | null
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
@@ -714,59 +695,265 @@ export type Database = {
           },
         ]
       }
-      resource_categories: {
+      product_regulatory_requirements: {
         Row: {
-          id: string
-          company_id: string
-          parent_id: string | null
-          code: string
-          name: string
-          icon: string | null
-          color: string | null
-          is_consumable: boolean
-          is_depreciable: boolean
-          is_transformable: boolean
-          default_lot_tracking: Database["public"]["Enums"]["lot_tracking"]
-          is_active: boolean
+          applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
+          category_id: string | null
           created_at: string
-          updated_at: string
           created_by: string | null
+          doc_type_id: string
+          frequency: Database["public"]["Enums"]["compliance_frequency"]
+          id: string
+          is_mandatory: boolean
+          notes: string | null
+          product_id: string | null
+          sort_order: number
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          company_id?: string
-          parent_id?: string | null
-          code: string
-          name: string
-          icon?: string | null
-          color?: string | null
-          is_consumable?: boolean
-          is_depreciable?: boolean
-          is_transformable?: boolean
-          default_lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
-          is_active?: boolean
+          applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
+          category_id?: string | null
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          doc_type_id: string
+          frequency: Database["public"]["Enums"]["compliance_frequency"]
+          id?: string
+          is_mandatory?: boolean
+          notes?: string | null
+          product_id?: string | null
+          sort_order?: number
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
+          applies_to_scope?: Database["public"]["Enums"]["compliance_scope"]
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          doc_type_id?: string
+          frequency?: Database["public"]["Enums"]["compliance_frequency"]
           id?: string
-          company_id?: string
-          parent_id?: string | null
-          code?: string
-          name?: string
-          icon?: string | null
+          is_mandatory?: boolean
+          notes?: string | null
+          product_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_regulatory_requirements_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_regulatory_requirements_doc_type_id_fkey"
+            columns: ["doc_type_id"]
+            isOneToOne: false
+            referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_phases: {
+        Row: {
+          can_be_entry_point: boolean
+          can_be_exit_point: boolean
+          can_skip: boolean
+          code: string
+          color: string | null
+          created_at: string
+          created_by: string | null
+          crop_type_id: string
+          default_duration_days: number | null
+          depends_on_phase_id: string | null
+          icon: string | null
+          id: string
+          is_destructive: boolean
+          is_transformation: boolean
+          name: string
+          requires_zone_change: boolean
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          can_be_entry_point?: boolean
+          can_be_exit_point?: boolean
+          can_skip?: boolean
+          code: string
           color?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop_type_id: string
+          default_duration_days?: number | null
+          depends_on_phase_id?: string | null
+          icon?: string | null
+          id?: string
+          is_destructive?: boolean
+          is_transformation?: boolean
+          name: string
+          requires_zone_change?: boolean
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          can_be_entry_point?: boolean
+          can_be_exit_point?: boolean
+          can_skip?: boolean
+          code?: string
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop_type_id?: string
+          default_duration_days?: number | null
+          depends_on_phase_id?: string | null
+          icon?: string | null
+          id?: string
+          is_destructive?: boolean
+          is_transformation?: boolean
+          name?: string
+          requires_zone_change?: boolean
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_phases_crop_type_id_fkey"
+            columns: ["crop_type_id"]
+            isOneToOne: false
+            referencedRelation: "crop_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_phases_depends_on_phase_id_fkey"
+            columns: ["depends_on_phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regulatory_doc_types: {
+        Row: {
+          category: Database["public"]["Enums"]["doc_category"]
+          code: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          issuing_authority: string | null
+          name: string
+          required_fields: Json
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+          valid_for_days: number | null
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["doc_category"]
+          code: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          issuing_authority?: string | null
+          name: string
+          required_fields?: Json
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          valid_for_days?: number | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["doc_category"]
+          code?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          issuing_authority?: string | null
+          name?: string
+          required_fields?: Json
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          valid_for_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regulatory_doc_types_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_categories: {
+        Row: {
+          code: string
+          color: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          default_lot_tracking: Database["public"]["Enums"]["lot_tracking"]
+          icon: string | null
+          id: string
+          is_active: boolean
+          is_consumable: boolean
+          is_depreciable: boolean
+          is_transformable: boolean
+          name: string
+          parent_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          code: string
+          color?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          default_lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
+          icon?: string | null
+          id?: string
+          is_active?: boolean
           is_consumable?: boolean
           is_depreciable?: boolean
           is_transformable?: boolean
-          default_lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
-          is_active?: boolean
-          created_at?: string
+          name: string
+          parent_id?: string | null
           updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          code?: string
+          color?: string | null
+          company_id?: string
+          created_at?: string
           created_by?: string | null
+          default_lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          is_consumable?: boolean
+          is_depreciable?: boolean
+          is_transformable?: boolean
+          name?: string
+          parent_id?: string | null
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
@@ -786,182 +973,50 @@ export type Database = {
           },
         ]
       }
-      regulatory_doc_types: {
-        Row: {
-          id: string
-          company_id: string
-          code: string
-          name: string
-          description: string | null
-          category: Database["public"]["Enums"]["doc_category"]
-          valid_for_days: number | null
-          issuing_authority: string | null
-          required_fields: Json
-          sort_order: number
-          is_active: boolean
-          created_at: string
-          updated_at: string
-          created_by: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          id?: string
-          company_id?: string
-          code: string
-          name: string
-          description?: string | null
-          category: Database["public"]["Enums"]["doc_category"]
-          valid_for_days?: number | null
-          issuing_authority?: string | null
-          required_fields?: Json
-          sort_order?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          id?: string
-          company_id?: string
-          code?: string
-          name?: string
-          description?: string | null
-          category?: Database["public"]["Enums"]["doc_category"]
-          valid_for_days?: number | null
-          issuing_authority?: string | null
-          required_fields?: Json
-          sort_order?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "regulatory_doc_types_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_regulatory_requirements: {
-        Row: {
-          id: string
-          product_id: string | null
-          category_id: string | null
-          doc_type_id: string
-          is_mandatory: boolean
-          applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
-          frequency: Database["public"]["Enums"]["compliance_frequency"]
-          notes: string | null
-          sort_order: number
-          created_at: string
-          updated_at: string
-          created_by: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          id?: string
-          product_id?: string | null
-          category_id?: string | null
-          doc_type_id: string
-          is_mandatory?: boolean
-          applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
-          frequency: Database["public"]["Enums"]["compliance_frequency"]
-          notes?: string | null
-          sort_order?: number
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          id?: string
-          product_id?: string | null
-          category_id?: string | null
-          doc_type_id?: string
-          is_mandatory?: boolean
-          applies_to_scope?: Database["public"]["Enums"]["compliance_scope"]
-          frequency?: Database["public"]["Enums"]["compliance_frequency"]
-          notes?: string | null
-          sort_order?: number
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "product_regulatory_requirements_doc_type_id_fkey"
-            columns: ["doc_type_id"]
-            isOneToOne: false
-            referencedRelation: "regulatory_doc_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_regulatory_requirements_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "resource_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       shipment_doc_requirements: {
         Row: {
-          id: string
-          product_id: string | null
-          category_id: string | null
-          doc_type_id: string
-          is_mandatory: boolean
           applies_when: Database["public"]["Enums"]["shipment_doc_applies_when"]
-          notes: string | null
-          sort_order: number
+          category_id: string | null
           created_at: string
-          updated_at: string
           created_by: string | null
+          doc_type_id: string
+          id: string
+          is_mandatory: boolean
+          notes: string | null
+          product_id: string | null
+          sort_order: number
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          product_id?: string | null
-          category_id?: string | null
-          doc_type_id: string
-          is_mandatory?: boolean
           applies_when: Database["public"]["Enums"]["shipment_doc_applies_when"]
-          notes?: string | null
-          sort_order?: number
+          category_id?: string | null
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          doc_type_id: string
+          id?: string
+          is_mandatory?: boolean
+          notes?: string | null
+          product_id?: string | null
+          sort_order?: number
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
-          product_id?: string | null
-          category_id?: string | null
-          doc_type_id?: string
-          is_mandatory?: boolean
           applies_when?: Database["public"]["Enums"]["shipment_doc_applies_when"]
-          notes?: string | null
-          sort_order?: number
+          category_id?: string | null
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          doc_type_id?: string
+          id?: string
+          is_mandatory?: boolean
+          notes?: string | null
+          product_id?: string | null
+          sort_order?: number
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "shipment_doc_requirements_doc_type_id_fkey"
-            columns: ["doc_type_id"]
-            isOneToOne: false
-            referencedRelation: "regulatory_doc_types"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "shipment_doc_requirements_category_id_fkey"
             columns: ["category_id"]
@@ -969,61 +1024,68 @@ export type Database = {
             referencedRelation: "resource_categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "shipment_doc_requirements_doc_type_id_fkey"
+            columns: ["doc_type_id"]
+            isOneToOne: false
+            referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
         ]
       }
       units_of_measure: {
         Row: {
-          id: string
-          company_id: string
-          code: string
-          name: string
-          dimension: Database["public"]["Enums"]["unit_dimension"]
           base_unit_id: string | null
-          to_base_factor: number
+          code: string
+          company_id: string
           created_at: string
-          updated_at: string
           created_by: string | null
+          dimension: Database["public"]["Enums"]["unit_dimension"]
+          id: string
+          name: string
+          to_base_factor: number
+          updated_at: string
           updated_by: string | null
         }
         Insert: {
-          id?: string
-          company_id?: string
-          code: string
-          name: string
-          dimension: Database["public"]["Enums"]["unit_dimension"]
           base_unit_id?: string | null
-          to_base_factor?: number
+          code: string
+          company_id?: string
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          dimension: Database["public"]["Enums"]["unit_dimension"]
+          id?: string
+          name: string
+          to_base_factor?: number
+          updated_at?: string
           updated_by?: string | null
         }
         Update: {
-          id?: string
-          company_id?: string
-          code?: string
-          name?: string
-          dimension?: Database["public"]["Enums"]["unit_dimension"]
           base_unit_id?: string | null
-          to_base_factor?: number
+          code?: string
+          company_id?: string
           created_at?: string
-          updated_at?: string
           created_by?: string | null
+          dimension?: Database["public"]["Enums"]["unit_dimension"]
+          id?: string
+          name?: string
+          to_base_factor?: number
+          updated_at?: string
           updated_by?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "units_of_measure_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "units_of_measure_base_unit_id_fkey"
             columns: ["base_unit_id"]
             isOneToOne: false
             referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "units_of_measure_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -1079,10 +1141,147 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_users_assigned_facility"
+            columns: ["assigned_facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "users_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zone_structures: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          is_mobile: boolean
+          length_m: number
+          level_config: Json | null
+          max_positions: number | null
+          name: string
+          num_levels: number
+          positions_per_level: number | null
+          pot_size_l: number | null
+          spacing_cm: number | null
+          type: Database["public"]["Enums"]["structure_type"]
+          updated_at: string
+          updated_by: string | null
+          width_m: number
+          zone_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_mobile?: boolean
+          length_m: number
+          level_config?: Json | null
+          max_positions?: number | null
+          name: string
+          num_levels?: number
+          positions_per_level?: number | null
+          pot_size_l?: number | null
+          spacing_cm?: number | null
+          type: Database["public"]["Enums"]["structure_type"]
+          updated_at?: string
+          updated_by?: string | null
+          width_m: number
+          zone_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_mobile?: boolean
+          length_m?: number
+          level_config?: Json | null
+          max_positions?: number | null
+          name?: string
+          num_levels?: number
+          positions_per_level?: number | null
+          pot_size_l?: number | null
+          spacing_cm?: number | null
+          type?: Database["public"]["Enums"]["structure_type"]
+          updated_at?: string
+          updated_by?: string | null
+          width_m?: number
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zone_structures_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zones: {
+        Row: {
+          area_m2: number
+          climate_config: Json | null
+          created_at: string
+          created_by: string | null
+          effective_growing_area_m2: number
+          environment: Database["public"]["Enums"]["zone_environment"]
+          facility_id: string
+          height_m: number | null
+          id: string
+          name: string
+          plant_capacity: number
+          purpose: Database["public"]["Enums"]["zone_purpose"]
+          status: Database["public"]["Enums"]["zone_status"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          area_m2: number
+          climate_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          effective_growing_area_m2?: number
+          environment: Database["public"]["Enums"]["zone_environment"]
+          facility_id: string
+          height_m?: number | null
+          id?: string
+          name: string
+          plant_capacity?: number
+          purpose: Database["public"]["Enums"]["zone_purpose"]
+          status?: Database["public"]["Enums"]["zone_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          area_m2?: number
+          climate_config?: Json | null
+          created_at?: string
+          created_by?: string | null
+          effective_growing_area_m2?: number
+          environment?: Database["public"]["Enums"]["zone_environment"]
+          facility_id?: string
+          height_m?: number | null
+          id?: string
+          name?: string
+          plant_capacity?: number
+          purpose?: Database["public"]["Enums"]["zone_purpose"]
+          status?: Database["public"]["Enums"]["zone_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zones_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
             referencedColumns: ["id"]
           },
         ]
@@ -1093,20 +1292,78 @@ export type Database = {
     }
     Functions: {
       get_my_company_id: { Args: never; Returns: string }
+      get_my_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
       activity_frequency: "daily" | "weekly" | "biweekly" | "once" | "on_demand"
-      compliance_frequency: "once" | "per_production" | "annual" | "per_shipment"
+      compliance_frequency:
+        | "once"
+        | "per_production"
+        | "annual"
+        | "per_shipment"
       compliance_scope: "per_batch" | "per_lot" | "per_product" | "per_facility"
       crop_category: "annual" | "perennial" | "biennial"
-      doc_category: "quality" | "transport" | "compliance" | "origin" | "safety" | "commercial"
+      doc_category:
+        | "quality"
+        | "transport"
+        | "compliance"
+        | "origin"
+        | "safety"
+        | "commercial"
+      facility_type:
+        | "indoor_warehouse"
+        | "greenhouse"
+        | "tunnel"
+        | "open_field"
+        | "vertical_farm"
       flow_direction: "input" | "output"
       lot_tracking: "required" | "optional" | "none"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
-      quantity_basis: "fixed" | "per_plant" | "per_m2" | "per_zone" | "per_L_solution"
-      shipment_doc_applies_when: "always" | "interstate" | "international" | "regulated_material"
-      unit_dimension: "mass" | "volume" | "count" | "area" | "energy" | "time" | "concentration"
+      quantity_basis:
+        | "fixed"
+        | "per_plant"
+        | "per_m2"
+        | "per_zone"
+        | "per_L_solution"
+      shipment_doc_applies_when:
+        | "always"
+        | "interstate"
+        | "international"
+        | "regulated_material"
+      structure_type:
+        | "mobile_rack"
+        | "fixed_rack"
+        | "rolling_bench"
+        | "row"
+        | "bed"
+        | "trellis_row"
+        | "nft_channel"
+      unit_dimension:
+        | "mass"
+        | "volume"
+        | "count"
+        | "area"
+        | "energy"
+        | "time"
+        | "concentration"
       user_role: "admin" | "manager" | "supervisor" | "operator" | "viewer"
+      zone_environment:
+        | "indoor_controlled"
+        | "greenhouse"
+        | "tunnel"
+        | "open_field"
+      zone_purpose:
+        | "propagation"
+        | "vegetation"
+        | "flowering"
+        | "drying"
+        | "processing"
+        | "storage"
+        | "multipurpose"
+      zone_status: "active" | "maintenance" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1238,17 +1495,80 @@ export const Constants = {
   public: {
     Enums: {
       activity_frequency: ["daily", "weekly", "biweekly", "once", "on_demand"],
-      compliance_frequency: ["once", "per_production", "annual", "per_shipment"],
+      compliance_frequency: [
+        "once",
+        "per_production",
+        "annual",
+        "per_shipment",
+      ],
       compliance_scope: ["per_batch", "per_lot", "per_product", "per_facility"],
       crop_category: ["annual", "perennial", "biennial"],
-      doc_category: ["quality", "transport", "compliance", "origin", "safety", "commercial"],
+      doc_category: [
+        "quality",
+        "transport",
+        "compliance",
+        "origin",
+        "safety",
+        "commercial",
+      ],
+      facility_type: [
+        "indoor_warehouse",
+        "greenhouse",
+        "tunnel",
+        "open_field",
+        "vertical_farm",
+      ],
       flow_direction: ["input", "output"],
       lot_tracking: ["required", "optional", "none"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
-      quantity_basis: ["fixed", "per_plant", "per_m2", "per_zone", "per_L_solution"],
-      shipment_doc_applies_when: ["always", "interstate", "international", "regulated_material"],
-      unit_dimension: ["mass", "volume", "count", "area", "energy", "time", "concentration"],
+      quantity_basis: [
+        "fixed",
+        "per_plant",
+        "per_m2",
+        "per_zone",
+        "per_L_solution",
+      ],
+      shipment_doc_applies_when: [
+        "always",
+        "interstate",
+        "international",
+        "regulated_material",
+      ],
+      structure_type: [
+        "mobile_rack",
+        "fixed_rack",
+        "rolling_bench",
+        "row",
+        "bed",
+        "trellis_row",
+        "nft_channel",
+      ],
+      unit_dimension: [
+        "mass",
+        "volume",
+        "count",
+        "area",
+        "energy",
+        "time",
+        "concentration",
+      ],
       user_role: ["admin", "manager", "supervisor", "operator", "viewer"],
+      zone_environment: [
+        "indoor_controlled",
+        "greenhouse",
+        "tunnel",
+        "open_field",
+      ],
+      zone_purpose: [
+        "propagation",
+        "vegetation",
+        "flowering",
+        "drying",
+        "processing",
+        "storage",
+        "multipurpose",
+      ],
+      zone_status: ["active", "maintenance", "inactive"],
     },
   },
 } as const
