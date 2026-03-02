@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { docTypeRequiredFieldsSchema } from '@/schemas/shipments'
 import { ShipmentDetailClient } from '@/components/inventory/shipment-detail-client'
 
 type Params = Promise<{ id: string }>
@@ -142,12 +143,15 @@ export default async function ShipmentDetailPage({
   const settings = companyRes.data?.settings as Record<string, unknown> | null
   const regulatoryMode = (settings?.regulatory_mode as string) ?? 'standard'
 
-  const docTypesData = (docTypesRes.data ?? []).map((dt) => ({
-    id: dt.id,
-    name: dt.name,
-    required_fields: (dt.required_fields as { fields: Array<{ key: string; label: string; type: string; required?: boolean; options?: string[]; placeholder?: string }> }) ?? { fields: [] },
-    valid_for_days: dt.valid_for_days,
-  }))
+  const docTypesData = (docTypesRes.data ?? []).map((dt) => {
+    const parsed = docTypeRequiredFieldsSchema.safeParse(dt.required_fields)
+    return {
+      id: dt.id,
+      name: dt.name,
+      required_fields: parsed.success ? parsed.data : { fields: [] },
+      valid_for_days: dt.valid_for_days,
+    }
+  })
 
   return (
     <ShipmentDetailClient

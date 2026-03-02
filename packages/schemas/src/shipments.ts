@@ -97,3 +97,22 @@ export const regulatoryDocumentSchema = z.object({
 })
 
 export type RegulatoryDocumentInput = z.infer<typeof regulatoryDocumentSchema>
+
+// ---------- Doc Type Required Fields (JSONB validation) ----------
+
+export const docTypeRequiredFieldSchema = z.object({
+  key: z.string().min(1),
+  label: z.string().min(1),
+  type: z.enum(['text', 'number', 'date', 'boolean', 'select', 'textarea']),
+  required: z.boolean().optional(),
+  options: z.array(z.string()).optional(),
+  placeholder: z.string().optional(),
+})
+
+export type DocTypeRequiredField = z.infer<typeof docTypeRequiredFieldSchema>
+
+export const docTypeRequiredFieldsSchema = z.object({
+  fields: z.array(docTypeRequiredFieldSchema),
+})
+
+export type DocTypeRequiredFields = z.infer<typeof docTypeRequiredFieldsSchema>

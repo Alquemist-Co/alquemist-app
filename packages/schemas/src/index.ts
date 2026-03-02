@@ -62,6 +62,8 @@ export {
   markReceivedSchema, type MarkReceivedInput,
   inspectionLineSchema, type InspectionLineInput,
   regulatoryDocumentSchema, type RegulatoryDocumentInput,
+  docTypeRequiredFieldSchema, type DocTypeRequiredField,
+  docTypeRequiredFieldsSchema, type DocTypeRequiredFields,
 } from './shipments'
 export {
   recipeItemSchema, type RecipeItemInput,
