@@ -444,4 +444,153 @@ INSERT INTO product_regulatory_requirements (product_id, doc_type_id, is_mandato
   ((SELECT id FROM products WHERE sku = 'FLOR-OGK-SEC'),v_rdt_coa,   true,  'per_batch',   'per_production', 'CoA obligatorio por batch',                 0),
   ((SELECT id FROM products WHERE sku = 'FLOR-BLD-SEC'),v_rdt_coa,   true,  'per_batch',   'per_production', 'CoA obligatorio por batch',                 0);
 
+-- =============================================================
+-- 22. SHIPMENTS (PRD 19)
+-- =============================================================
+
+-- Inbound shipment: received and inspected (seeds from AgroSemillas)
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id, carrier_name, carrier_vehicle, carrier_driver,
+  dispatch_date, estimated_arrival_date, actual_arrival_date,
+  transport_conditions, purchase_order_ref, received_by, notes
+) VALUES (
+  v_company_id, 'SHP-2026-0001', 'inbound', 'accepted',
+  (SELECT id FROM suppliers WHERE name = 'AgroSemillas Colombia' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+  'Servientrega', 'ABC-123', 'Juan Rodríguez',
+  now() - interval '5 days', now() - interval '3 days', now() - interval '3 days',
+  '{"temperature_controlled": true, "temperature_range_c": "18-25", "packaging_type": "Caja refrigerada", "cold_chain_maintained": true}'::jsonb,
+  'PO-2026-001', v_user_id, 'Envío de semillas para ciclo Q1 2026'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, received_quantity, rejected_quantity, unit_id, supplier_lot_number, cost_per_unit, destination_zone_id, inspection_result, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0001'),
+   (SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'), 100, 98, 2, v_unit_und, 'LOT-AGS-2026-A1', 25000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+   'accepted_with_observations', 0),
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0001'),
+   (SELECT id FROM products WHERE sku = 'SEM-BLD-FEM'), 50, 50, 0, v_unit_und, 'LOT-AGS-2026-B1', 28000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+   'accepted', 1);
+
+-- Inbound shipment: scheduled (fertilizers)
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id, estimated_arrival_date,
+  purchase_order_ref, notes
+) VALUES (
+  v_company_id, 'SHP-2026-0002', 'inbound', 'scheduled',
+  (SELECT id FROM suppliers WHERE name = 'NutriGrow Fertilizantes' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+  now() + interval '5 days',
+  'PO-2026-002', 'Restock trimestral de fertilizantes'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, unit_id, cost_per_unit, destination_zone_id, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0002'),
+   (SELECT id FROM products WHERE sku = 'FERT-FLORA'), 12, v_unit_l, 85000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   0),
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0002'),
+   (SELECT id FROM products WHERE sku = 'FERT-GROW'), 12, v_unit_l, 82000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   1),
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0002'),
+   (SELECT id FROM products WHERE sku = 'FERT-MICRO'), 12, v_unit_l, 88000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   2);
+
+-- Inbound shipment: in transit (substrates)
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id, dispatch_date, estimated_arrival_date,
+  carrier_name, purchase_order_ref
+) VALUES (
+  v_company_id, 'SHP-2026-0003', 'inbound', 'in_transit',
+  (SELECT id FROM suppliers WHERE name = 'PlastiAgro' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+  now() - interval '1 day', now() + interval '2 days',
+  'TCC', 'PO-2026-003'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, unit_id, cost_per_unit, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0003'),
+   (SELECT id FROM products WHERE sku = 'SUST-COCO'), 20, v_unit_und, 35000, 0),
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0003'),
+   (SELECT id FROM products WHERE sku = 'SUST-PERL'), 10, v_unit_und, 22000, 1);
+
+-- =============================================================
+-- 23. INVENTORY ITEMS (PRD 19-20 — from confirmed shipment)
+-- =============================================================
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, supplier_lot_number, cost_per_unit, source_type, lot_status,
+  shipment_item_id, created_by
+) VALUES
+  (v_company_id,
+   (SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'),
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+   98, v_unit_und, 'SHP-SHP-2026-0001-1', 'LOT-AGS-2026-A1', 25000,
+   'purchase', 'available',
+   (SELECT si.id FROM shipment_items si JOIN shipments s ON s.id = si.shipment_id WHERE s.shipment_code = 'SHP-2026-0001' AND si.sort_order = 0),
+   v_user_id),
+  (v_company_id,
+   (SELECT id FROM products WHERE sku = 'SEM-BLD-FEM'),
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+   50, v_unit_und, 'SHP-SHP-2026-0001-2', 'LOT-AGS-2026-B1', 28000,
+   'purchase', 'available',
+   (SELECT si.id FROM shipment_items si JOIN shipments s ON s.id = si.shipment_id WHERE s.shipment_code = 'SHP-2026-0001' AND si.sort_order = 1),
+   v_user_id),
+  -- Some pre-existing fertilizer stock
+  (v_company_id,
+   (SELECT id FROM products WHERE sku = 'FERT-FLORA'),
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   5, v_unit_l, 'INV-FLORA-001', NULL, 85000,
+   'purchase', 'available', NULL, v_user_id),
+  (v_company_id,
+   (SELECT id FROM products WHERE sku = 'FERT-GROW'),
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   3, v_unit_l, 'INV-GROW-001', NULL, 82000,
+   'purchase', 'available', NULL, v_user_id),
+  (v_company_id,
+   (SELECT id FROM products WHERE sku = 'FERT-MICRO'),
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   4, v_unit_l, 'INV-MICRO-001', NULL, 88000,
+   'purchase', 'available', NULL, v_user_id);
+
+-- =============================================================
+-- 24. INVENTORY TRANSACTIONS (receipt records)
+-- =============================================================
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id, cost_per_unit, cost_total, user_id
+)
+SELECT
+  v_company_id, 'receipt', ii.id, ii.quantity_available, ii.unit_id, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * ii.quantity_available, v_user_id
+FROM inventory_items ii
+WHERE ii.company_id = v_company_id;
+
+-- =============================================================
+-- 25. RECIPES (PRD 21)
+-- =============================================================
+INSERT INTO recipes (company_id, code, name, output_product_id, base_quantity, base_unit_id, items) VALUES
+  (v_company_id, 'SOL-FLORA-1K', 'Solución Flora Bloom 1000L',
+   (SELECT id FROM products WHERE sku = 'FERT-FLORA'),
+   1000, v_unit_l,
+   jsonb_build_array(
+     jsonb_build_object('product_id', (SELECT id FROM products WHERE sku = 'FERT-FLORA')::text, 'quantity', 3, 'unit_id', v_unit_l::text),
+     jsonb_build_object('product_id', (SELECT id FROM products WHERE sku = 'FERT-MICRO')::text, 'quantity', 2, 'unit_id', v_unit_l::text)
+   )),
+  (v_company_id, 'SOL-GROW-1K', 'Solución Flora Grow 1000L',
+   (SELECT id FROM products WHERE sku = 'FERT-GROW'),
+   1000, v_unit_l,
+   jsonb_build_array(
+     jsonb_build_object('product_id', (SELECT id FROM products WHERE sku = 'FERT-GROW')::text, 'quantity', 2.5, 'unit_id', v_unit_l::text),
+     jsonb_build_object('product_id', (SELECT id FROM products WHERE sku = 'FERT-MICRO')::text, 'quantity', 1.5, 'unit_id', v_unit_l::text)
+   ));
+
 END $$;
