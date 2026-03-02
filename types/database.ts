@@ -1,3 +1,4 @@
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -606,6 +607,228 @@ export type Database = {
           },
         ]
       }
+      inventory_items: {
+        Row: {
+          batch_number: string | null
+          company_id: string
+          cost_per_unit: number | null
+          created_at: string
+          created_by: string | null
+          expiration_date: string | null
+          id: string
+          lot_status: Database["public"]["Enums"]["lot_status"]
+          product_id: string
+          quantity_available: number
+          quantity_committed: number
+          quantity_reserved: number
+          shipment_item_id: string | null
+          source_type: Database["public"]["Enums"]["source_type"]
+          supplier_lot_number: string | null
+          unit_id: string
+          updated_at: string
+          updated_by: string | null
+          zone_id: string | null
+        }
+        Insert: {
+          batch_number?: string | null
+          company_id?: string
+          cost_per_unit?: number | null
+          created_at?: string
+          created_by?: string | null
+          expiration_date?: string | null
+          id?: string
+          lot_status?: Database["public"]["Enums"]["lot_status"]
+          product_id: string
+          quantity_available?: number
+          quantity_committed?: number
+          quantity_reserved?: number
+          shipment_item_id?: string | null
+          source_type: Database["public"]["Enums"]["source_type"]
+          supplier_lot_number?: string | null
+          unit_id: string
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string | null
+        }
+        Update: {
+          batch_number?: string | null
+          company_id?: string
+          cost_per_unit?: number | null
+          created_at?: string
+          created_by?: string | null
+          expiration_date?: string | null
+          id?: string
+          lot_status?: Database["public"]["Enums"]["lot_status"]
+          product_id?: string
+          quantity_available?: number
+          quantity_committed?: number
+          quantity_reserved?: number
+          shipment_item_id?: string | null
+          source_type?: Database["public"]["Enums"]["source_type"]
+          supplier_lot_number?: string | null
+          unit_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_shipment_item_id_fkey"
+            columns: ["shipment_item_id"]
+            isOneToOne: false
+            referencedRelation: "shipment_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_items_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_transactions: {
+        Row: {
+          activity_id: string | null
+          batch_id: string | null
+          company_id: string
+          cost_per_unit: number | null
+          cost_total: number | null
+          id: string
+          inventory_item_id: string
+          phase_id: string | null
+          quantity: number
+          reason: string | null
+          recipe_execution_id: string | null
+          related_transaction_id: string | null
+          target_item_id: string | null
+          timestamp: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          unit_id: string
+          user_id: string
+          zone_id: string | null
+        }
+        Insert: {
+          activity_id?: string | null
+          batch_id?: string | null
+          company_id?: string
+          cost_per_unit?: number | null
+          cost_total?: number | null
+          id?: string
+          inventory_item_id: string
+          phase_id?: string | null
+          quantity: number
+          reason?: string | null
+          recipe_execution_id?: string | null
+          related_transaction_id?: string | null
+          target_item_id?: string | null
+          timestamp?: string
+          type: Database["public"]["Enums"]["transaction_type"]
+          unit_id: string
+          user_id: string
+          zone_id?: string | null
+        }
+        Update: {
+          activity_id?: string | null
+          batch_id?: string | null
+          company_id?: string
+          cost_per_unit?: number | null
+          cost_total?: number | null
+          id?: string
+          inventory_item_id?: string
+          phase_id?: string | null
+          quantity?: number
+          reason?: string | null
+          recipe_execution_id?: string | null
+          related_transaction_id?: string | null
+          target_item_id?: string | null
+          timestamp?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+          unit_id?: string
+          user_id?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inv_tx_recipe_exec_fkey"
+            columns: ["recipe_execution_id"]
+            isOneToOne: false
+            referencedRelation: "recipe_executions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_related_transaction_id_fkey"
+            columns: ["related_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_target_item_id_fkey"
+            columns: ["target_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       phase_product_flows: {
         Row: {
           created_at: string
@@ -970,6 +1193,140 @@ export type Database = {
           },
         ]
       }
+      recipe_executions: {
+        Row: {
+          batch_id: string | null
+          company_id: string
+          created_at: string
+          executed_at: string
+          executed_by: string
+          id: string
+          output_quantity_actual: number | null
+          output_quantity_expected: number
+          recipe_id: string
+          scale_factor: number
+          yield_pct: number | null
+        }
+        Insert: {
+          batch_id?: string | null
+          company_id?: string
+          created_at?: string
+          executed_at?: string
+          executed_by: string
+          id?: string
+          output_quantity_actual?: number | null
+          output_quantity_expected: number
+          recipe_id: string
+          scale_factor?: number
+          yield_pct?: number | null
+        }
+        Update: {
+          batch_id?: string | null
+          company_id?: string
+          created_at?: string
+          executed_at?: string
+          executed_by?: string
+          id?: string
+          output_quantity_actual?: number | null
+          output_quantity_expected?: number
+          recipe_id?: string
+          scale_factor?: number
+          yield_pct?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_executions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_executions_executed_by_fkey"
+            columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_executions_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipes: {
+        Row: {
+          base_quantity: number
+          base_unit_id: string
+          code: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          items: Json
+          name: string
+          output_product_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          base_quantity: number
+          base_unit_id: string
+          code: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          items?: Json
+          name: string
+          output_product_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          base_quantity?: number
+          base_unit_id?: string
+          code?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          items?: Json
+          name?: string
+          output_product_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_base_unit_id_fkey"
+            columns: ["base_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipes_output_product_id_fkey"
+            columns: ["output_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regulatory_doc_types: {
         Row: {
           category: Database["public"]["Enums"]["doc_category"]
@@ -1028,6 +1385,82 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regulatory_documents: {
+        Row: {
+          batch_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          doc_type_id: string
+          document_number: string | null
+          expiry_date: string | null
+          field_data: Json
+          file_path: string | null
+          id: string
+          issue_date: string
+          shipment_id: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          doc_type_id: string
+          document_number?: string | null
+          expiry_date?: string | null
+          field_data?: Json
+          file_path?: string | null
+          id?: string
+          issue_date: string
+          shipment_id?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          doc_type_id?: string
+          document_number?: string | null
+          expiry_date?: string | null
+          field_data?: Json
+          file_path?: string | null
+          id?: string
+          issue_date?: string
+          shipment_id?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regulatory_documents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_doc_type_id_fkey"
+            columns: ["doc_type_id"]
+            isOneToOne: false
+            referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
             referencedColumns: ["id"]
           },
         ]
@@ -1167,6 +1600,253 @@ export type Database = {
             columns: ["doc_type_id"]
             isOneToOne: false
             referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipment_items: {
+        Row: {
+          cost_per_unit: number | null
+          created_at: string
+          destination_zone_id: string | null
+          expected_quantity: number
+          expiration_date: string | null
+          id: string
+          inspection_data: Json | null
+          inspection_notes: string | null
+          inspection_result:
+            | Database["public"]["Enums"]["inspection_result"]
+            | null
+          inventory_item_id: string | null
+          product_id: string
+          received_quantity: number | null
+          rejected_quantity: number | null
+          shipment_id: string
+          sort_order: number
+          supplier_batch_ref: string | null
+          supplier_lot_number: string | null
+          transaction_id: string | null
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          cost_per_unit?: number | null
+          created_at?: string
+          destination_zone_id?: string | null
+          expected_quantity: number
+          expiration_date?: string | null
+          id?: string
+          inspection_data?: Json | null
+          inspection_notes?: string | null
+          inspection_result?:
+            | Database["public"]["Enums"]["inspection_result"]
+            | null
+          inventory_item_id?: string | null
+          product_id: string
+          received_quantity?: number | null
+          rejected_quantity?: number | null
+          shipment_id: string
+          sort_order?: number
+          supplier_batch_ref?: string | null
+          supplier_lot_number?: string | null
+          transaction_id?: string | null
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          cost_per_unit?: number | null
+          created_at?: string
+          destination_zone_id?: string | null
+          expected_quantity?: number
+          expiration_date?: string | null
+          id?: string
+          inspection_data?: Json | null
+          inspection_notes?: string | null
+          inspection_result?:
+            | Database["public"]["Enums"]["inspection_result"]
+            | null
+          inventory_item_id?: string | null
+          product_id?: string
+          received_quantity?: number | null
+          rejected_quantity?: number | null
+          shipment_id?: string
+          sort_order?: number
+          supplier_batch_ref?: string | null
+          supplier_lot_number?: string | null
+          transaction_id?: string | null
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipment_items_destination_zone_id_fkey"
+            columns: ["destination_zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_items_shipment_id_fkey"
+            columns: ["shipment_id"]
+            isOneToOne: false
+            referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipment_items_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "si_inventory_item_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "si_transaction_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shipments: {
+        Row: {
+          actual_arrival_date: string | null
+          carrier_contact: string | null
+          carrier_driver: string | null
+          carrier_name: string | null
+          carrier_vehicle: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          destination_facility_id: string
+          dispatch_date: string | null
+          estimated_arrival_date: string | null
+          id: string
+          inspected_at: string | null
+          inspected_by: string | null
+          notes: string | null
+          origin_address: string | null
+          origin_latitude: number | null
+          origin_longitude: number | null
+          origin_name: string | null
+          purchase_order_ref: string | null
+          received_by: string | null
+          shipment_code: string
+          status: Database["public"]["Enums"]["shipment_status"]
+          supplier_id: string | null
+          transport_conditions: Json | null
+          type: Database["public"]["Enums"]["shipment_direction"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          actual_arrival_date?: string | null
+          carrier_contact?: string | null
+          carrier_driver?: string | null
+          carrier_name?: string | null
+          carrier_vehicle?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          destination_facility_id: string
+          dispatch_date?: string | null
+          estimated_arrival_date?: string | null
+          id?: string
+          inspected_at?: string | null
+          inspected_by?: string | null
+          notes?: string | null
+          origin_address?: string | null
+          origin_latitude?: number | null
+          origin_longitude?: number | null
+          origin_name?: string | null
+          purchase_order_ref?: string | null
+          received_by?: string | null
+          shipment_code: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          supplier_id?: string | null
+          transport_conditions?: Json | null
+          type: Database["public"]["Enums"]["shipment_direction"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          actual_arrival_date?: string | null
+          carrier_contact?: string | null
+          carrier_driver?: string | null
+          carrier_name?: string | null
+          carrier_vehicle?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          destination_facility_id?: string
+          dispatch_date?: string | null
+          estimated_arrival_date?: string | null
+          id?: string
+          inspected_at?: string | null
+          inspected_by?: string | null
+          notes?: string | null
+          origin_address?: string | null
+          origin_latitude?: number | null
+          origin_longitude?: number | null
+          origin_name?: string | null
+          purchase_order_ref?: string | null
+          received_by?: string | null
+          shipment_code?: string
+          status?: Database["public"]["Enums"]["shipment_status"]
+          supplier_id?: string | null
+          transport_conditions?: Json | null
+          type?: Database["public"]["Enums"]["shipment_direction"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_destination_facility_id_fkey"
+            columns: ["destination_facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_inspected_by_fkey"
+            columns: ["inspected_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_received_by_fkey"
+            columns: ["received_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
@@ -1476,6 +2156,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fn_confirm_shipment_receipt: {
+        Args: { p_shipment_id: string; p_user_id: string }
+        Returns: Json
+      }
+      fn_execute_recipe: {
+        Args: {
+          p_batch_id?: string
+          p_output_quantity_actual?: number
+          p_recipe_id: string
+          p_scale_factor: number
+          p_user_id: string
+        }
+        Returns: Json
+      }
       get_my_company_id: { Args: never; Returns: string }
       get_my_role: {
         Args: never
@@ -1505,6 +2199,12 @@ export type Database = {
         | "open_field"
         | "vertical_farm"
       flow_direction: "input" | "output"
+      inspection_result:
+        | "accepted"
+        | "accepted_with_observations"
+        | "rejected"
+        | "quarantine"
+      lot_status: "available" | "quarantine" | "expired" | "depleted"
       lot_tracking: "required" | "optional" | "none"
       product_procurement_type: "purchased" | "produced" | "both"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
@@ -1514,11 +2214,22 @@ export type Database = {
         | "per_m2"
         | "per_zone"
         | "per_L_solution"
+      shipment_direction: "inbound" | "outbound"
       shipment_doc_applies_when:
         | "always"
         | "interstate"
         | "international"
         | "regulated_material"
+      shipment_status:
+        | "scheduled"
+        | "in_transit"
+        | "received"
+        | "inspecting"
+        | "accepted"
+        | "partial_accepted"
+        | "rejected"
+        | "cancelled"
+      source_type: "purchase" | "production" | "transfer" | "transformation"
       structure_type:
         | "mobile_rack"
         | "fixed_rack"
@@ -1527,6 +2238,19 @@ export type Database = {
         | "bed"
         | "trellis_row"
         | "nft_channel"
+      transaction_type:
+        | "receipt"
+        | "consumption"
+        | "application"
+        | "transfer_out"
+        | "transfer_in"
+        | "transformation_out"
+        | "transformation_in"
+        | "adjustment"
+        | "waste"
+        | "return"
+        | "reservation"
+        | "release"
       unit_dimension:
         | "mass"
         | "volume"
@@ -1705,6 +2429,13 @@ export const Constants = {
         "vertical_farm",
       ],
       flow_direction: ["input", "output"],
+      inspection_result: [
+        "accepted",
+        "accepted_with_observations",
+        "rejected",
+        "quarantine",
+      ],
+      lot_status: ["available", "quarantine", "expired", "depleted"],
       lot_tracking: ["required", "optional", "none"],
       product_procurement_type: ["purchased", "produced", "both"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
@@ -1715,12 +2446,24 @@ export const Constants = {
         "per_zone",
         "per_L_solution",
       ],
+      shipment_direction: ["inbound", "outbound"],
       shipment_doc_applies_when: [
         "always",
         "interstate",
         "international",
         "regulated_material",
       ],
+      shipment_status: [
+        "scheduled",
+        "in_transit",
+        "received",
+        "inspecting",
+        "accepted",
+        "partial_accepted",
+        "rejected",
+        "cancelled",
+      ],
+      source_type: ["purchase", "production", "transfer", "transformation"],
       structure_type: [
         "mobile_rack",
         "fixed_rack",
@@ -1729,6 +2472,20 @@ export const Constants = {
         "bed",
         "trellis_row",
         "nft_channel",
+      ],
+      transaction_type: [
+        "receipt",
+        "consumption",
+        "application",
+        "transfer_out",
+        "transfer_in",
+        "transformation_out",
+        "transformation_in",
+        "adjustment",
+        "waste",
+        "return",
+        "reservation",
+        "release",
       ],
       unit_dimension: [
         "mass",
