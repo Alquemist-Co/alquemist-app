@@ -278,7 +278,7 @@ export function ShipmentDialog({
       } else {
         const { data, error } = await supabase
           .from('shipments')
-          .insert({ ...payload, shipment_code: '' })
+          .insert(payload)
           .select('id')
           .single()
         if (error) { toast.error('Error al crear el envío.'); return }
