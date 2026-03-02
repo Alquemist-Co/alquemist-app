@@ -593,4 +593,214 @@ INSERT INTO recipes (company_id, code, name, output_product_id, base_quantity, b
      jsonb_build_object('product_id', (SELECT id FROM products WHERE sku = 'FERT-MICRO')::text, 'quantity', 1.5, 'unit_id', v_unit_l::text)
    ));
 
+-- =============================================================
+-- 26. ADDITIONAL SHIPMENT SCENARIOS (test matrix)
+-- =============================================================
+
+-- SHP-2026-0004: Inbound, received, partial inspection (1 inspected, 1 not)
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id, actual_arrival_date,
+  received_by, purchase_order_ref, notes
+) VALUES (
+  v_company_id, 'SHP-2026-0004', 'inbound', 'inspecting',
+  (SELECT id FROM suppliers WHERE name = 'NutriGrow Fertilizantes' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+  now() - interval '1 day',
+  v_user_id, 'PO-2026-004', 'Partial inspection scenario'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, received_quantity, rejected_quantity, unit_id, supplier_lot_number, cost_per_unit, destination_zone_id, inspection_result, inspection_notes, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0004'),
+   (SELECT id FROM products WHERE sku = 'FERT-FLORA'), 6, 6, 0, v_unit_l, 'LOT-NG-2026-F1', 85000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   'accepted', 'Buen estado', 0),
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0004'),
+   (SELECT id FROM products WHERE sku = 'FERT-GROW'), 6, NULL, NULL, v_unit_l, 'LOT-NG-2026-G1', 82000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+   NULL, NULL, 1);
+
+-- SHP-2026-0005: Inbound, inspecting, all rejected
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id, actual_arrival_date,
+  received_by, inspected_by, inspected_at, purchase_order_ref
+) VALUES (
+  v_company_id, 'SHP-2026-0005', 'inbound', 'inspecting',
+  (SELECT id FROM suppliers WHERE name = 'BioControl SAS' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+  now() - interval '2 days',
+  v_user_id, v_user_id, now() - interval '2 days', 'PO-2026-005'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, received_quantity, rejected_quantity, unit_id, supplier_lot_number, cost_per_unit, inspection_result, inspection_notes, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0005'),
+   (SELECT id FROM products WHERE sku = 'BIO-TRICHO'), 500, 0, 500, v_unit_g, 'LOT-BC-2026-T1', 120000,
+   'rejected', 'Producto contaminado, olor anormal. Rechazado completamente.', 0);
+
+-- SHP-2026-0006: Inbound, inspecting, quarantine case
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id, actual_arrival_date,
+  received_by, inspected_by, inspected_at
+) VALUES (
+  v_company_id, 'SHP-2026-0006', 'inbound', 'inspecting',
+  (SELECT id FROM suppliers WHERE name = 'AgroSemillas Colombia' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+  now() - interval '1 day',
+  v_user_id, v_user_id, now() - interval '1 day'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, received_quantity, rejected_quantity, unit_id, supplier_lot_number, cost_per_unit, destination_zone_id, inspection_result, inspection_notes, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0006'),
+   (SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'), 200, 200, 0, v_unit_und, 'LOT-AGS-2026-Q1', 25000,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+   'quarantine', 'Semillas con posible presencia de moho. En cuarentena para análisis.', 0);
+
+-- SHP-2026-0007: Outbound, scheduled (tests tab filtering and origin_name fields)
+INSERT INTO shipments (
+  company_id, shipment_code, type, status,
+  origin_name, origin_address,
+  destination_facility_id,
+  carrier_name, carrier_vehicle, carrier_driver,
+  dispatch_date, estimated_arrival_date,
+  notes
+) VALUES (
+  v_company_id, 'SHP-2026-0007', 'outbound', 'scheduled',
+  'Nave Principal - Alquemist',
+  'Km 5 Vía Rionegro, Antioquia',
+  (SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+  'Envíos Express', 'XYZ-789', 'María López',
+  now() + interval '3 days', now() + interval '4 days',
+  'Traslado de inventario a bodega de almacenamiento'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, unit_id, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0007'),
+   (SELECT id FROM products WHERE sku = 'FERT-FLORA'), 2, v_unit_l, 0);
+
+-- SHP-2026-0008: Inbound, cancelled
+INSERT INTO shipments (
+  company_id, shipment_code, type, status, supplier_id,
+  destination_facility_id,
+  estimated_arrival_date,
+  purchase_order_ref, notes
+) VALUES (
+  v_company_id, 'SHP-2026-0008', 'inbound', 'cancelled',
+  (SELECT id FROM suppliers WHERE name = 'PlastiAgro' AND company_id = v_company_id),
+  (SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+  now() - interval '10 days',
+  'PO-2026-006', 'Cancelado por proveedor - producto agotado'
+);
+
+INSERT INTO shipment_items (shipment_id, product_id, expected_quantity, unit_id, cost_per_unit, sort_order)
+VALUES
+  ((SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0008'),
+   (SELECT id FROM products WHERE sku = 'SUST-COCO'), 30, v_unit_und, 35000, 0);
+
+-- =============================================================
+-- 27. ADDITIONAL INVENTORY SCENARIOS
+-- =============================================================
+
+-- Low-stock FERT-FLORA (0.5L — recipe needs 3L, so insufficient)
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, cost_per_unit, source_type, lot_status, created_by
+) VALUES (
+  v_company_id,
+  (SELECT id FROM products WHERE sku = 'FERT-FLORA'),
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento'),
+  0.5, v_unit_l, 'INV-FLORA-LOW', 85000,
+  'purchase', 'available', v_user_id
+);
+
+-- Depleted lot
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, cost_per_unit, source_type, lot_status, created_by
+) VALUES (
+  v_company_id,
+  (SELECT id FROM products WHERE sku = 'FERT-GROW'),
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+  0, v_unit_l, 'INV-GROW-DEPLETED', 82000,
+  'purchase', 'depleted', v_user_id
+);
+
+-- Quarantine lot (from quarantine shipment scenario)
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, supplier_lot_number, cost_per_unit, source_type, lot_status, created_by
+) VALUES (
+  v_company_id,
+  (SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'),
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+  200, v_unit_und, 'INV-OGK-QUAR', 'LOT-AGS-2026-Q1', 25000,
+  'purchase', 'quarantine', v_user_id
+);
+
+-- Multi-facility: substrate in Nave Principal (also exists in Bodega via shipment)
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, cost_per_unit, source_type, lot_status, created_by
+) VALUES (
+  v_company_id,
+  (SELECT id FROM products WHERE sku = 'SUST-COCO'),
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A'),
+  10, v_unit_und, 'INV-COCO-NAVE', 35000,
+  'purchase', 'available', v_user_id
+);
+
+-- Receipt transactions for new inventory items
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id, cost_per_unit, cost_total, user_id
+)
+SELECT
+  v_company_id, 'receipt', ii.id, ii.quantity_available, ii.unit_id, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * ii.quantity_available, v_user_id
+FROM inventory_items ii
+WHERE ii.company_id = v_company_id
+  AND ii.batch_number IN ('INV-FLORA-LOW', 'INV-OGK-QUAR', 'INV-COCO-NAVE')
+  AND ii.quantity_available > 0;
+
+-- =============================================================
+-- 28. RECIPE EXECUTION RECORD (for execution history dialog)
+-- =============================================================
+INSERT INTO recipe_executions (
+  company_id, recipe_id, executed_by, scale_factor,
+  output_quantity_expected, output_quantity_actual, yield_pct
+) VALUES (
+  v_company_id,
+  (SELECT id FROM recipes WHERE code = 'SOL-GROW-1K' AND company_id = v_company_id),
+  v_user_id, 0.5,
+  500, 490, 98.00
+);
+
+-- =============================================================
+-- 29. REGULATORY DOCUMENTS (phytosanitary cert for SHP-2026-0001)
+-- =============================================================
+INSERT INTO regulatory_documents (
+  company_id, doc_type_id, shipment_id,
+  document_number, issue_date, expiry_date, status,
+  field_data
+) VALUES (
+  v_company_id,
+  v_rdt_phyto,
+  (SELECT id FROM shipments WHERE shipment_code = 'SHP-2026-0001'),
+  'PHYTO-ICA-2026-00145',
+  CURRENT_DATE - interval '5 days',
+  CURRENT_DATE + interval '25 days',
+  'valid',
+  jsonb_build_object(
+    'inspector_name', 'Dr. Alejandro Vargas',
+    'inspection_date', (CURRENT_DATE - interval '6 days')::text,
+    'destination', 'Antioquia',
+    'quantity_kg', 5.0,
+    'pest_free', true
+  )
+);
+
 END $$;
