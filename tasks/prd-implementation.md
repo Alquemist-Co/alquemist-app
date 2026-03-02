@@ -31,9 +31,9 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 - [x] 16 · `areas/zone-detail` — `/areas/zones/[id]` · prd ✓
 - [x] 17 · `inventory/products` — `/inventory/products` · prd ✓
 - [x] 18 · `inventory/suppliers` — `/inventory/suppliers` · prd ✓
-- [ ] 19 · `inventory/shipments` — `/inventory/shipments` · prd ✓
-- [ ] 20 · `inventory/shipment-detail` — `/inventory/shipments/[id]` · prd ✗
-- [ ] 21 · `inventory/recipes` — `/inventory/recipes` · prd ✓
+- [x] 19 · `inventory/shipments` — `/inventory/shipments` · prd ✓
+- [x] 20 · `inventory/shipment-detail` — `/inventory/shipments/[id]` · prd ✓
+- [x] 21 · `inventory/recipes` — `/inventory/recipes` · prd ✓
 
 ## Phase 4 — Production (4 PRDs)
 
@@ -83,11 +83,11 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | ----------------------------------- | ------------ | ----------- |
 | 1 Auth                              | 5/5          | 5/5         |
 | 2 Settings                          | 8/8          | 8/8         |
-| 3 Areas + Inventory                 | 7/8          | 5/8         |
+| 3 Areas + Inventory                 | 8/8          | 8/8         |
 | 4 Production                        | 0/4          | 0/4         |
 | 5 Activities + Quality + Regulatory | 0/7          | 0/7         |
 | 6 Operations                        | 0/4          | 0/4         |
 | 7 Inventory Ops                     | 0/2          | 0/2         |
 | 8 Field                             | 0/4          | 0/4         |
 | 9 Dashboard                         | 0/1          | 0/1         |
-| **Total**                           | **20/43**    | **18/43**   |
+| **Total**                           | **21/43**    | **21/43**   |
