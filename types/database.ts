@@ -1774,7 +1774,7 @@ export type Database = {
           origin_name?: string | null
           purchase_order_ref?: string | null
           received_by?: string | null
-          shipment_code: string
+          shipment_code?: string
           status?: Database["public"]["Enums"]["shipment_status"]
           supplier_id?: string | null
           transport_conditions?: Json | null
