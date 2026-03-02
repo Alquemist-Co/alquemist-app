@@ -247,6 +247,20 @@ batch_id: z.string().uuid().optional().nullable()
 | Error de red                        | "Error de conexión. Intenta nuevamente" (toast)                                              |
 | Permiso denegado                    | "No tienes permisos para ejecutar recetas" (toast)                                           |
 
+## Decisiones de Arquitectura
+
+### Ingredientes como JSONB vs tabla normalizada
+
+**Decisión**: Los ingredientes de una receta se almacenan como un array JSONB en `recipes.items` en lugar de una tabla `recipe_items` normalizada.
+
+**Trade-offs**:
+- **Pro**: Simplifica CRUD (una sola operación de insert/update), evita N+1 queries, la receta es un documento auto-contenido.
+- **Pro**: Ideal para el patrón de lectura principal: leer una receta completa con todos sus ingredientes.
+- **Con**: No hay FK enforcement a nivel de DB para `product_id`/`unit_id` dentro del JSONB.
+- **Con**: Queries analíticas ("¿qué recetas usan el producto X?") requieren `jsonb_array_elements`.
+
+**Mitigación**: Validación Zod en frontend (`recipeItemSchema`) valida estructura y UUIDs. Si se necesitan queries analíticas frecuentes, se puede agregar una vista materializada o tabla espejo en Phase 7+.
+
 ## Dependencias
 
 - **Páginas relacionadas**:

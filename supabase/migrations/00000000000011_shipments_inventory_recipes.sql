@@ -518,6 +518,12 @@ BEGIN
   RETURNING id INTO v_execution_id;
 
   -- 3. Consume ingredients (FIFO)
+  -- CONCURRENCY NOTES:
+  -- - FOR UPDATE on recipes (step 1) serializes concurrent executions of the same recipe.
+  -- - FOR UPDATE on inventory_items (below) prevents double-consumption of the same lot.
+  -- - READ COMMITTED isolation is sufficient for supervised operations (one operator at a time).
+  -- - If unsupervised concurrent execution is needed, upgrade to SERIALIZABLE or add
+  --   application-level advisory locks.
   FOR v_item IN SELECT * FROM jsonb_array_elements(v_recipe.items)
   LOOP
     v_product_id := (v_item ->> 'product_id')::UUID;

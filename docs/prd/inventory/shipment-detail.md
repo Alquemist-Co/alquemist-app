@@ -359,6 +359,17 @@ Los campos adicionales dentro de `field_data` se validan dinámicamente según e
 | Error de red                             | "Error de conexión. Intenta nuevamente" (toast)                           |
 | Permiso denegado                         | "No tienes permisos para confirmar envíos" (toast)                        |
 
+## Notas de Implementación
+
+### Storage path format
+Los archivos adjuntos de documentos regulatorios se almacenan en: `{company_id}/{shipment_id}/{uuid}.{ext}`. El prefijo `company_id` es requerido por la política RLS del bucket que verifica `(storage.foldername(name))[1] = company_id`.
+
+### Validación JSONB de required_fields
+El campo `regulatory_doc_types.required_fields` es JSONB y se valida en runtime con `docTypeRequiredFieldsSchema` (Zod). Si la estructura es malformada, se usa fallback `{ fields: [] }` en lugar de renderizar nada.
+
+### Deferred FK constraints
+Las FK de `shipment_items.inventory_item_id` y `shipment_items.transaction_id` son `DEFERRABLE INITIALLY DEFERRED` porque se crean en la misma transacción que los registros referenciados (dentro del Edge Function `confirm-shipment-receipt`).
+
 ## Dependencias
 
 - **Páginas relacionadas**:
