@@ -950,8 +950,8 @@ export function ZoneDialog({
                 {/* Calculated totals (edit mode) */}
                 {isEdit && (
                   <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground border-t pt-2">
-                    <span>Área cultivo efectiva: <strong className="text-foreground">{zone.effective_growing_area_m2.toLocaleString()} m²</strong></span>
-                    <span>Capacidad plantas: <strong className="text-foreground">{zone.plant_capacity.toLocaleString()}</strong></span>
+                    <span>Área cultivo efectiva: <strong className="text-foreground">{zone.effective_growing_area_m2.toLocaleString('es-CO')} m²</strong></span>
+                    <span>Capacidad plantas: <strong className="text-foreground">{zone.plant_capacity.toLocaleString('es-CO')}</strong></span>
                   </div>
                 )}
               </div>

@@ -302,8 +302,8 @@ export function FacilityDialog({
               <div className="rounded-md border p-3 space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Totales calculados (desde zonas)</p>
                 <div className="grid grid-cols-2 gap-2 text-sm">
-                  <span>Área de cultivo: <strong>{facility.total_growing_area_m2.toLocaleString()} m²</strong></span>
-                  <span>Capacidad: <strong>{facility.total_plant_capacity.toLocaleString()} plantas</strong></span>
+                  <span>Área de cultivo: <strong>{facility.total_growing_area_m2.toLocaleString('es-CO')} m²</strong></span>
+                  <span>Capacidad: <strong>{facility.total_plant_capacity.toLocaleString('es-CO')} plantas</strong></span>
                 </div>
               </div>
             )}

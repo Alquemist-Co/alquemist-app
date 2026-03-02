@@ -65,7 +65,7 @@ export default async function RegulatoryConfigPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">Configuración Regulatoria</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Configuración Regulatoria</h2>
         <p className="text-sm text-muted-foreground">
           Configura tipos de documentos regulatorios, requisitos por producto y requisitos de envío.
         </p>

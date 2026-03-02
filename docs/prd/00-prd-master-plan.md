@@ -510,8 +510,8 @@ Van aquí porque dependen de que existan productos, zonas y batches ya definidos
 
 ### Archivos PRD
 
-- [ ] 37 · `inventory/items.md` — `/inventory/items` — Stock actual por producto/zona/lote, ajustes manuales, transferencias
-- [ ] 38 · `inventory/transactions.md` — `/inventory/transactions` — Log inmutable (read-only), filtros por batch/zona/fase/tipo, exportar CSV
+- [x] 37 · `inventory/items.md` — `/inventory/items` — Stock actual por producto/zona/lote, ajustes manuales, transferencias
+- [x] 38 · `inventory/transactions.md` — `/inventory/transactions` — Log inmutable (read-only), filtros por batch/zona/fase/tipo, exportar CSV
 
 ### Dependencias
 

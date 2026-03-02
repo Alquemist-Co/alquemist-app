@@ -78,7 +78,7 @@ export default async function ActivityTemplatesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">Templates de Actividad</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Templates de Actividad</h2>
         <p className="text-sm text-muted-foreground">
           Configura templates de actividad reutilizables y planes de cultivo.
         </p>

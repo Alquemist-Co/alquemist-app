@@ -2,6 +2,7 @@
 
 import { signupSchema } from '@/schemas/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { seedCompanyData } from '@/lib/seed/company-seed'
 
 type SignupResult =
   | { success: true }
@@ -85,6 +86,9 @@ export async function signup(raw: unknown): Promise<SignupResult> {
     await admin.auth.admin.deleteUser(userId)
     return { success: false, error: 'Error al crear el usuario. Intenta nuevamente.' }
   }
+
+  // 5. Seed company with default catalog data
+  await seedCompanyData(admin, companyId, userId)
 
   return { success: true }
 }

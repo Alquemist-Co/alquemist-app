@@ -309,4 +309,139 @@ INSERT INTO shipment_doc_requirements (category_id, doc_type_id, is_mandatory, a
   (v_cat_quimicos, v_rdt_sds,   true, 'always',             'SDS debe acompañar envíos de químicos',                1),
   (v_cat_vegetal,  v_rdt_coa,   false, 'interstate',        'CoA recomendado para envíos interdepartamentales',     2);
 
+-- =============================================================
+-- PHASE 3 SEED DATA
+-- =============================================================
+
+-- =============================================================
+-- 16. FACILITIES (PRD 14)
+-- =============================================================
+INSERT INTO facilities (company_id, name, type, total_footprint_m2, total_growing_area_m2, total_plant_capacity, address, latitude, longitude, is_active) VALUES
+  (v_company_id, 'Nave Principal',       'indoor_warehouse', 2000, 1500, 12000, 'Km 5 Vía Rionegro, Antioquia',  6.1534, -75.3766, true),
+  (v_company_id, 'Invernadero Norte',    'greenhouse',        800,  650,  5200, 'Km 5 Vía Rionegro, Antioquia',  6.1540, -75.3770, true),
+  (v_company_id, 'Túnel de Secado',      'tunnel',            300,  250,     0, 'Km 5 Vía Rionegro, Antioquia',  6.1536, -75.3760, true),
+  (v_company_id, 'Bodega Almacenamiento','indoor_warehouse',  500,    0,     0, 'Calle 10 #25-30, Medellín',     6.2442, -75.5812, true);
+
+-- =============================================================
+-- 17. ZONES (PRD 15) — within facilities
+-- =============================================================
+INSERT INTO zones (facility_id, name, purpose, environment, status, area_m2, plant_capacity) VALUES
+  -- Nave Principal zones
+  ((SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   'Vegetativo A', 'vegetation', 'indoor_controlled', 'active', 400, 3600),
+  ((SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   'Vegetativo B', 'vegetation', 'indoor_controlled', 'active', 400, 3600),
+  ((SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   'Floración A', 'flowering', 'indoor_controlled', 'active', 350, 2450),
+  ((SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   'Floración B', 'flowering', 'indoor_controlled', 'maintenance', 350, 2450),
+  -- Invernadero Norte zones
+  ((SELECT id FROM facilities WHERE name = 'Invernadero Norte' AND company_id = v_company_id),
+   'Propagación', 'propagation', 'greenhouse', 'active', 200, 2000),
+  ((SELECT id FROM facilities WHERE name = 'Invernadero Norte' AND company_id = v_company_id),
+   'Vegetativo Invernadero', 'vegetation', 'greenhouse', 'active', 450, 3200),
+  -- Túnel de Secado
+  ((SELECT id FROM facilities WHERE name = 'Túnel de Secado' AND company_id = v_company_id),
+   'Secado Principal', 'drying', 'tunnel', 'active', 250, 0),
+  -- Bodega zones
+  ((SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+   'Almacén General', 'storage', 'indoor_controlled', 'active', 300, 0),
+  ((SELECT id FROM facilities WHERE name = 'Bodega Almacenamiento' AND company_id = v_company_id),
+   'Procesamiento', 'processing', 'indoor_controlled', 'active', 150, 0);
+
+-- =============================================================
+-- 18. ZONE STRUCTURES (PRD 16) — internal structures for some zones
+-- =============================================================
+INSERT INTO zone_structures (zone_id, name, type, length_m, width_m, num_levels, positions_per_level) VALUES
+  -- Vegetativo A: 4 rolling benches
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.name = 'Nave Principal'),
+   'Bench A1', 'rolling_bench', 3.0, 1.2, 1, 30),
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.name = 'Nave Principal'),
+   'Bench A2', 'rolling_bench', 3.0, 1.2, 1, 30),
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.name = 'Nave Principal'),
+   'Bench A3', 'rolling_bench', 3.0, 1.2, 1, 30),
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.name = 'Nave Principal'),
+   'Bench A4', 'rolling_bench', 3.0, 1.2, 1, 30),
+  -- Floración A: 3 mobile racks
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.name = 'Nave Principal'),
+   'Rack F1', 'mobile_rack', 4.0, 1.5, 2, 32),
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.name = 'Nave Principal'),
+   'Rack F2', 'mobile_rack', 4.0, 1.5, 2, 32),
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.name = 'Nave Principal'),
+   'Rack F3', 'mobile_rack', 4.0, 1.5, 2, 32),
+  -- Propagación: 2 fixed racks
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.name = 'Invernadero Norte'),
+   'Rack P1', 'fixed_rack', 2.5, 1.0, 1, 30),
+  ((SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.name = 'Invernadero Norte'),
+   'Rack P2', 'fixed_rack', 2.5, 1.0, 1, 30);
+
+-- =============================================================
+-- 19. SUPPLIERS (PRD 18)
+-- =============================================================
+INSERT INTO suppliers (company_id, name, contact_info, payment_terms) VALUES
+  (v_company_id, 'AgroSemillas Colombia',
+   '{"contact_name": "Carlos Mendoza", "email": "carlos@agrosemillas.co", "phone": "+573001112233", "city": "Bogotá", "country": "Colombia", "website": "https://agrosemillas.co"}'::jsonb,
+   '30 días neto'),
+  (v_company_id, 'NutriGrow Fertilizantes',
+   '{"contact_name": "Laura Ruiz", "email": "ventas@nutrigrow.com", "phone": "+573004445566", "phone_secondary": "+573007778899", "city": "Medellín", "country": "Colombia"}'::jsonb,
+   'Contado'),
+  (v_company_id, 'PlastiAgro',
+   '{"contact_name": "Pedro Gómez", "email": "pedro@plastiagro.co", "phone": "+573002223344", "address": "Calle 45 #12-67, Zona Industrial", "city": "Cali", "country": "Colombia"}'::jsonb,
+   '15 días neto'),
+  (v_company_id, 'BioControl SAS',
+   '{"contact_name": "Ana María Torres", "email": "ana@biocontrol.co", "phone": "+573005556677", "city": "Rionegro", "country": "Colombia", "notes": "Especialistas en control biológico de plagas"}'::jsonb,
+   '30 días neto'),
+  (v_company_id, 'Lab Analítico del Valle',
+   '{"contact_name": "Dr. Roberto Sánchez", "email": "rsanchez@labvalle.com", "phone": "+572334455", "city": "Cali", "country": "Colombia", "website": "https://labvalle.com"}'::jsonb,
+   NULL);
+
+-- =============================================================
+-- 20. PRODUCTS (PRD 17)
+-- =============================================================
+INSERT INTO products (company_id, sku, name, category_id, default_unit_id, cultivar_id, procurement_type, lot_tracking, preferred_supplier_id, default_price, price_currency, requires_regulatory_docs) VALUES
+  -- Seeds
+  (v_company_id, 'SEM-OGK-FEM', 'Semilla OG Kush Feminizada', v_cat_vegetal, v_unit_und, v_cult_og_kush, 'purchased', 'required',
+   (SELECT id FROM suppliers WHERE name = 'AgroSemillas Colombia' AND company_id = v_company_id),
+   25000, 'COP', true),
+  (v_company_id, 'SEM-BLD-FEM', 'Semilla Blue Dream Feminizada', v_cat_vegetal, v_unit_und, v_cult_blue_d, 'purchased', 'required',
+   (SELECT id FROM suppliers WHERE name = 'AgroSemillas Colombia' AND company_id = v_company_id),
+   28000, 'COP', true),
+  -- Fertilizers
+  (v_company_id, 'FERT-FLORA', 'Flora Bloom 1L', v_cat_quimicos, v_unit_l, NULL, 'purchased', 'required',
+   (SELECT id FROM suppliers WHERE name = 'NutriGrow Fertilizantes' AND company_id = v_company_id),
+   85000, 'COP', true),
+  (v_company_id, 'FERT-GROW', 'Flora Grow 1L', v_cat_quimicos, v_unit_l, NULL, 'purchased', 'required',
+   (SELECT id FROM suppliers WHERE name = 'NutriGrow Fertilizantes' AND company_id = v_company_id),
+   82000, 'COP', true),
+  (v_company_id, 'FERT-MICRO', 'Flora Micro 1L', v_cat_quimicos, v_unit_l, NULL, 'purchased', 'required',
+   (SELECT id FROM suppliers WHERE name = 'NutriGrow Fertilizantes' AND company_id = v_company_id),
+   88000, 'COP', false),
+  -- Substrates
+  (v_company_id, 'SUST-COCO', 'Fibra de Coco 50L', v_cat_sustratos, v_unit_und, NULL, 'purchased', 'optional',
+   (SELECT id FROM suppliers WHERE name = 'PlastiAgro' AND company_id = v_company_id),
+   35000, 'COP', false),
+  (v_company_id, 'SUST-PERL', 'Perlita 25L', v_cat_sustratos, v_unit_und, NULL, 'purchased', 'none',
+   NULL, 22000, 'COP', false),
+  -- Produced outputs
+  (v_company_id, 'FLOR-OGK-SEC', 'Flor Seca OG Kush', v_cat_vegetal, v_unit_g, v_cult_og_kush, 'produced', 'required',
+   NULL, NULL, NULL, true),
+  (v_company_id, 'FLOR-BLD-SEC', 'Flor Seca Blue Dream', v_cat_vegetal, v_unit_g, v_cult_blue_d, 'produced', 'required',
+   NULL, NULL, NULL, true),
+  -- Bio control
+  (v_company_id, 'BIO-TRICHO', 'Trichoderma harzianum 500g', v_cat_quimicos, v_unit_g, NULL, 'purchased', 'required',
+   (SELECT id FROM suppliers WHERE name = 'BioControl SAS' AND company_id = v_company_id),
+   120000, 'COP', false);
+
+-- =============================================================
+-- 21. PRODUCT REGULATORY REQS (per product) — for products that have requires_regulatory_docs = true
+-- =============================================================
+INSERT INTO product_regulatory_requirements (product_id, doc_type_id, is_mandatory, applies_to_scope, frequency, notes, sort_order) VALUES
+  ((SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'), v_rdt_phyto, true,  'per_product', 'per_shipment',   'Fitosanitario para cada envío de semillas', 0),
+  ((SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'), v_rdt_coa,   false, 'per_batch',   'per_production', 'CoA opcional para lotes de semilla',        1),
+  ((SELECT id FROM products WHERE sku = 'FERT-FLORA'),  v_rdt_sds,   true,  'per_product', 'once',           'SDS del fabricante requerido',              0),
+  ((SELECT id FROM products WHERE sku = 'FERT-GROW'),   v_rdt_sds,   true,  'per_product', 'once',           'SDS del fabricante requerido',              0),
+  ((SELECT id FROM products WHERE sku = 'FERT-MICRO'),  v_rdt_sds,   true,  'per_product', 'once',           'SDS del fabricante requerido',              0),
+  ((SELECT id FROM products WHERE sku = 'FLOR-OGK-SEC'),v_rdt_coa,   true,  'per_batch',   'per_production', 'CoA obligatorio por batch',                 0),
+  ((SELECT id FROM products WHERE sku = 'FLOR-BLD-SEC'),v_rdt_coa,   true,  'per_batch',   'per_production', 'CoA obligatorio por batch',                 0);
+
 END $$;

@@ -40,6 +40,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = pathname.startsWith('/auth/confirm')
     || pathname.startsWith('/invite')
     || pathname.startsWith('/reset-password')
+    || pathname.startsWith('/showcase')
 
   if (isPublicRoute) {
     // Auth callback and invite pages — pass through without redirects

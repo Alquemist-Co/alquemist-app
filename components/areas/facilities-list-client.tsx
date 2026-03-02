@@ -9,7 +9,14 @@ import { Plus, Pencil, Power, MapPin } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +48,8 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
   const [editingFacility, setEditingFacility] = useState<FacilityRow | null>(null)
   const [deactivatingFacility, setDeactivatingFacility] = useState<FacilityRow | null>(null)
 
+  const activeCount = facilities.filter((f) => f.is_active).length
+  const allCount = facilities.length
   const filtered = showInactive ? facilities : facilities.filter((f) => f.is_active)
 
   function openNew() {
@@ -68,16 +77,46 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Checkbox checked={showInactive} onCheckedChange={(v) => setShowInactive(!!v)} />
-          Inactivos
-        </label>
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Tabs
+          value={showInactive ? 'all' : 'active'}
+          onValueChange={(v) => setShowInactive(v === 'all')}
+        >
+          {/* Mobile: Select dropdown */}
+          <Select
+            value={showInactive ? 'all' : 'active'}
+            onValueChange={(v) => setShowInactive(v === 'all')}
+          >
+            <SelectTrigger className="w-fit sm:hidden" size="sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Activos ({activeCount})</SelectItem>
+              <SelectItem value="all">Todos ({allCount})</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Desktop: TabsList */}
+          <TabsList variant="line" className="hidden sm:inline-flex">
+            <TabsTrigger value="active">
+              Activos
+              <Badge variant="secondary" className="ml-1.5 h-5 min-w-5 rounded-full px-1.5 text-xs">
+                {activeCount}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="all">
+              Todos
+              <Badge variant="secondary" className="ml-1.5 h-5 min-w-5 rounded-full px-1.5 text-xs">
+                {allCount}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         {canWrite && (
-          <Button size="sm" onClick={openNew}>
-            <Plus className="mr-1.5 h-4 w-4" />
-            Nueva instalación
+          <Button size="sm" className="ml-auto" onClick={openNew}>
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nueva instalación</span>
           </Button>
         )}
       </div>
@@ -130,10 +169,10 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
                   {/* Stats */}
                   <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-muted-foreground border-t pt-2">
                     <div>
-                      <span className="font-medium text-foreground">{f.total_footprint_m2.toLocaleString()}</span> m²
+                      <span className="font-medium text-foreground">{f.total_footprint_m2.toLocaleString('es-CO')}</span> m²
                     </div>
                     <div>
-                      <span className="font-medium text-foreground">{f.total_growing_area_m2.toLocaleString()}</span> cultivo
+                      <span className="font-medium text-foreground">{f.total_growing_area_m2.toLocaleString('es-CO')}</span> cultivo
                     </div>
                     <div>
                       <span className="font-medium text-foreground">{f.zone_count}</span> zonas
@@ -206,6 +245,6 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   )
 }

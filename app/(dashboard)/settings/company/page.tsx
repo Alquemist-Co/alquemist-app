@@ -38,7 +38,7 @@ export default async function CompanySettingsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">Configuración de empresa</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Configuración de empresa</h2>
         <p className="text-sm text-muted-foreground">
           Administra los datos de tu empresa, logo, modo regulatorio y módulos habilitados.
         </p>

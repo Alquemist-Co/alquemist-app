@@ -1,8 +1,11 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/server'
 import { AuthProvider, type AuthUser } from '@/lib/auth/context'
-import { Sidebar } from '@/components/dashboard/sidebar'
+import { AppSidebar } from '@/components/dashboard/app-sidebar'
+import { SiteHeader } from '@/components/dashboard/site-header'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -36,12 +39,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
     facility: null,
   }
 
+  const cookieStore = await cookies()
+  const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
+
   return (
     <AuthProvider initialUser={initialUser}>
-      <div className="flex min-h-screen">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto">{children}</main>
-      </div>
+      <SidebarProvider
+        defaultOpen={defaultOpen}
+        style={
+          {
+            '--sidebar-width': 'calc(var(--spacing) * 72)',
+            '--header-height': 'calc(var(--spacing) * 12)',
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar />
+        <SidebarInset>
+          <SiteHeader />
+          <div className="flex flex-1 flex-col gap-6 px-4 py-4 lg:px-6 md:py-6">
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     </AuthProvider>
   )
 }

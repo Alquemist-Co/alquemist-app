@@ -9,7 +9,7 @@ import { Plus, Pencil, Power, Copy, Leaf } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,7 @@ import {
   selectClass,
   CultivarDialog,
 } from './cultivars-shared'
+import { FilterPopover } from './filter-popover'
 
 type Props = {
   cropTypes: CropType[]
@@ -153,36 +154,45 @@ export function CultivarsListClient({ cropTypes, cultivars, flows, canWrite }: P
   }
 
   return (
-    <>
-      {/* Crop type filter */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium">Tipo de cultivo:</label>
-          <select
-            value={selectedCropTypeId}
-            onChange={(e) => setSelectedCropTypeId(e.target.value)}
-            className={selectClass + ' w-56'}
-          >
-            {cropTypes.length === 0 && <option value="">Sin tipos de cultivo</option>}
-            {cropTypes.map((ct) => (
-              <option key={ct.id} value={ct.id}>
-                {ct.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Checkbox checked={showInactive} onCheckedChange={(v) => setShowInactive(!!v)} />
-          Inactivos
-        </label>
-        <div className="ml-auto">
-          {canWrite && (
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-1.5 h-4 w-4" />
-              Nuevo cultivar
-            </Button>
-          )}
-        </div>
+    <div className="space-y-4">
+      {/* Tabs */}
+      <div className="flex items-center gap-2">
+        <Tabs
+          value={showInactive ? 'all' : 'active'}
+          onValueChange={(v) => setShowInactive(v === 'all')}
+        >
+          <TabsList variant="line">
+            <TabsTrigger value="active">Activos</TabsTrigger>
+            <TabsTrigger value="all">Todos</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex items-center gap-2">
+        <FilterPopover>
+          <div>
+            <label className="mb-1 block text-xs font-medium">Tipo de cultivo</label>
+            <select
+              value={selectedCropTypeId}
+              onChange={(e) => setSelectedCropTypeId(e.target.value)}
+              className={selectClass}
+            >
+              {cropTypes.length === 0 && <option value="">Sin tipos</option>}
+              {cropTypes.map((ct) => (
+                <option key={ct.id} value={ct.id}>
+                  {ct.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </FilterPopover>
+        {canWrite && (
+          <Button size="sm" className="ml-auto" onClick={openNew}>
+            <Plus className="mr-1 h-4 w-4" />
+            Nuevo
+          </Button>
+        )}
       </div>
 
       {cropTypes.length === 0 ? (
@@ -245,25 +255,25 @@ export function CultivarsListClient({ cropTypes, cultivars, flows, canWrite }: P
                   </div>
 
                   {canWrite && (
-                    <div className="mt-2 flex gap-1 border-t pt-2">
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); openEdit(cv) }}>
-                        <Pencil className="mr-1 h-3 w-3" /> Editar
+                    <div className="mt-2 flex flex-wrap gap-1 border-t pt-2">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={(e) => { e.stopPropagation(); openEdit(cv) }}>
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); handleDuplicate(cv) }}>
-                        <Copy className="mr-1 h-3 w-3" /> Duplicar
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicar" onClick={(e) => { e.stopPropagation(); handleDuplicate(cv) }}>
+                        <Copy className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs"
+                        size="icon"
+                        className="h-7 w-7"
+                        title={cv.is_active ? 'Desactivar' : 'Reactivar'}
                         onClick={(e) => {
                           e.stopPropagation()
                           if (cv.is_active) setDeactivating(cv)
                           else handleToggle(cv)
                         }}
                       >
-                        <Power className="mr-1 h-3 w-3" />
-                        {cv.is_active ? 'Desact.' : 'React.'}
+                        <Power className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   )}
@@ -307,6 +317,6 @@ export function CultivarsListClient({ cropTypes, cultivars, flows, canWrite }: P
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   )
 }

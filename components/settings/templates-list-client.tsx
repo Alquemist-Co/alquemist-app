@@ -15,7 +15,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,7 @@ import {
   selectClass,
   TemplateDialog,
 } from './templates-shared'
+import { FilterPopover } from './filter-popover'
 
 type Props = {
   templates: TemplateRow[]
@@ -213,37 +214,59 @@ export function TemplatesListClient({
 
   return (
     <div className="space-y-4">
+      {/* Tabs */}
+      <Tabs
+        value={showInactive ? 'all' : 'active'}
+        onValueChange={(v) => setShowInactive(v === 'all')}
+      >
+        <TabsList variant="line">
+          <TabsTrigger value="active">Activos</TabsTrigger>
+          <TabsTrigger value="all">Todos</TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <select className={selectClass + ' w-44'} value={filterTypeId} onChange={(e) => setFilterTypeId(e.target.value)}>
-          <option value="">Todos los tipos</option>
-          {activityTypes.map((at) => (
-            <option key={at.id} value={at.id}>{at.name}</option>
-          ))}
-        </select>
-        <select className={selectClass + ' w-36'} value={filterFrequency} onChange={(e) => setFilterFrequency(e.target.value)}>
-          <option value="">Toda frecuencia</option>
-          {Object.entries(frequencyLabels).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </select>
-        <select className={selectClass + ' w-44'} value={filterCropTypeId} onChange={(e) => setFilterCropTypeId(e.target.value)}>
-          <option value="">Todo crop type</option>
-          {cropTypes.map((ct) => (
-            <option key={ct.id} value={ct.id}>{ct.name}</option>
-          ))}
-        </select>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Checkbox checked={showInactive} onCheckedChange={(v) => setShowInactive(!!v)} />
-          Inactivos
-        </label>
-        <div className="ml-auto">
-          {canWrite && (
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-1.5 h-4 w-4" /> Nuevo template
-            </Button>
-          )}
-        </div>
+      <div className="flex items-center gap-2">
+        <FilterPopover
+          activeCount={
+            (filterTypeId ? 1 : 0) +
+            (filterFrequency ? 1 : 0) +
+            (filterCropTypeId ? 1 : 0)
+          }
+        >
+          <div>
+            <label className="mb-1 block text-xs font-medium">Tipo de actividad</label>
+            <select className={selectClass} value={filterTypeId} onChange={(e) => setFilterTypeId(e.target.value)}>
+              <option value="">Todos</option>
+              {activityTypes.map((at) => (
+                <option key={at.id} value={at.id}>{at.name}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium">Frecuencia</label>
+            <select className={selectClass} value={filterFrequency} onChange={(e) => setFilterFrequency(e.target.value)}>
+              <option value="">Todas</option>
+              {Object.entries(frequencyLabels).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium">Tipo de cultivo</label>
+            <select className={selectClass} value={filterCropTypeId} onChange={(e) => setFilterCropTypeId(e.target.value)}>
+              <option value="">Todos</option>
+              {cropTypes.map((ct) => (
+                <option key={ct.id} value={ct.id}>{ct.name}</option>
+              ))}
+            </select>
+          </div>
+        </FilterPopover>
+        {canWrite && (
+          <Button size="sm" className="ml-auto" onClick={openNew}>
+            <Plus className="mr-1 h-4 w-4" /> Nuevo
+          </Button>
+        )}
       </div>
 
       {/* Template list */}
@@ -296,20 +319,20 @@ export function TemplatesListClient({
 
                     {canWrite && (
                       <div className="flex shrink-0 gap-0.5" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEdit(t)}>
-                          <Pencil className="mr-1 h-3 w-3" /> Editar
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => openEdit(t)}>
+                          <Pencil className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => handleDuplicate(t)}>
-                          <Copy className="mr-1 h-3 w-3" /> Duplicar
+                        <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicar" onClick={() => handleDuplicate(t)}>
+                          <Copy className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs"
+                          size="icon"
+                          className="h-7 w-7"
+                          title={t.is_active ? 'Desactivar' : 'Reactivar'}
                           onClick={() => t.is_active ? setDeactivating(t) : handleToggle(t)}
                         >
-                          <Power className="mr-1 h-3 w-3" />
-                          {t.is_active ? 'Desact.' : 'React.'}
+                          <Power className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     )}

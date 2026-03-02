@@ -16,7 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -102,18 +102,21 @@ export function SchedulesListClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Checkbox checked={showInactive} onCheckedChange={(v) => setShowInactive(!!v)} />
-          Inactivos
-        </label>
-        <div className="ml-auto">
-          {canWrite && (
-            <Button size="sm" onClick={openNew}>
-              <Plus className="mr-1.5 h-4 w-4" /> Nuevo plan
-            </Button>
-          )}
-        </div>
+      <div className="flex items-center gap-2">
+        <Tabs
+          value={showInactive ? 'all' : 'active'}
+          onValueChange={(v) => setShowInactive(v === 'all')}
+        >
+          <TabsList variant="line">
+            <TabsTrigger value="active">Activos</TabsTrigger>
+            <TabsTrigger value="all">Todos</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        {canWrite && (
+          <Button size="sm" className="ml-auto" onClick={openNew}>
+            <Plus className="mr-1.5 h-4 w-4" /> Nuevo plan
+          </Button>
+        )}
       </div>
 
       {filtered.length === 0 ? (
@@ -151,20 +154,20 @@ export function SchedulesListClient({
 
                   {canWrite && (
                     <div className="mt-2 flex gap-1 border-t pt-2" onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openEdit(s)}>
-                        <Pencil className="mr-1 h-3 w-3" /> Editar
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Editar" onClick={() => openEdit(s)}>
+                        <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => handleDuplicate(s)}>
-                        <Copy className="mr-1 h-3 w-3" /> Duplicar
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title="Duplicar" onClick={() => handleDuplicate(s)}>
+                        <Copy className="h-3.5 w-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs"
+                        size="icon"
+                        className="h-7 w-7"
+                        title={s.is_active ? 'Desactivar' : 'Reactivar'}
                         onClick={() => s.is_active ? setDeactivating(s) : handleToggle(s)}
                       >
-                        <Power className="mr-1 h-3 w-3" />
-                        {s.is_active ? 'Desact.' : 'React.'}
+                        <Power className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   )}

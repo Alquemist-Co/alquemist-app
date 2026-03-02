@@ -21,6 +21,18 @@ Usuarios principales: fundador/admin de una nueva empresa agrícola.
 | users           | W           | Crear primer usuario con role='admin'                  |
 | auth.users      | W           | Crear cuenta de autenticación via Supabase Admin API   |
 | auth.identities | W           | Crear identity row (requerido para signInWithPassword) |
+| resource_categories | R/W     | Seed automático — verificar existencia + insertar defaults (RF-10) |
+| units_of_measure | W          | Seed automático — 5 unidades con relaciones base_unit  |
+| activity_types  | W           | Seed automático — 5 tipos de actividad                 |
+| crop_types      | W           | Seed automático — 2 tipos de cultivo                   |
+| production_phases | W         | Seed automático — 9 fases con dependencias             |
+| cultivars       | W           | Seed automático — 2 cultivares                         |
+| phase_product_flows | W       | Seed automático — 5 flujos de producto                 |
+| activity_templates | W        | Seed automático — 3 templates + fases, recursos, checklist |
+| cultivation_schedules | W     | Seed automático — 1 schedule                           |
+| regulatory_doc_types | W      | Seed automático — 3 tipos documentales                 |
+| product_regulatory_requirements | W | Seed automático — 3 requerimientos          |
+| shipment_doc_requirements | W | Seed automático — 3 requerimientos de envío            |
 
 ## ENUMs utilizados
 
@@ -65,11 +77,25 @@ Página pública fuera del layout de dashboard. Sin sidebar ni topbar. Diseño l
   4. Setear `app_metadata = { company_id: <new_company_id>, role: 'admin' }`
   5. Se crea automáticamente row en `auth.identities` via Admin API
   6. Crear registro en `users` con: company_id, email, full_name, phone, role='admin', is_active=true
-  7. Si cualquier paso falla → rollback (eliminar registros creados)
+  7. Seed automático de datos de catálogo para la nueva empresa (ver RF-10)
+  8. Si cualquier paso 1-6 falla → rollback (eliminar registros creados). Si paso 7 falla → se ignora (signup exitoso sin seed)
 - **RF-06**: Post-creación exitosa, auto-login: `signInWithPassword({ email, password })` en el cliente
 - **RF-07**: Hidratar auth-store con datos del nuevo usuario y empresa
 - **RF-08**: Redirect a `/settings/company` para completar configuración adicional (logo, regulatory_mode, features)
 - **RF-09**: Si el usuario ya tiene sesión activa al acceder a `/signup`, redirect a ruta por rol (middleware)
+- **RF-10**: Post-creación de usuario, seed automático de datos de catálogo via `seedCompanyData()` (`lib/seed/company-seed.ts`). Datos insertados:
+  - 4 resource_categories (Material Vegetal, Químicos, Equipos, Sustratos)
+  - 5 units_of_measure (g, kg, L, ml, und) con relaciones base_unit
+  - 5 activity_types (Riego, Fertilización, Poda, Cosecha, Inspección)
+  - 2 crop_types (Cannabis, Flores) con 9 production_phases y cadena de dependencias
+  - 2 cultivars (OG Kush, Blue Dream) con phase_durations, target_profile, optimal_conditions
+  - 5 phase_product_flows (rendimientos cosecha/secado)
+  - 3 activity_templates con fases, recursos y checklists
+  - 1 cultivation_schedule (OG Kush Standard 122d)
+  - 3 regulatory_doc_types (CoA, SDS, Fitosanitario) con required_fields
+  - 3 product_regulatory_requirements + 3 shipment_doc_requirements
+  - **Idempotente**: verifica si ya existen resource_categories para la empresa antes de insertar
+  - **No-blocking**: errores se loguean pero nunca interrumpen el signup
 
 ## Requisitos no funcionales
 
@@ -91,9 +117,9 @@ Página pública fuera del layout de dashboard. Sin sidebar ni topbar. Diseño l
 5. Paso 2: Llena nombre, email, teléfono, password, confirm → click "Crear empresa"
 6. Validación Zod paso 2 pasa → botón se deshabilita, muestra loading
 7. Server Action ejecuta transacción:
-   - Email no existe → company creada → auth.users creado → users creado
+   - Email no existe → company creada → auth.users creado → users creado → seed catálogo
 8. Auto-login exitoso en el cliente
-9. Redirect a `/settings/company`
+9. Redirect a `/settings/company` — catálogo pre-poblado listo para usar
 
 ### Email ya registrado
 

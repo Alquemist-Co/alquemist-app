@@ -152,7 +152,7 @@ export function ZoneDetailClient({ zone, structures, facilities, canWrite }: Pro
               </div>
               <div>
                 <dt className="text-muted-foreground text-xs">Área de piso</dt>
-                <dd>{zone.area_m2.toLocaleString()} m²</dd>
+                <dd>{zone.area_m2.toLocaleString('es-CO')} m²</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground text-xs">Altura</dt>
@@ -160,11 +160,11 @@ export function ZoneDetailClient({ zone, structures, facilities, canWrite }: Pro
               </div>
               <div>
                 <dt className="text-muted-foreground text-xs">Área cultivo efectiva</dt>
-                <dd className="font-medium">{zone.effective_growing_area_m2.toLocaleString()} m²</dd>
+                <dd className="font-medium">{zone.effective_growing_area_m2.toLocaleString('es-CO')} m²</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground text-xs">Capacidad plantas</dt>
-                <dd className="font-medium">{zone.plant_capacity.toLocaleString()}</dd>
+                <dd className="font-medium">{zone.plant_capacity.toLocaleString('es-CO')}</dd>
               </div>
             </dl>
 

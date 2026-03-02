@@ -64,9 +64,13 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
   }
 
   // 1. Invite via Supabase Auth
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   const { data: authData, error: authError } = await admin.auth.admin.inviteUserByEmail(
     data.email,
-    { data: { full_name: data.full_name } }
+    {
+      data: { full_name: data.full_name },
+      redirectTo: `${siteUrl}/auth/confirm?redirect_to=/invite`,
+    }
   )
 
   if (authError) {
@@ -249,7 +253,10 @@ export async function resendInvite(userId: string): Promise<ActionResult> {
     return { success: false, error: 'Este usuario ya ha aceptado la invitación.' }
   }
 
-  const { error } = await admin.auth.admin.inviteUserByEmail(targetUser.email)
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const { error } = await admin.auth.admin.inviteUserByEmail(targetUser.email, {
+    redirectTo: `${siteUrl}/auth/confirm?redirect_to=/invite`,
+  })
 
   if (error) {
     return { success: false, error: 'Error al reenviar la invitación.' }

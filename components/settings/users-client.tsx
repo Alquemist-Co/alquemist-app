@@ -20,13 +20,21 @@ import {
   UserX,
   UserCheck,
   Users,
+  Search,
 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Select as SelectUI,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -74,6 +82,13 @@ import {
   toggleUserActive,
   resendInvite,
 } from '@/app/(dashboard)/settings/users/actions'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { FilterPopover } from './filter-popover'
+
+// ---------- Constants ----------
+
+const selectClass =
+  'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring'
 
 // ---------- Types ----------
 
@@ -100,7 +115,10 @@ type Props = {
   currentUserId: string
   currentUserRole: string
   totalPages: number
+  totalCount: number
   currentPage: number
+  pageSize: number
+  statusCounts: { all: number; active: number; inactive: number }
   filters: { role: string; status: string; search: string }
 }
 
@@ -156,7 +174,10 @@ export function UsersClient({
   currentUserId,
   currentUserRole,
   totalPages,
+  totalCount,
   currentPage,
+  pageSize,
+  statusCounts,
   filters,
 }: Props) {
   const router = useRouter()
@@ -208,6 +229,10 @@ export function UsersClient({
     updateParams({ page: page > 1 ? String(page) : '' })
   }
 
+  function changePageSize(size: number) {
+    updateParams({ pageSize: String(size), page: '' })
+  }
+
   // Resend invite handler
   async function handleResendInvite(userId: string) {
     const result = await resendInvite(userId)
@@ -220,56 +245,94 @@ export function UsersClient({
 
   return (
     <div className="space-y-4">
-      {/* Filters bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
-          <select
-            value={filters.role}
-            onChange={(e) => updateParams({ role: e.target.value })}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">Todos los roles</option>
-            {allRoles.map((r) => (
-              <option key={r} value={r}>
-                {roleLabels[r]}
-              </option>
-            ))}
-          </select>
+      {/* Status tabs */}
+      <Tabs
+        value={filters.status || 'all'}
+        onValueChange={(v) => updateParams({ status: v === 'all' ? '' : v })}
+      >
+        {/* Mobile: Select dropdown */}
+        <SelectUI
+          value={filters.status || 'all'}
+          onValueChange={(v) => updateParams({ status: v === 'all' ? '' : v })}
+        >
+          <SelectTrigger className="w-fit sm:hidden" size="sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos ({statusCounts.all})</SelectItem>
+            <SelectItem value="active">Activos ({statusCounts.active})</SelectItem>
+            <SelectItem value="inactive">Inactivos ({statusCounts.inactive})</SelectItem>
+          </SelectContent>
+        </SelectUI>
 
-          <select
-            value={filters.status}
-            onChange={(e) => updateParams({ status: e.target.value })}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="">Todos los estados</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
-          </select>
+        {/* Desktop: TabsList */}
+        <TabsList variant="line" className="hidden sm:inline-flex">
+          <TabsTrigger value="all">
+            Todos
+            <Badge variant="secondary" className="ml-1.5 h-5 min-w-5 rounded-full px-1.5 text-xs">
+              {statusCounts.all}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="active">
+            Activos
+            <Badge variant="secondary" className="ml-1.5 h-5 min-w-5 rounded-full px-1.5 text-xs">
+              {statusCounts.active}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="inactive">
+            Inactivos
+            <Badge variant="secondary" className="ml-1.5 h-5 min-w-5 rounded-full px-1.5 text-xs">
+              {statusCounts.inactive}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
+      {/* Toolbar: search + filters + invite button */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative max-sm:w-full">
+          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nombre o email..."
+            placeholder="Nombre o email..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            className="h-9 sm:max-w-[260px]"
+            className="h-9 w-full pl-8 sm:w-[200px] lg:w-[280px]"
           />
         </div>
 
-        <Button size="sm" onClick={() => setInviteOpen(true)}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          Invitar usuario
+        <FilterPopover activeCount={filters.role ? 1 : 0}>
+          <div>
+            <label className="mb-1 block text-xs font-medium">Rol</label>
+            <select
+              value={filters.role}
+              onChange={(e) => updateParams({ role: e.target.value })}
+              className={selectClass}
+            >
+              <option value="">Todos los roles</option>
+              {allRoles.map((r) => (
+                <option key={r} value={r}>
+                  {roleLabels[r]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </FilterPopover>
+
+        <Button size="sm" className="ml-auto" onClick={() => setInviteOpen(true)}>
+          <Plus className="h-4 w-4" />
+          <span className="hidden sm:inline">Invitar</span>
         </Button>
       </div>
 
       {/* Users table */}
-      <Card>
-        <CardContent className="p-0">
-          {users.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <Users className="mb-3 h-10 w-10" />
-              <p className="text-sm">No se encontraron usuarios.</p>
-            </div>
-          ) : (
-            <Table>
+      <div className="overflow-hidden rounded-lg border">
+        {users.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <Users className="mb-3 h-10 w-10" />
+            <p className="text-sm">No se encontraron usuarios.</p>
+          </div>
+        ) : (
+          <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
@@ -343,36 +406,18 @@ export function UsersClient({
                 ))}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Página {currentPage} de {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1}
-              onClick={() => goToPage(currentPage - 1)}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage >= totalPages}
-              onClick={() => goToPage(currentPage + 1)}
-            >
-              Siguiente
-            </Button>
-          </div>
-        </div>
-      )}
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+        onPageSizeChange={changePageSize}
+      />
 
       {/* Invite Dialog */}
       <InviteDialog

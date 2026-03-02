@@ -55,7 +55,7 @@ export default async function CatalogPage({
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">Catálogos</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Catálogos</h2>
         <p className="text-sm text-muted-foreground">
           Gestiona categorías de recursos, unidades de medida y tipos de actividad.
         </p>

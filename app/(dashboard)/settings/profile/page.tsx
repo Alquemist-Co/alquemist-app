@@ -28,7 +28,7 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">Mi Perfil</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Mi Perfil</h2>
         <p className="text-sm text-muted-foreground">
           Administra tu información personal y contraseña.
         </p>

@@ -39,7 +39,7 @@ export default async function CultivarsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Cultivares</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Cultivares</h2>
         <p className="text-sm text-muted-foreground">
           Configura las variedades de cada tipo de cultivo y sus flujos de producción.
         </p>

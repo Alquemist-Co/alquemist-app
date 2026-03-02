@@ -4,12 +4,12 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Plus, MoreHorizontal, MapPin } from 'lucide-react'
+import { Plus, MoreHorizontal, MapPin, Search } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,6 +48,8 @@ type Props = {
   facilities: FacilityOption[]
   canWrite: boolean
   totalPages: number
+  totalCount: number
+  pageSize: number
   currentPage: number
   filters: { facility: string; purpose: string; status: string; search: string }
 }
@@ -57,6 +59,8 @@ export function ZonesListClient({
   facilities,
   canWrite,
   totalPages,
+  totalCount,
+  pageSize,
   currentPage,
   filters,
 }: Props) {
@@ -127,13 +131,22 @@ export function ZonesListClient({
   const activeFilterCount =
     (filters.facility ? 1 : 0) +
     (filters.purpose ? 1 : 0) +
-    (filters.status ? 1 : 0) +
-    (filters.search ? 1 : 0)
+    (filters.status ? 1 : 0)
 
   return (
     <div className="space-y-4">
-      {/* Filters bar */}
-      <div className="flex items-center gap-2">
+      {/* Toolbar: search + filters + add button */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative max-sm:w-full">
+          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Nombre de zona..."
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="h-9 w-full pl-8 sm:w-[200px] lg:w-[280px]"
+          />
+        </div>
+
         <FilterPopover activeCount={activeFilterCount}>
           <div>
             <label className="mb-1 block text-xs font-medium">Instalación</label>
@@ -174,38 +187,27 @@ export function ZonesListClient({
               ))}
             </select>
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium">Buscar</label>
-            <Input
-              placeholder="Nombre de zona..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              className="h-9"
-            />
-          </div>
         </FilterPopover>
 
         {canWrite && (
           <Button size="sm" className="ml-auto" onClick={openNew}>
-            <Plus className="mr-1 h-4 w-4" />
-            Nueva zona
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Nueva zona</span>
           </Button>
         )}
       </div>
 
       {/* Zones table */}
-      <Card>
-        <CardContent className="p-0">
-          {zones.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <MapPin className="mb-3 h-10 w-10" />
-              <p className="text-sm">
-                {activeFilterCount > 0 ? 'No se encontraron zonas con estos filtros.' : 'No hay zonas registradas.'}
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
+      <div className="overflow-hidden rounded-lg border">
+        {zones.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <MapPin className="mb-3 h-10 w-10" />
+            <p className="text-sm">
+              {activeFilterCount > 0 || filters.search ? 'No se encontraron zonas con estos filtros.' : 'No hay zonas registradas.'}
+            </p>
+          </div>
+        ) : (
+          <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre</TableHead>
@@ -237,9 +239,9 @@ export function ZonesListClient({
                       <TableCell className="text-muted-foreground text-xs">
                         {environmentLabels[z.environment] ?? z.environment}
                       </TableCell>
-                      <TableCell className="text-right">{z.area_m2.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{z.effective_growing_area_m2.toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{z.plant_capacity.toLocaleString()}</TableCell>
+                      <TableCell className="text-right">{z.area_m2.toLocaleString('es-CO')}</TableCell>
+                      <TableCell className="text-right">{z.effective_growing_area_m2.toLocaleString('es-CO')}</TableCell>
+                      <TableCell className="text-right">{z.plant_capacity.toLocaleString('es-CO')}</TableCell>
                       <TableCell className="text-right">{z.structure_count}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className={`text-xs ${statusBadgeStyles[z.status] ?? ''}`}>
@@ -288,38 +290,18 @@ export function ZonesListClient({
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </Table>
+        )}
+      </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Página {currentPage} de {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage <= 1}
-              onClick={() => goToPage(currentPage - 1)}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={currentPage >= totalPages}
-              onClick={() => goToPage(currentPage + 1)}
-            >
-              Siguiente
-            </Button>
-          </div>
-        </div>
-      )}
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={pageSize}
+        onPageChange={goToPage}
+      />
 
       {/* Zone Dialog */}
       <ZoneDialog

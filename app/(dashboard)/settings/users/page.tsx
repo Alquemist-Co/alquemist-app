@@ -2,13 +2,15 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { UsersClient } from '@/components/settings/users-client'
 
-const PAGE_SIZE = 20
+const DEFAULT_PAGE_SIZE = 20
+const VALID_PAGE_SIZES = [10, 20, 50]
 
 type SearchParams = Promise<{
   role?: string
   status?: string
   search?: string
   page?: string
+  pageSize?: string
 }>
 
 export default async function UsersPage({
@@ -44,8 +46,11 @@ export default async function UsersPage({
   }
 
   // Build query
+  const pageSize = VALID_PAGE_SIZES.includes(parseInt(params.pageSize || ''))
+    ? parseInt(params.pageSize!)
+    : DEFAULT_PAGE_SIZE
   const page = Math.max(1, parseInt(params.page || '1', 10) || 1)
-  const offset = (page - 1) * PAGE_SIZE
+  const offset = (page - 1) * pageSize
 
   let query = supabase
     .from('users')
@@ -70,16 +75,28 @@ export default async function UsersPage({
   }
 
   const { data: users, count } = await query
-    .range(offset, offset + PAGE_SIZE - 1)
+    .range(offset, offset + pageSize - 1)
     .order('full_name')
 
   const totalCount = count ?? 0
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+
+  // Fetch status counts
+  const [{ count: activeCount }, { count: inactiveCount }] = await Promise.all([
+    supabase.from('users').select('id', { count: 'exact', head: true }).eq('is_active', true),
+    supabase.from('users').select('id', { count: 'exact', head: true }).eq('is_active', false),
+  ])
+
+  const statusCounts = {
+    all: (activeCount ?? 0) + (inactiveCount ?? 0),
+    active: activeCount ?? 0,
+    inactive: inactiveCount ?? 0,
+  }
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">Gestión de usuarios</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Gestión de usuarios</h2>
         <p className="text-sm text-muted-foreground">
           Invita, edita roles y permisos, y gestiona el acceso de los miembros de tu equipo.
         </p>
@@ -93,7 +110,10 @@ export default async function UsersPage({
         currentUserId={currentUser.id}
         currentUserRole={currentUser.role}
         totalPages={totalPages}
+        totalCount={totalCount}
         currentPage={page}
+        pageSize={pageSize}
+        statusCounts={statusCounts}
         filters={{
           role: params.role || '',
           status: params.status || '',

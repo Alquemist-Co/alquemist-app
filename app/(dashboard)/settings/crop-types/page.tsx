@@ -46,7 +46,7 @@ export default async function CropTypesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Tipos de Cultivo</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Tipos de Cultivo</h2>
         <p className="text-sm text-muted-foreground">
           Configura los tipos de cultivo y sus fases de producción.
         </p>

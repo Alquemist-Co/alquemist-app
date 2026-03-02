@@ -47,7 +47,7 @@ export default async function FacilitiesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Instalaciones</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Instalaciones</h2>
         <p className="text-sm text-muted-foreground">
           Gestiona las instalaciones físicas de tu operación.
         </p>

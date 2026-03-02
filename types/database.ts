@@ -693,6 +693,13 @@ export type Database = {
             referencedRelation: "units_of_measure"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ppf_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
         ]
       }
       product_regulatory_requirements: {
@@ -754,6 +761,13 @@ export type Database = {
             columns: ["doc_type_id"]
             isOneToOne: false
             referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prr_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -835,6 +849,123 @@ export type Database = {
             columns: ["depends_on_phase_id"]
             isOneToOne: false
             referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          category_id: string
+          company_id: string
+          conversion_properties: Json | null
+          created_at: string
+          created_by: string | null
+          cultivar_id: string | null
+          default_price: number | null
+          default_unit_id: string
+          default_yield_pct: number | null
+          density_g_per_ml: number | null
+          id: string
+          is_active: boolean
+          lot_tracking: Database["public"]["Enums"]["lot_tracking"]
+          name: string
+          phi_days: number | null
+          preferred_supplier_id: string | null
+          price_currency: string | null
+          procurement_type: Database["public"]["Enums"]["product_procurement_type"]
+          rei_hours: number | null
+          requires_regulatory_docs: boolean
+          shelf_life_days: number | null
+          sku: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category_id: string
+          company_id?: string
+          conversion_properties?: Json | null
+          created_at?: string
+          created_by?: string | null
+          cultivar_id?: string | null
+          default_price?: number | null
+          default_unit_id: string
+          default_yield_pct?: number | null
+          density_g_per_ml?: number | null
+          id?: string
+          is_active?: boolean
+          lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
+          name: string
+          phi_days?: number | null
+          preferred_supplier_id?: string | null
+          price_currency?: string | null
+          procurement_type?: Database["public"]["Enums"]["product_procurement_type"]
+          rei_hours?: number | null
+          requires_regulatory_docs?: boolean
+          shelf_life_days?: number | null
+          sku: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category_id?: string
+          company_id?: string
+          conversion_properties?: Json | null
+          created_at?: string
+          created_by?: string | null
+          cultivar_id?: string | null
+          default_price?: number | null
+          default_unit_id?: string
+          default_yield_pct?: number | null
+          density_g_per_ml?: number | null
+          id?: string
+          is_active?: boolean
+          lot_tracking?: Database["public"]["Enums"]["lot_tracking"]
+          name?: string
+          phi_days?: number | null
+          preferred_supplier_id?: string | null
+          price_currency?: string | null
+          procurement_type?: Database["public"]["Enums"]["product_procurement_type"]
+          rei_hours?: number | null
+          requires_regulatory_docs?: boolean
+          shelf_life_days?: number | null
+          sku?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_cultivar_id_fkey"
+            columns: ["cultivar_id"]
+            isOneToOne: false
+            referencedRelation: "cultivars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_default_unit_id_fkey"
+            columns: ["default_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_preferred_supplier_id_fkey"
+            columns: ["preferred_supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
         ]
@@ -1018,6 +1149,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "sdr_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "shipment_doc_requirements_category_id_fkey"
             columns: ["category_id"]
             isOneToOne: false
@@ -1029,6 +1167,53 @@ export type Database = {
             columns: ["doc_type_id"]
             isOneToOne: false
             referencedRelation: "regulatory_doc_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          company_id: string
+          contact_info: Json | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          name: string
+          payment_terms: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id?: string
+          contact_info?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          payment_terms?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          contact_info?: Json | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          payment_terms?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -1321,6 +1506,7 @@ export type Database = {
         | "vertical_farm"
       flow_direction: "input" | "output"
       lot_tracking: "required" | "optional" | "none"
+      product_procurement_type: "purchased" | "produced" | "both"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
       quantity_basis:
         | "fixed"
@@ -1520,6 +1706,7 @@ export const Constants = {
       ],
       flow_direction: ["input", "output"],
       lot_tracking: ["required", "optional", "none"],
+      product_procurement_type: ["purchased", "produced", "both"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
       quantity_basis: [
         "fixed",

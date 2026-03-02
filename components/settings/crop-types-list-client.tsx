@@ -9,7 +9,7 @@ import { Plus, Pencil, Power, Sprout } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,14 +67,19 @@ export function CropTypesListClient({ cropTypes, canWrite }: Props) {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Checkbox checked={showInactive} onCheckedChange={(v) => setShowInactive(!!v)} />
-          Inactivos
-        </label>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Tabs
+          value={showInactive ? 'all' : 'active'}
+          onValueChange={(v) => setShowInactive(v === 'all')}
+        >
+          <TabsList variant="line">
+            <TabsTrigger value="active">Activos</TabsTrigger>
+            <TabsTrigger value="all">Todos</TabsTrigger>
+          </TabsList>
+        </Tabs>
         {canWrite && (
-          <Button size="sm" onClick={openNewCt}>
+          <Button size="sm" className="ml-auto" onClick={openNewCt}>
             <Plus className="mr-1.5 h-4 w-4" />
             Nuevo tipo
           </Button>
@@ -129,17 +134,18 @@ export function CropTypesListClient({ cropTypes, canWrite }: Props) {
                   <div className="mt-2 flex gap-1 border-t pt-2">
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="h-7 text-xs"
+                      size="icon"
+                      className="h-7 w-7"
+                      title="Editar"
                       onClick={(e) => { e.stopPropagation(); openEditCt(ct) }}
                     >
-                      <Pencil className="mr-1 h-3 w-3" />
-                      Editar
+                      <Pencil className="h-3.5 w-3.5" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      className="h-7 text-xs"
+                      size="icon"
+                      className="h-7 w-7"
+                      title={ct.is_active ? 'Desactivar' : 'Reactivar'}
                       onClick={(e) => {
                         e.stopPropagation()
                         if (ct.is_active && ct.phase_count > 0) {
@@ -149,8 +155,7 @@ export function CropTypesListClient({ cropTypes, canWrite }: Props) {
                         }
                       }}
                     >
-                      <Power className="mr-1 h-3 w-3" />
-                      {ct.is_active ? 'Desactivar' : 'Reactivar'}
+                      <Power className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 )}
@@ -192,6 +197,6 @@ export function CropTypesListClient({ cropTypes, canWrite }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   )
 }

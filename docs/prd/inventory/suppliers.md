@@ -31,7 +31,7 @@ Esta página no usa ENUMs del modelo de datos. Los campos son de texto libre y J
 
 Página dentro del layout de dashboard con sidebar.
 
-- **Header de página** — Título "Proveedores" + breadcrumb (Inventario > Proveedores) + botón "Nuevo proveedor" (variant="primary", visible solo para admin/manager)
+- **Header de página** — Título "Proveedores" + subtítulo descriptivo + botón "Nuevo proveedor" (variant="primary", visible solo para admin/manager). Navegación via sidebar sub-items (Inventario > Productos | Proveedores)
 - **Barra de filtros** — Inline
   - Input: Buscar por nombre o datos de contacto
   - Select: Estado (Todos / Activos / Inactivos)
@@ -63,16 +63,16 @@ Página dentro del layout de dashboard con sidebar.
 
 - **RF-01**: Al cargar la página, obtener lista de proveedores via Server Component: `supabase.from('suppliers').select('*').eq('is_active', true).order('name')` con paginación `.range(offset, offset + limit - 1)`
 - **RF-02**: Filtro de búsqueda usa PostgREST: `.or('name.ilike.%term%,contact_info->>contact_name.ilike.%term%,contact_info->>email.ilike.%term%')`
-- **RF-03**: Filtro de estado permite mostrar/ocultar inactivos. Default: solo activos
+- **RF-03**: Filtro de estado permite mostrar/ocultar inactivos. Default: todos (consistente con Products)
 - **RF-04**: Al crear proveedor, construir el objeto JSONB `contact_info` desde los campos individuales del sub-formulario y ejecutar: `supabase.from('suppliers').insert({ name, contact_info, payment_terms })`
 - **RF-05**: El `company_id` NO se envía desde el cliente — RLS lo inyecta automáticamente vía trigger o default value
 - **RF-06**: Al editar proveedor, ejecutar: `supabase.from('suppliers').update({ name, contact_info, payment_terms }).eq('id', supplierId)`
 - **RF-07**: Desactivar proveedor: `supabase.from('suppliers').update({ is_active: false }).eq('id', supplierId)` — mostrar dialog de confirmación previo
-- **RF-08**: Si el proveedor tiene envíos pendientes (shipments con status != 'accepted' && != 'rejected' && != 'cancelled'), mostrar advertencia en el dialog de desactivación: "Este proveedor tiene envíos en curso"
+- **RF-08**: *(Depende de PRD 19 — Shipments)* Si el proveedor tiene envíos pendientes (shipments con status != 'accepted' && != 'rejected' && != 'cancelled'), mostrar advertencia en el dialog de desactivación: "Este proveedor tiene envíos en curso". Se implementará cuando la tabla shipments exista
 - **RF-09**: Reactivar proveedor: `supabase.from('suppliers').update({ is_active: true }).eq('id', supplierId)`
 - **RF-10**: Mostrar columna de conteo de productos que referencian al proveedor: sub-query o count en la UI
 - **RF-11**: Validar campos con Zod antes de enviar
-- **RF-12**: Tras cualquier operación exitosa, invalidar query cache `['suppliers']` y mostrar toast de éxito
+- **RF-12**: Tras cualquier operación exitosa, refrescar datos via `router.refresh()` (Server Component revalidation) y mostrar toast de éxito
 
 ## Requisitos no funcionales
 
@@ -80,7 +80,7 @@ Página dentro del layout de dashboard con sidebar.
 - **RNF-02**: Soft delete: `is_active = false`. Nunca borrado físico
 - **RNF-03**: El JSONB `contact_info` tiene schema flexible — campos vacíos se omiten del objeto (no se guardan como strings vacíos)
 - **RNF-04**: Paginación server-side evita cargar todos los proveedores en memoria
-- **RNF-05**: La búsqueda en campos JSONB requiere índice GIN en `contact_info` para performance
+- **RNF-05**: La búsqueda en campos JSONB usa índices funcionales btree en `contact_info->>'contact_name'` y `contact_info->>'email'` para performance de queries ilike. Definidos en migración `_010_suppliers_indexes.sql`
 
 ## Flujos principales
 
@@ -103,7 +103,7 @@ Página dentro del layout de dashboard con sidebar.
 
 1. Admin/manager click en "Desactivar" de un proveedor
 2. Dialog de confirmación: "¿Desactivar a {nombre}? El proveedor no estará disponible para nuevos envíos."
-3. Si tiene envíos en curso, advertencia adicional
+3. *(PRD 19)* Si tiene envíos en curso, advertencia adicional
 4. Confirma → update is_active=false → toast "Proveedor desactivado" → badge cambia a Inactivo
 
 ### Buscar proveedor
@@ -126,11 +126,11 @@ Página dentro del layout de dashboard con sidebar.
 
 | Estado         | Descripción                                                          |
 | -------------- | -------------------------------------------------------------------- |
-| loading        | Skeleton de tabla mientras carga                                     |
+| loading        | Manejado por Next.js Server Component (streaming/suspense boundaries si se agregan globalmente) |
 | loaded         | Tabla con datos, filtros activos                                     |
 | empty          | Sin proveedores — "No hay proveedores registrados. Crea el primero." |
-| empty-filtered | Sin resultados para el filtro — "No se encontraron proveedores"      |
-| error          | Error al cargar — "Error al cargar proveedores. Intenta nuevamente"  |
+| empty-filtered | Sin resultados para el filtro — "No se encontraron proveedores con estos filtros." |
+| error          | Manejado por Next.js `error.tsx` boundary (patrón global, no per-page)  |
 
 ### Estados de UI — Dialog
 
@@ -155,7 +155,7 @@ contact_info: z.object({
   country: z.string().max(100).optional().or(z.literal('')),
   website: z.string().url('Formato de URL inválido').optional().or(z.literal('')),
   notes: z.string().max(1000).optional().or(z.literal('')),
-}).default({})
+})
 payment_terms: z.string().max(200, 'Máximo 200 caracteres').optional().or(z.literal(''))
 ```
 
@@ -176,4 +176,4 @@ payment_terms: z.string().max(200, 'Máximo 200 caracteres').optional().or(z.lit
   - `/inventory/products` — productos referencian `preferred_supplier_id`
   - `/inventory/shipments` — envíos referencian `supplier_id`
 - **Supabase client**: PostgREST para CRUD
-- **React Query**: Cache key `['suppliers']` para invalidación. También invalidar `['suppliers', supplierId]` en edición individual
+- **Cache invalidation**: `router.refresh()` (Server Component revalidation pattern, consistente con Products)

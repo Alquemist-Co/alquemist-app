@@ -74,7 +74,8 @@ Página dentro del layout de dashboard con sidebar.
     - Input: REI — Periodo de reentrada (opt, number, horas) — rei_hours
     - Input: Rendimiento por defecto % (opt, number) — default_yield_pct
     - Input: Densidad g/mL (opt, number) — density_g_per_ml
-    - Input: Propiedades de conversión (opt, JSONB) — conversion_properties (campo JSON editor simple)
+    - Input: Factor PPM (opt, number) — conversion_properties.ppm_factor
+    - Input: Ratio dilución (opt, number) — conversion_properties.dilution_ratio
   - **Sección 3: Precio y Proveedor**
     - Input: Precio por defecto (opt, number)
     - Select: Moneda del precio (opt) — COP, USD, etc.
@@ -129,7 +130,7 @@ Página dentro del layout de dashboard con sidebar.
 - **RNF-04**: Paginación server-side para el listado principal
 - **RNF-05**: La sección de requerimientos regulatorios es un nested CRUD — cada operación es independiente
 - **RNF-06**: Los selects de categoría, unidad, cultivar y proveedor se cargan una sola vez al abrir el dialog (no en cada keystroke)
-- **RNF-07**: El campo `conversion_properties` JSONB se edita como texto formateado (JSON) — no como formulario estructurado
+- **RNF-07**: El campo `conversion_properties` JSONB se edita como campos numéricos estructurados (Factor PPM y Ratio dilución) — si ambos son null se envía null al DB
 
 ## Flujos principales
 
@@ -255,3 +256,14 @@ notes: z.string().max(500, 'Máximo 500 caracteres').optional().or(z.literal('')
   - `/inventory/recipes` — recipe items referencian productos
 - **Supabase client**: PostgREST para CRUD
 - **React Query**: Cache keys `['products']`, `['products', productId]`, `['product-requirements', productId]` para invalidación
+
+---
+
+## Notas de implementación
+
+- Migración: `00000000000009_products.sql` — crea suppliers, products; agrega FK en product_regulatory_requirements (tabla existente de `_007`); reemplaza RLS policies de PRR con versiones basadas en product/category
+- `compliance_scope` y `compliance_frequency` ya existían en `_007_regulatory_config.sql`, no se recrean
+- No se usa React Query; se usa `router.refresh()` para revalidación (patrón SSR estándar del proyecto)
+- ProductDialog carga campos adicionales (shelf_life_days, phi_days, etc.) y requerimientos regulatorios con fetch async al abrir en modo edición
+- Requerimientos regulatorios: lista pendiente en modo creación, operaciones directas DB en modo edición
+- Sidebar: Inventario habilitado (removido `disabled: true`)

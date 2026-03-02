@@ -1167,15 +1167,14 @@ function ActivityTypesTab({
         )}
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          {filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-              <Package className="mb-3 h-10 w-10" />
-              <p className="text-sm">No hay tipos de actividad configurados. Crea el primero.</p>
-            </div>
-          ) : (
-            <Table>
+      <div className="overflow-hidden rounded-lg border">
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <Package className="mb-3 h-10 w-10" />
+            <p className="text-sm">No hay tipos de actividad configurados. Crea el primero.</p>
+          </div>
+        ) : (
+          <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
@@ -1226,10 +1225,9 @@ function ActivityTypesTab({
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+          </Table>
+        )}
+      </div>
 
       {/* Activity Type Dialog */}
       <ActivityTypeDialog

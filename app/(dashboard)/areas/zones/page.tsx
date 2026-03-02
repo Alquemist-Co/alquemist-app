@@ -111,7 +111,7 @@ export default async function ZonesPage({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">Zonas</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Zonas</h2>
         <p className="text-sm text-muted-foreground">
           Gestiona las zonas de cultivo dentro de tus instalaciones.
         </p>
@@ -122,6 +122,8 @@ export default async function ZonesPage({
         facilities={facilitiesList}
         canWrite={canWrite}
         totalPages={totalPages}
+        totalCount={totalCount}
+        pageSize={PAGE_SIZE}
         currentPage={page}
         filters={{
           facility: params.facility || '',
