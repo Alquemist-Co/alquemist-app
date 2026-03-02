@@ -55,3 +55,11 @@ export {
   supplierContactInfoSchema, type SupplierContactInfo,
   supplierSchema, type SupplierInput,
 } from './suppliers'
+export {
+  shipmentItemSchema, type ShipmentItemInput,
+  transportConditionsSchema,
+  shipmentSchema, type ShipmentInput,
+  markReceivedSchema, type MarkReceivedInput,
+  inspectionLineSchema, type InspectionLineInput,
+  regulatoryDocumentSchema, type RegulatoryDocumentInput,
+} from './shipments'

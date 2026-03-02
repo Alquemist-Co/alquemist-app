@@ -65,6 +65,8 @@ const navItems: NavItem[] = [
     children: [
       { label: 'Productos', href: '/inventory/products' },
       { label: 'Proveedores', href: '/inventory/suppliers' },
+      { label: 'Envíos', href: '/inventory/shipments' },
+      { label: 'Recetas', href: '/inventory/recipes' },
     ],
   },
   { label: 'Actividades', href: '/activities', icon: CalendarDays, disabled: true },
