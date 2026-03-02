@@ -79,6 +79,7 @@ export default async function ShipmentDetailPage({
 
   const shipmentData = {
     id: shipment.id,
+    company_id: shipment.company_id,
     shipment_code: shipment.shipment_code,
     type: shipment.type,
     status: shipment.status,

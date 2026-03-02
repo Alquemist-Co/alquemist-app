@@ -52,6 +52,7 @@ import {
 
 type ShipmentDetail = {
   id: string
+  company_id: string
   shipment_code: string
   type: string
   status: string
@@ -252,7 +253,7 @@ export function ShipmentDetailClient({
     let filePath: string | null = null
     if (docFile) {
       const ext = docFile.name.split('.').pop()
-      const path = `${shipment.id}/${crypto.randomUUID()}.${ext}`
+      const path = `${shipment.company_id}/${shipment.id}/${crypto.randomUUID()}.${ext}`
       const { error: uploadErr } = await supabase.storage
         .from('shipment-documents')
         .upload(path, docFile)
