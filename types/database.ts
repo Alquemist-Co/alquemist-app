@@ -2650,6 +2650,10 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_transition_batch_phase: {
+        Args: { p_batch_id: string; p_user_id?: string; p_zone_id?: string }
+        Returns: Json
+      }
       get_my_company_id: { Args: never; Returns: string }
       get_my_role: {
         Args: never
