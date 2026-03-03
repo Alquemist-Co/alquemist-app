@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { ArrowLeft, Pencil, X, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Pencil, X, CheckCircle2, FlaskConical } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -27,6 +27,15 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import {
   type OrderPhaseRow,
   orderStatusLabels,
   orderStatusBadgeStyles,
@@ -35,6 +44,7 @@ import {
   orderPhaseStatusLabels,
   orderPhaseStatusBadgeStyles,
 } from './orders-shared'
+import { batchStatusLabels, batchStatusBadgeStyles } from './batches-shared'
 
 // ---------- Types ----------
 
@@ -56,6 +66,7 @@ export type OrderDetailData = {
   expected_output_product_name: string | null
   expected_output_product_sku: string | null
   zone_name: string | null
+  zone_id: string | null
   planned_start_date: string | null
   planned_end_date: string | null
   assigned_to_name: string | null
@@ -64,11 +75,29 @@ export type OrderDetailData = {
   updated_at: string
 }
 
+export type BatchInfo = {
+  id: string
+  code: string
+  status: string
+  plant_count: number | null
+  start_date: string
+}
+
+export type ZoneOption = {
+  id: string
+  name: string
+  facility_id: string
+  facility_name: string
+}
+
 type Props = {
   order: OrderDetailData
   phases: OrderPhaseRow[]
   canWrite: boolean
   canCancel: boolean
+  canApprove: boolean
+  zones: ZoneOption[]
+  batch: BatchInfo | null
 }
 
 // ---------- Helpers ----------
@@ -102,11 +131,17 @@ const fmtPct = (v: number | null) => {
   return `${Number(v).toFixed(1)}%`
 }
 
+const selectClass =
+  'flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring'
+
 // ---------- Component ----------
 
-export function OrderDetailClient({ order, phases, canWrite, canCancel }: Props) {
+export function OrderDetailClient({ order, phases, canWrite, canCancel, canApprove, zones, batch }: Props) {
   const router = useRouter()
   const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showApproveDialog, setShowApproveDialog] = useState(false)
+  const [approving, setApproving] = useState(false)
+  const [selectedZoneId, setSelectedZoneId] = useState(order.zone_id ?? '')
 
   const isDraft = order.status === 'draft'
   const completedPhases = phases.filter((p) => p.status === 'completed').length
@@ -124,6 +159,43 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel }: Props)
       router.refresh()
     }
     setShowCancelDialog(false)
+  }
+
+  async function handleApprove() {
+    if (!selectedZoneId) {
+      toast.error('Selecciona una zona para el lote.')
+      return
+    }
+    setApproving(true)
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/approve-production-order`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          order_id: order.id,
+          zone_id: selectedZoneId,
+        }),
+      },
+    )
+
+    const result = await response.json()
+    setApproving(false)
+    setShowApproveDialog(false)
+
+    if (!response.ok) {
+      toast.error(result.error ?? 'Error al aprobar la orden.')
+      return
+    }
+
+    toast.success(`Orden aprobada. Batch ${result.batch_code} creado.`)
+    router.refresh()
   }
 
   return (
@@ -183,12 +255,46 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel }: Props)
               Cancelar
             </Button>
           )}
-          <Button size="sm" disabled title="Próximamente (PRD 24)">
-            <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
-            Aprobar
-          </Button>
+          {isDraft && canApprove && (
+            <Button size="sm" onClick={() => setShowApproveDialog(true)}>
+              <CheckCircle2 className="mr-1 h-3.5 w-3.5" />
+              Aprobar
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Batch Info (shown when order has batch) */}
+      {batch && (
+        <div className="rounded-lg border border-green-200 bg-green-50/50 p-4 dark:border-green-900/50 dark:bg-green-950/20">
+          <div className="flex items-center gap-2 mb-3">
+            <FlaskConical className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <h3 className="text-sm font-semibold">Lote creado</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-4">
+            <InfoField label="Código" value={batch.code} />
+            <div>
+              <dt className="text-xs text-muted-foreground">Estado</dt>
+              <dd className="mt-0.5">
+                <Badge variant="secondary" className={`text-xs ${batchStatusBadgeStyles[batch.status] ?? ''}`}>
+                  {batchStatusLabels[batch.status] ?? batch.status}
+                </Badge>
+              </dd>
+            </div>
+            <InfoField label="Plantas" value={batch.plant_count != null ? fmtQty(batch.plant_count) : '—'} />
+            <InfoField label="Inicio" value={formatDate(batch.start_date)} />
+          </div>
+          <div className="mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(`/production/batches/${batch.id}`)}
+            >
+              Ver lote
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Section 1 — General Info */}
       <div className="rounded-lg border p-4">
@@ -361,6 +467,50 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel }: Props)
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Approve Dialog */}
+      <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Aprobar orden y crear lote</DialogTitle>
+            <DialogDescription>
+              Se creará un lote de producción para la orden {order.code}.
+              Selecciona la zona inicial donde se ubicará el lote.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label htmlFor="approve-zone">Zona</Label>
+              <select
+                id="approve-zone"
+                value={selectedZoneId}
+                onChange={(e) => setSelectedZoneId(e.target.value)}
+                className={selectClass + ' mt-1.5'}
+              >
+                <option value="">Seleccionar zona...</option>
+                {zones.map((z) => (
+                  <option key={z.id} value={z.id}>
+                    {z.name} ({z.facility_name})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
+              <p><strong>Cultivar:</strong> {order.cultivar_name}</p>
+              <p><strong>Cantidad:</strong> {fmtQty(order.initial_quantity)} {order.initial_unit_code}</p>
+              <p><strong>Fases:</strong> {order.entry_phase_name} → {order.exit_phase_name}</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApproveDialog(false)} disabled={approving}>
+              Cancelar
+            </Button>
+            <Button onClick={handleApprove} disabled={approving || !selectedZoneId}>
+              {approving ? 'Aprobando...' : 'Aprobar y crear lote'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

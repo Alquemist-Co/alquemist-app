@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import {
   OrderDetailClient,
   type OrderDetailData,
+  type BatchInfo,
+  type ZoneOption,
 } from '@/components/production/order-detail-client'
 import type { OrderPhaseRow } from '@/components/production/orders-shared'
 
@@ -33,9 +35,10 @@ export default async function OrderDetailPage({
   const role = currentUser.role as string
   const canWrite = ['admin', 'manager', 'supervisor'].includes(role)
   const canCancel = ['admin', 'manager'].includes(role)
+  const canApprove = ['admin', 'manager'].includes(role)
 
-  // Fetch order + phases in parallel (independent queries)
-  const [orderRes, phasesRes] = await Promise.all([
+  // Fetch order + phases + zones + batch in parallel
+  const [orderRes, phasesRes, zonesRes, batchRes] = await Promise.all([
     supabase
       .from('production_orders')
       .select(`
@@ -61,6 +64,16 @@ export default async function OrderDetailPage({
       `)
       .eq('order_id', id)
       .order('sort_order'),
+    supabase
+      .from('zones')
+      .select('id, name, facility:facilities(id, name)')
+      .order('name'),
+    supabase
+      .from('batches')
+      .select('id, code, status, plant_count, start_date')
+      .eq('production_order_id', id)
+      .limit(1)
+      .maybeSingle(),
   ])
 
   const order = orderRes.data
@@ -96,6 +109,7 @@ export default async function OrderDetailPage({
     expected_output_product_name: outputProduct?.name ?? null,
     expected_output_product_sku: outputProduct?.sku ?? null,
     zone_name: zone?.name ?? null,
+    zone_id: zone?.id ?? null,
     planned_start_date: order.planned_start_date,
     planned_end_date: order.planned_end_date,
     assigned_to_name: assignedUser?.full_name ?? null,
@@ -122,12 +136,35 @@ export default async function OrderDetailPage({
     }
   })
 
+  const zonesData: ZoneOption[] = (zonesRes.data ?? []).map((z) => {
+    const f = z.facility as { id: string; name: string } | null
+    return {
+      id: z.id,
+      name: z.name,
+      facility_id: f?.id ?? '',
+      facility_name: f?.name ?? '',
+    }
+  })
+
+  const batchData: BatchInfo | null = batchRes.data
+    ? {
+        id: batchRes.data.id,
+        code: batchRes.data.code,
+        status: batchRes.data.status,
+        plant_count: batchRes.data.plant_count,
+        start_date: batchRes.data.start_date,
+      }
+    : null
+
   return (
     <OrderDetailClient
       order={orderData}
       phases={phases}
       canWrite={canWrite}
       canCancel={canCancel}
+      canApprove={canApprove}
+      zones={zonesData}
+      batch={batchData}
     />
   )
 }
