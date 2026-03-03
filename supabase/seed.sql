@@ -53,11 +53,13 @@ DECLARE
   v_order_2  UUID := '00000000-0000-0000-000a-000000000002';
   v_order_3  UUID := '00000000-0000-0000-000a-000000000003';
   v_order_4  UUID := '00000000-0000-0000-000a-000000000004';
+  v_order_5  UUID := '00000000-0000-0000-000a-000000000005';
   -- Batches
   v_batch_1  UUID := '00000000-0000-0000-000b-000000000001';
   v_batch_2  UUID := '00000000-0000-0000-000b-000000000002';
   v_batch_3  UUID := '00000000-0000-0000-000b-000000000003';
   v_batch_4  UUID := '00000000-0000-0000-000b-000000000004';
+  v_batch_5  UUID := '00000000-0000-0000-000b-000000000005';
   -- Regulatory doc types
   v_rdt_coa   UUID := '00000000-0000-0000-0009-000000000001';
   v_rdt_sds   UUID := '00000000-0000-0000-0009-000000000002';
@@ -957,8 +959,20 @@ INSERT INTO batches (
   'active', v_user_id, v_user_id
 );
 
--- Mark order 1 as approved (has batch)
-UPDATE production_orders SET status = 'approved' WHERE id = v_order_1;
+-- Fix order 1: mark as in_progress (batch is actively in vegetativo)
+UPDATE production_orders SET status = 'in_progress' WHERE id = v_order_1;
+
+-- Link order 1 phases to batch 1: germ completed, veg in_progress
+UPDATE production_order_phases
+SET status = 'completed', batch_id = v_batch_1,
+    actual_start_date = CURRENT_DATE - interval '28 days',
+    actual_end_date = CURRENT_DATE - interval '21 days'
+WHERE order_id = v_order_1 AND phase_id = v_phase_germ;
+
+UPDATE production_order_phases
+SET status = 'in_progress', batch_id = v_batch_1,
+    actual_start_date = CURRENT_DATE - interval '21 days'
+WHERE order_id = v_order_1 AND phase_id = v_phase_veg;
 
 -- Batch 2: Blue Dream, active in floración
 INSERT INTO batches (
@@ -997,5 +1011,61 @@ INSERT INTO batches (
   'completed',
   56.0, 12.3, 4500.00, v_user_id, v_user_id
 );
+
+-- =============================================================
+-- 32. ORDER 5 + BATCH 5 (PRD 25) — clean transition testing
+-- =============================================================
+
+-- Order 5: OG Kush, approved, 20 plants, germ → secado
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  planned_start_date, planned_end_date,
+  zone_id,
+  status, priority, notes
+) VALUES (
+  v_order_5, v_company_id, 'OP-2026-0005', v_cult_og_kush,
+  v_phase_germ, v_phase_secado,
+  20, v_unit_und,
+  CURRENT_DATE, CURRENT_DATE + interval '122 days',
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.company_id = v_company_id),
+  'approved', 'normal',
+  'Orden para pruebas de transición de fase PRD 25'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, zone_id, expected_input_qty, expected_output_qty, yield_pct, planned_start_date, planned_end_date) VALUES
+  (v_order_5, v_phase_germ,    1, 7,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.company_id = v_company_id),
+   20, 20, 100, CURRENT_DATE, CURRENT_DATE + interval '7 days'),
+  (v_order_5, v_phase_veg,     2, 28,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+   20, 20, 100, CURRENT_DATE + interval '7 days', CURRENT_DATE + interval '35 days'),
+  (v_order_5, v_phase_flor,    3, 63,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+   20, 20, 100, CURRENT_DATE + interval '35 days', CURRENT_DATE + interval '98 days'),
+  (v_order_5, v_phase_cosecha, 4, 3,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento' AND f.company_id = v_company_id),
+   20, 14, 70, CURRENT_DATE + interval '98 days', CURRENT_DATE + interval '101 days'),
+  (v_order_5, v_phase_secado,  5, 21,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento' AND f.company_id = v_company_id),
+   14, 3.08, 22, CURRENT_DATE + interval '101 days', CURRENT_DATE + interval '122 days');
+
+-- Batch 5: linked to order 5, active, in germ phase
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id, production_order_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_5, 'LOT-OGK-260303-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.company_id = v_company_id),
+  v_phase_germ, v_order_5,
+  20, CURRENT_DATE, CURRENT_DATE + interval '122 days',
+  'active', v_user_id, v_user_id
+);
+
+-- Mark first phase of order 5 as ready with batch_id (like fn_approve does)
+UPDATE production_order_phases
+SET status = 'ready', batch_id = v_batch_5
+WHERE order_id = v_order_5 AND phase_id = v_phase_germ;
 
 END $$;
