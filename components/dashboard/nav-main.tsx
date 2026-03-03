@@ -48,7 +48,14 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard, disabled: true },
-  { label: 'Producción', href: '/production', icon: Sprout, disabled: true },
+  {
+    label: 'Producción',
+    href: '/production',
+    icon: Sprout,
+    children: [
+      { label: 'Órdenes', href: '/production/orders' },
+    ],
+  },
   {
     label: 'Áreas',
     href: '/areas',

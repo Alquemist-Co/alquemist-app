@@ -48,6 +48,10 @@ DECLARE
   v_tmpl_insp_diaria UUID := '00000000-0000-0000-0007-000000000003';
   -- Cultivation schedules
   v_sched_og UUID := '00000000-0000-0000-0008-000000000001';
+  -- Production orders
+  v_order_1  UUID := '00000000-0000-0000-000a-000000000001';
+  v_order_2  UUID := '00000000-0000-0000-000a-000000000002';
+  v_order_3  UUID := '00000000-0000-0000-000a-000000000003';
   -- Regulatory doc types
   v_rdt_coa   UUID := '00000000-0000-0000-0009-000000000001';
   v_rdt_sds   UUID := '00000000-0000-0000-0009-000000000002';
@@ -802,5 +806,97 @@ INSERT INTO regulatory_documents (
     'pest_free', true
   )
 );
+
+-- =============================================================
+-- 30. PRODUCTION ORDERS (PRD 22)
+-- =============================================================
+
+-- Order 1: OG Kush full cycle (germ → secado), draft
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  initial_product_id,
+  expected_output_quantity, expected_output_unit_id,
+  zone_id, planned_start_date, planned_end_date,
+  assigned_to, status, priority, notes
+) VALUES (
+  v_order_1, v_company_id, 'OP-2026-0001', v_cult_og_kush,
+  v_phase_germ, v_phase_secado,
+  100, v_unit_und,
+  (SELECT id FROM products WHERE sku = 'SEM-OGK-FEM'),
+  6930, v_unit_g,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+  CURRENT_DATE + interval '7 days',
+  CURRENT_DATE + interval '129 days',
+  v_user_id, 'draft', 'high',
+  'Ciclo completo OG Kush Q1 2026 — 100 semillas feminizadas'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, zone_id, expected_input_qty, expected_output_qty, yield_pct, planned_start_date, planned_end_date) VALUES
+  (v_order_1, v_phase_germ,    1, 7,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación'),
+   100, 100, 100, CURRENT_DATE + interval '7 days',  CURRENT_DATE + interval '14 days'),
+  (v_order_1, v_phase_veg,     2, 28,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A'),
+   100, 100, 100, CURRENT_DATE + interval '14 days', CURRENT_DATE + interval '42 days'),
+  (v_order_1, v_phase_flor,    3, 63,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A'),
+   100, 100, 100, CURRENT_DATE + interval '42 days', CURRENT_DATE + interval '105 days'),
+  (v_order_1, v_phase_cosecha, 4, 3,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento'),
+   100, 70, 70,   CURRENT_DATE + interval '105 days', CURRENT_DATE + interval '108 days'),
+  (v_order_1, v_phase_secado,  5, 21,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento'),
+   70, 15.4, 22,  CURRENT_DATE + interval '108 days', CURRENT_DATE + interval '129 days');
+
+-- Order 2: Blue Dream full cycle, draft, normal priority
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  expected_output_quantity, expected_output_unit_id,
+  planned_start_date, planned_end_date,
+  status, priority, notes
+) VALUES (
+  v_order_2, v_company_id, 'OP-2026-0002', v_cult_blue_d,
+  v_phase_germ, v_phase_secado,
+  50, v_unit_und,
+  NULL, NULL,
+  CURRENT_DATE + interval '14 days',
+  CURRENT_DATE + interval '144 days',
+  'draft', 'normal',
+  'Blue Dream batch prueba — 50 semillas'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, expected_input_qty, expected_output_qty, yield_pct, planned_start_date, planned_end_date) VALUES
+  (v_order_2, v_phase_germ,    1, 7,  50, 50, 100, CURRENT_DATE + interval '14 days', CURRENT_DATE + interval '21 days'),
+  (v_order_2, v_phase_veg,     2, 35, 50, 50, 100, CURRENT_DATE + interval '21 days', CURRENT_DATE + interval '56 days'),
+  (v_order_2, v_phase_flor,    3, 67, 50, 50, 100, CURRENT_DATE + interval '56 days', CURRENT_DATE + interval '123 days'),
+  (v_order_2, v_phase_cosecha, 4, 3,  50, 35, 70,  CURRENT_DATE + interval '123 days', CURRENT_DATE + interval '126 days'),
+  (v_order_2, v_phase_secado,  5, 18, 35, 7.7, 22, CURRENT_DATE + interval '126 days', CURRENT_DATE + interval '144 days');
+
+-- Order 3: Partial cycle (cosecha → secado only), urgent, cancelled
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  expected_output_quantity, expected_output_unit_id,
+  planned_start_date, planned_end_date,
+  status, priority, notes
+) VALUES (
+  v_order_3, v_company_id, 'OP-2026-0003', v_cult_og_kush,
+  v_phase_cosecha, v_phase_secado,
+  200, v_unit_g,
+  30.8, v_unit_g,
+  CURRENT_DATE - interval '5 days',
+  CURRENT_DATE + interval '19 days',
+  'cancelled', 'urgent',
+  'Cosecha de emergencia — cancelada por problema de calidad'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, expected_input_qty, expected_output_qty, yield_pct, status, planned_start_date, planned_end_date) VALUES
+  (v_order_3, v_phase_cosecha, 1, 3,  200, 140, 70, 'skipped', CURRENT_DATE - interval '5 days', CURRENT_DATE - interval '2 days'),
+  (v_order_3, v_phase_secado,  2, 21, 140, 30.8, 22, 'skipped', CURRENT_DATE - interval '2 days', CURRENT_DATE + interval '19 days');
 
 END $$;

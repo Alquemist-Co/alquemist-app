@@ -994,6 +994,259 @@ export type Database = {
           },
         ]
       }
+      production_order_phases: {
+        Row: {
+          actual_end_date: string | null
+          actual_start_date: string | null
+          batch_id: string | null
+          created_at: string
+          created_by: string | null
+          expected_input_qty: number | null
+          expected_output_product_id: string | null
+          expected_output_qty: number | null
+          id: string
+          input_quantity: number | null
+          order_id: string
+          output_quantity: number | null
+          phase_id: string
+          planned_duration_days: number | null
+          planned_end_date: string | null
+          planned_start_date: string | null
+          sort_order: number
+          status: Database["public"]["Enums"]["order_phase_status"]
+          updated_at: string
+          updated_by: string | null
+          yield_pct: number | null
+          zone_id: string | null
+        }
+        Insert: {
+          actual_end_date?: string | null
+          actual_start_date?: string | null
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_input_qty?: number | null
+          expected_output_product_id?: string | null
+          expected_output_qty?: number | null
+          id?: string
+          input_quantity?: number | null
+          order_id: string
+          output_quantity?: number | null
+          phase_id: string
+          planned_duration_days?: number | null
+          planned_end_date?: string | null
+          planned_start_date?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["order_phase_status"]
+          updated_at?: string
+          updated_by?: string | null
+          yield_pct?: number | null
+          zone_id?: string | null
+        }
+        Update: {
+          actual_end_date?: string | null
+          actual_start_date?: string | null
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          expected_input_qty?: number | null
+          expected_output_product_id?: string | null
+          expected_output_qty?: number | null
+          id?: string
+          input_quantity?: number | null
+          order_id?: string
+          output_quantity?: number | null
+          phase_id?: string
+          planned_duration_days?: number | null
+          planned_end_date?: string | null
+          planned_start_date?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["order_phase_status"]
+          updated_at?: string
+          updated_by?: string | null
+          yield_pct?: number | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_order_phases_expected_output_product_id_fkey"
+            columns: ["expected_output_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_order_phases_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_order_phases_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_order_phases_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_orders: {
+        Row: {
+          assigned_to: string | null
+          code: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          cultivar_id: string
+          entry_phase_id: string
+          exit_phase_id: string
+          expected_output_product_id: string | null
+          expected_output_quantity: number | null
+          expected_output_unit_id: string | null
+          id: string
+          initial_product_id: string | null
+          initial_quantity: number
+          initial_unit_id: string
+          notes: string | null
+          planned_end_date: string | null
+          planned_start_date: string | null
+          priority: Database["public"]["Enums"]["order_priority"]
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+          updated_by: string | null
+          zone_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          code?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          cultivar_id: string
+          entry_phase_id: string
+          exit_phase_id: string
+          expected_output_product_id?: string | null
+          expected_output_quantity?: number | null
+          expected_output_unit_id?: string | null
+          id?: string
+          initial_product_id?: string | null
+          initial_quantity: number
+          initial_unit_id: string
+          notes?: string | null
+          planned_end_date?: string | null
+          planned_start_date?: string | null
+          priority?: Database["public"]["Enums"]["order_priority"]
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          code?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          cultivar_id?: string
+          entry_phase_id?: string
+          exit_phase_id?: string
+          expected_output_product_id?: string | null
+          expected_output_quantity?: number | null
+          expected_output_unit_id?: string | null
+          id?: string
+          initial_product_id?: string | null
+          initial_quantity?: number
+          initial_unit_id?: string
+          notes?: string | null
+          planned_end_date?: string | null
+          planned_start_date?: string | null
+          priority?: Database["public"]["Enums"]["order_priority"]
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_orders_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_cultivar_id_fkey"
+            columns: ["cultivar_id"]
+            isOneToOne: false
+            referencedRelation: "cultivars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_entry_phase_id_fkey"
+            columns: ["entry_phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_exit_phase_id_fkey"
+            columns: ["exit_phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_expected_output_product_id_fkey"
+            columns: ["expected_output_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_expected_output_unit_id_fkey"
+            columns: ["expected_output_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_initial_product_id_fkey"
+            columns: ["initial_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_initial_unit_id_fkey"
+            columns: ["initial_unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_orders_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       production_phases: {
         Row: {
           can_be_entry_point: boolean
@@ -1627,6 +1880,7 @@ export type Database = {
           transaction_id: string | null
           unit_id: string
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           cost_per_unit?: number | null
@@ -1651,6 +1905,7 @@ export type Database = {
           transaction_id?: string | null
           unit_id: string
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           cost_per_unit?: number | null
@@ -1675,6 +1930,7 @@ export type Database = {
           transaction_id?: string | null
           unit_id?: string
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: [
           {
@@ -2155,6 +2411,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_cascade_yields: {
+        Args: {
+          p_cultivar_id: string
+          p_entry_phase_id: string
+          p_exit_phase_id: string
+          p_initial_quantity: number
+        }
+        Returns: Json
+      }
       fn_confirm_shipment_receipt: {
         Args: { p_shipment_id: string; p_user_id: string }
         Returns: Json
@@ -2205,6 +2470,19 @@ export type Database = {
         | "quarantine"
       lot_status: "available" | "quarantine" | "expired" | "depleted"
       lot_tracking: "required" | "optional" | "none"
+      order_phase_status:
+        | "pending"
+        | "ready"
+        | "in_progress"
+        | "completed"
+        | "skipped"
+      order_priority: "low" | "normal" | "high" | "urgent"
+      order_status:
+        | "draft"
+        | "approved"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
       product_procurement_type: "purchased" | "produced" | "both"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
       quantity_basis:
@@ -2436,6 +2714,21 @@ export const Constants = {
       ],
       lot_status: ["available", "quarantine", "expired", "depleted"],
       lot_tracking: ["required", "optional", "none"],
+      order_phase_status: [
+        "pending",
+        "ready",
+        "in_progress",
+        "completed",
+        "skipped",
+      ],
+      order_priority: ["low", "normal", "high", "urgent"],
+      order_status: [
+        "draft",
+        "approved",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ],
       product_procurement_type: ["purchased", "produced", "both"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
       quantity_basis: [
