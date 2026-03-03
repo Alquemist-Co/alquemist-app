@@ -189,26 +189,25 @@ Página dentro del layout de dashboard con sidebar.
     .order('sort_order')
   ```
 - **RF-03**: Cargar datos de cada tab bajo demanda (lazy loading al activar el tab):
-  - **Actividades programadas**: `supabase.from('scheduled_activities').select('*, template:activity_templates(name, code, activity_type:activity_types(name))').eq('batch_id', batchId).order('planned_date')` con paginación
-  - **Actividades ejecutadas**: `supabase.from('activities').select('*, template:activity_templates(name), type:activity_types(name), user:users!performed_by(full_name), phase:production_phases(name), observations:activity_observations(count)').eq('batch_id', batchId).order('performed_at', { ascending: false })` con paginación
-  - **Transacciones de inventario**: `supabase.from('inventory_transactions').select('*, item:inventory_items(batch_number, product:products(name, sku)), unit:units_of_measure(code), user:users(full_name), activity:activities(id)').eq('batch_id', batchId).order('timestamp', { ascending: false })` con paginación
-  - **Tests de calidad**: `supabase.from('quality_tests').select('*, phase:production_phases(name), results:quality_test_results(*)').eq('batch_id', batchId).order('sample_date', { ascending: false })`
-  - **Documentos regulatorios**: `supabase.from('regulatory_documents').select('*, doc_type:regulatory_doc_types(name, code, category)').eq('batch_id', batchId).order('issue_date', { ascending: false })`
-  - **Genealogía**: `supabase.from('batch_lineage').select('*, parent:batches!parent_batch_id(id, code, status, plant_count), child:batches!child_batch_id(id, code, status, plant_count), unit:units_of_measure(code), user:users!performed_by(full_name)').or('parent_batch_id.eq.${batchId},child_batch_id.eq.${batchId}').order('performed_at', { ascending: false })`
-  - **Ambiente**: `supabase.from('environmental_readings').select('*').eq('zone_id', batch.zone_id).gte('timestamp', since).order('timestamp')` + `supabase.from('sensors').select('*').eq('zone_id', batch.zone_id).eq('is_active', true)`
+  - **Actividades programadas**: *Deferred to Phase 5 — tables don't exist yet*
+  - **Actividades ejecutadas**: *Deferred to Phase 5 — tables don't exist yet*
+  - **Transacciones de inventario**: *Deferred to Phase 7 — tables don't exist yet*
+  - **Tests de calidad**: *Deferred to Phase 5 — tables don't exist yet*
+  - **Documentos regulatorios**: *Deferred to Phase 5 — tables don't exist yet*
+  - **Genealogía**: Implemented in Phase 4 as a section (not tab) — `batch_lineage` queried as both parent and child
+  - **Ambiente**: *Deferred to Phase 6 — tables don't exist yet*
 
 ### Transición de fase
 
-- **RF-04**: Al confirmar transición, invocar Edge Function `transition-phase`:
+- **RF-04**: Al confirmar transición, invocar Edge Function `transition-batch-phase`:
   ```
-  POST /functions/v1/transition-phase
+  POST /functions/v1/transition-batch-phase
   {
     batch_id: UUID,
-    new_zone_id: UUID | null,
-    quantity: number,
-    notes: string | null
+    zone_id: UUID | null
   }
   ```
+  > **Note (Phase 4):** `quantity` and `notes` params deferred to Phase 5 with split — all plants transition together in Phase 4.
   La Edge Function ejecuta transaccionalmente:
   1. Validar que el batch está en status=active
   2. Determinar siguiente fase via `production_order_phases` (siguiente sort_order con status != skipped)
@@ -220,7 +219,7 @@ Página dentro del layout de dashboard con sidebar.
 - **RF-05**: Tras transición exitosa, toast "Batch avanzó a fase {nombre}" + invalidar caches
 - **RF-06**: La siguiente fase se determina automáticamente — no es seleccionable por el usuario
 
-### Split de batch
+### Split de batch — *Deferred to Phase 5*
 
 - **RF-07**: Al confirmar split, invocar Edge Function `split-batch`:
   ```
@@ -241,7 +240,7 @@ Página dentro del layout de dashboard con sidebar.
   6. Retorna: `{ child_batch_id, child_batch_code }`
 - **RF-08**: Tras split exitoso, toast "Batch {child_code} creado con {N} plantas" + opción de navegar al nuevo batch
 
-### Merge de batches
+### Merge de batches — *Deferred to Phase 5*
 
 - **RF-09**: Al confirmar merge, invocar Edge Function `merge-batch`:
   ```
@@ -260,7 +259,7 @@ Página dentro del layout de dashboard con sidebar.
   5. Retorna: `{ merged_plant_count }`
 - **RF-10**: Tras merge exitoso, toast "Batch {child_code} reunificado. Total: {N} plantas"
 
-### Cosecha (execute-harvest)
+### Cosecha (execute-harvest) — *Deferred to Phase 5*
 
 - **RF-11**: Al confirmar cosecha, invocar Edge Function `execute-harvest`:
   ```
@@ -299,7 +298,7 @@ Página dentro del layout de dashboard con sidebar.
 ### Datos calculados
 
 - **RF-16**: Días en producción: `Math.ceil((today - start_date) / (1000 * 60 * 60 * 24))`
-- **RF-17**: Costo acumulado: se lee de `batches.total_cost` (calculado por trigger `trg_batch_cost_update`)
+- **RF-17**: Costo acumulado: *Deferred to Phase 7 — cost tracking feature*
 - **RF-18**: Progreso de fases: basado en production_order_phases del order asociado
 - **RF-19**: Compliance regulatorio: comparar `product_regulatory_requirements` del producto actual con `regulatory_documents` existentes del batch
 
@@ -316,7 +315,7 @@ Página dentro del layout de dashboard con sidebar.
 - **RNF-02**: Todas las operaciones de escritura se ejecutan via Edge Functions transaccionales — nunca operaciones parciales
 - **RNF-03**: Los tabs se cargan bajo demanda (lazy loading) para no sobrecargar la carga inicial
 - **RNF-04**: Las transacciones de inventario son append-only — nunca se editan ni borran desde esta página
-- **RNF-05**: El costo acumulado se oculta si la empresa no tiene `features_enabled.cost_tracking`
+- **RNF-05**: *Deferred to Phase 7 — cost tracking feature*
 - **RNF-06**: Los gráficos ambientales requieren aggregation server-side para periodos largos (>24h: promedios por hora; >7d: promedios por 4h)
 - **RNF-07**: La genealogía de batches se consulta solo para el nivel inmediato (parent/children) — no recursivo profundo
 - **RNF-08**: Paginación server-side en todas las tablas de tabs (20 items por página default)
