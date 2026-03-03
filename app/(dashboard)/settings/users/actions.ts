@@ -3,6 +3,10 @@
 import { inviteUserSchema, editUserSchema } from '@/schemas/users'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
+import { inviteEmailTemplate } from '@/lib/email/templates'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 type ActionResult =
   | { success: true }
@@ -63,28 +67,53 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
     return { success: false, error: 'Ya existe un usuario con este email en la empresa.', field: 'email' }
   }
 
-  // 1. Invite via Supabase Auth
+  // 1. Create auth user (without sending email)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
     || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
   if (!siteUrl) return { success: false, error: 'Configuración del servidor incompleta.' }
-  const { data: authData, error: authError } = await admin.auth.admin.inviteUserByEmail(
-    data.email,
-    {
-      data: { full_name: data.full_name },
-      redirectTo: `${siteUrl}/auth/confirm?redirect_to=/invite`,
-    }
-  )
+
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
+    email: data.email,
+    email_confirm: false,
+    user_metadata: { full_name: data.full_name },
+  })
 
   if (authError) {
     if (authError.message?.includes('already been registered') || authError.message?.includes('already exists')) {
       return { success: false, error: 'Este email ya está registrado en el sistema.', field: 'email' }
     }
-    return { success: false, error: 'Error al enviar la invitación. Intenta nuevamente.' }
+    return { success: false, error: 'Error al crear la cuenta. Intenta nuevamente.' }
   }
 
   const userId = authData.user.id
 
-  // 2. Set app_metadata
+  // 2. Generate invite link and send via Resend
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: 'invite',
+    email: data.email,
+  })
+
+  if (linkError || !linkData) {
+    await admin.auth.admin.deleteUser(userId)
+    return { success: false, error: 'Error al generar el enlace de invitación.' }
+  }
+
+  const confirmUrl = `${siteUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&redirect_to=/invite`
+  const emailTemplate = inviteEmailTemplate({ fullName: data.full_name, email: data.email, confirmUrl })
+
+  const { error: emailError } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL ?? 'Alquemist <onboarding@resend.dev>',
+    to: data.email,
+    subject: emailTemplate.subject,
+    html: emailTemplate.html,
+  })
+
+  if (emailError) {
+    await admin.auth.admin.deleteUser(userId)
+    return { success: false, error: 'Error al enviar el email de invitación.' }
+  }
+
+  // 3. Set app_metadata
   const { error: metaError } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { company_id: companyId, role: data.role },
   })
@@ -94,7 +123,7 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
     return { success: false, error: 'Error al configurar el usuario. Intenta nuevamente.' }
   }
 
-  // 3. Create public.users record
+  // 4. Create public.users record
   const { error: userError } = await admin.from('users').insert({
     id: userId,
     company_id: companyId,
@@ -239,10 +268,10 @@ export async function resendInvite(userId: string): Promise<ActionResult> {
 
   const admin = createAdminClient()
 
-  // Fetch user to get email and verify pending status
+  // Fetch user to get email, name and verify pending status
   const { data: targetUser } = await admin
     .from('users')
-    .select('email, last_login_at')
+    .select('email, full_name, last_login_at')
     .eq('id', userId)
     .eq('company_id', currentUser.company_id)
     .single()
@@ -258,12 +287,32 @@ export async function resendInvite(userId: string): Promise<ActionResult> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
     || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
   if (!siteUrl) return { success: false, error: 'Configuración del servidor incompleta.' }
-  const { error } = await admin.auth.admin.inviteUserByEmail(targetUser.email, {
-    redirectTo: `${siteUrl}/auth/confirm?redirect_to=/invite`,
+
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: 'invite',
+    email: targetUser.email,
   })
 
-  if (error) {
-    return { success: false, error: 'Error al reenviar la invitación.' }
+  if (linkError || !linkData) {
+    return { success: false, error: 'Error al generar el enlace de invitación.' }
+  }
+
+  const confirmUrl = `${siteUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&redirect_to=/invite`
+  const emailTemplate = inviteEmailTemplate({
+    fullName: targetUser.full_name,
+    email: targetUser.email,
+    confirmUrl,
+  })
+
+  const { error: emailError } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL ?? 'Alquemist <onboarding@resend.dev>',
+    to: targetUser.email,
+    subject: emailTemplate.subject,
+    html: emailTemplate.html,
+  })
+
+  if (emailError) {
+    return { success: false, error: 'Error al enviar el email de invitación.' }
   }
 
   return { success: true }

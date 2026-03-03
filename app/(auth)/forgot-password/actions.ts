@@ -3,6 +3,7 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { forgotPasswordSchema } from '@/schemas/auth'
 import { Resend } from 'resend'
+import { recoveryEmailTemplate } from '@/lib/email/templates'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -34,15 +35,12 @@ export async function requestPasswordReset(raw: unknown): Promise<ActionResult> 
   const confirmUrl = `${siteUrl}/auth/confirm?token_hash=${data.properties.hashed_token}&type=recovery&redirect_to=/reset-password`
 
   // Send via Resend
+  const emailTemplate = recoveryEmailTemplate({ email: parsed.data.email, confirmUrl })
   await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? 'Alquemist <onboarding@resend.dev>',
     to: parsed.data.email,
-    subject: 'Restablecer contraseña — Alquemist',
-    html: `<h2>Restablecer contraseña</h2>
-      <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-      <p><a href="${confirmUrl}">Restablecer contraseña</a></p>
-      <p>Si no solicitaste este cambio, ignora este email.</p>
-      <p>Este enlace expira en 1 hora.</p>`,
+    subject: emailTemplate.subject,
+    html: emailTemplate.html,
   })
 
   return { success: true }
