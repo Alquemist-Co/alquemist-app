@@ -65,7 +65,9 @@ CREATE INDEX idx_batches_start_date ON batches (start_date);
 -- generate_batch_code() — LOT-{CULTIVAR_CODE}-{YYMMDD}-{NNN}
 -- =============================================================
 CREATE OR REPLACE FUNCTION generate_batch_code()
-RETURNS TRIGGER LANGUAGE plpgsql AS $$
+RETURNS TRIGGER LANGUAGE plpgsql
+SET search_path = 'public'
+AS $$
 DECLARE
   v_cultivar_code TEXT;
   v_date_part TEXT;
