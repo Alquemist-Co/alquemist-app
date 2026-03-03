@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginInput } from '@/schemas/auth'
 import { createClient } from '@/lib/supabase/client'
-import { getRoleRedirect } from '@/lib/auth/utils'
 import { toast } from 'sonner'
 import { Sprout } from 'lucide-react'
 import Link from 'next/link'
@@ -90,7 +89,7 @@ export default function LoginPage() {
       // Update last_login_at (fire-and-forget)
       supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', (await supabase.auth.getUser()).data.user!.id).then()
 
-      router.push(getRoleRedirect(userData.role))
+      router.push('/settings')
     } catch {
       toast.error('Error inesperado. Intenta nuevamente.')
     } finally {

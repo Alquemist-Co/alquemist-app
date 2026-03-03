@@ -48,14 +48,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isAuthRoute) {
-    // Authenticated user on auth page → redirect to role-based route
-    const role = user.app_metadata?.role as string | undefined
-    let redirect = '/'
-    if (role === 'supervisor') redirect = '/activities/schedule'
-    else if (role === 'operator') redirect = '/field/today'
-
+    // Authenticated user on auth page → redirect to settings
     const url = request.nextUrl.clone()
-    url.pathname = redirect
+    url.pathname = '/settings'
     return NextResponse.redirect(url)
   }
 
