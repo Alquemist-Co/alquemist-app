@@ -49,7 +49,7 @@ if [ ! -f .env.local ]; then
 
   {
     echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
-    echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}"
+    echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
     echo "SUPABASE_SERVICE_ROLE_KEY=${SVC_KEY}"
     echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000"
     echo "RESEND_API_KEY=re_xxxxx"

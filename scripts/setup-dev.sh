@@ -152,7 +152,7 @@ SVC_KEY=$(echo "$ENV_CONTENT" | grep '^SERVICE_ROLE_KEY=' | cut -d= -f2- | tr -d
 
 {
   echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
-  echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${ANON_KEY}"
+  echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
   echo "SUPABASE_SERVICE_ROLE_KEY=${SVC_KEY}"
   echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000"
   if [ -n "$EXISTING_RESEND" ]; then

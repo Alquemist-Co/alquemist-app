@@ -64,7 +64,9 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
   }
 
   // 1. Invite via Supabase Auth
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+  if (!siteUrl) return { success: false, error: 'Configuración del servidor incompleta.' }
   const { data: authData, error: authError } = await admin.auth.admin.inviteUserByEmail(
     data.email,
     {
@@ -253,7 +255,9 @@ export async function resendInvite(userId: string): Promise<ActionResult> {
     return { success: false, error: 'Este usuario ya ha aceptado la invitación.' }
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+  if (!siteUrl) return { success: false, error: 'Configuración del servidor incompleta.' }
   const { error } = await admin.auth.admin.inviteUserByEmail(targetUser.email, {
     redirectTo: `${siteUrl}/auth/confirm?redirect_to=/invite`,
   })

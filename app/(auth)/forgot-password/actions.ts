@@ -15,7 +15,9 @@ export async function requestPasswordReset(raw: unknown): Promise<ActionResult> 
   if (!parsed.success) return { success: false, error: 'Email inválido.' }
 
   const admin = createAdminClient()
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+  if (!siteUrl) throw new Error('NEXT_PUBLIC_SITE_URL environment variable is required')
 
   // Generate recovery link (doesn't send email)
   const { data, error } = await admin.auth.admin.generateLink({
@@ -33,7 +35,7 @@ export async function requestPasswordReset(raw: unknown): Promise<ActionResult> 
 
   // Send via Resend
   await resend.emails.send({
-    from: 'Alquemist <onboarding@resend.dev>',
+    from: process.env.RESEND_FROM_EMAIL ?? 'Alquemist <onboarding@resend.dev>',
     to: parsed.data.email,
     subject: 'Restablecer contraseña — Alquemist',
     html: `<h2>Restablecer contraseña</h2>
