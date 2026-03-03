@@ -54,6 +54,7 @@ const navItems: NavItem[] = [
     icon: Sprout,
     children: [
       { label: 'Órdenes', href: '/production/orders' },
+      { label: 'Lotes', href: '/production/batches' },
     ],
   },
   {

@@ -309,6 +309,196 @@ export type Database = {
           },
         ]
       }
+      batch_lineage: {
+        Row: {
+          child_batch_id: string
+          id: string
+          operation: Database["public"]["Enums"]["lineage_operation"]
+          parent_batch_id: string
+          performed_at: string
+          performed_by: string | null
+          quantity_transferred: number | null
+          reason: string | null
+          unit_id: string | null
+        }
+        Insert: {
+          child_batch_id: string
+          id?: string
+          operation: Database["public"]["Enums"]["lineage_operation"]
+          parent_batch_id: string
+          performed_at?: string
+          performed_by?: string | null
+          quantity_transferred?: number | null
+          reason?: string | null
+          unit_id?: string | null
+        }
+        Update: {
+          child_batch_id?: string
+          id?: string
+          operation?: Database["public"]["Enums"]["lineage_operation"]
+          parent_batch_id?: string
+          performed_at?: string
+          performed_by?: string | null
+          quantity_transferred?: number | null
+          reason?: string | null
+          unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_lineage_child_batch_id_fkey"
+            columns: ["child_batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lineage_parent_batch_id_fkey"
+            columns: ["parent_batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lineage_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_lineage_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      batches: {
+        Row: {
+          area_m2: number | null
+          code: string
+          created_at: string
+          created_by: string | null
+          cultivar_id: string
+          current_phase_id: string
+          current_product_id: string | null
+          expected_end_date: string | null
+          id: string
+          parent_batch_id: string | null
+          plant_count: number | null
+          production_order_id: string | null
+          schedule_id: string | null
+          source_inventory_item_id: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["batch_status"]
+          total_cost: number
+          updated_at: string
+          updated_by: string | null
+          yield_dry_kg: number | null
+          yield_wet_kg: number | null
+          zone_id: string
+        }
+        Insert: {
+          area_m2?: number | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          cultivar_id: string
+          current_phase_id: string
+          current_product_id?: string | null
+          expected_end_date?: string | null
+          id?: string
+          parent_batch_id?: string | null
+          plant_count?: number | null
+          production_order_id?: string | null
+          schedule_id?: string | null
+          source_inventory_item_id?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          total_cost?: number
+          updated_at?: string
+          updated_by?: string | null
+          yield_dry_kg?: number | null
+          yield_wet_kg?: number | null
+          zone_id: string
+        }
+        Update: {
+          area_m2?: number | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          cultivar_id?: string
+          current_phase_id?: string
+          current_product_id?: string | null
+          expected_end_date?: string | null
+          id?: string
+          parent_batch_id?: string | null
+          plant_count?: number | null
+          production_order_id?: string | null
+          schedule_id?: string | null
+          source_inventory_item_id?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["batch_status"]
+          total_cost?: number
+          updated_at?: string
+          updated_by?: string | null
+          yield_dry_kg?: number | null
+          yield_wet_kg?: number | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batches_cultivar_id_fkey"
+            columns: ["cultivar_id"]
+            isOneToOne: false
+            referencedRelation: "cultivars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_current_phase_id_fkey"
+            columns: ["current_phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_current_product_id_fkey"
+            columns: ["current_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_parent_batch_id_fkey"
+            columns: ["parent_batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_production_order_id_fkey"
+            columns: ["production_order_id"]
+            isOneToOne: false
+            referencedRelation: "production_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_source_inventory_item_id_fkey"
+            columns: ["source_inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batches_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           country: string
@@ -1068,6 +1258,13 @@ export type Database = {
           zone_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_pop_batch_id"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "production_order_phases_expected_output_product_id_fkey"
             columns: ["expected_output_product_id"]
@@ -2420,6 +2617,15 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_approve_production_order: {
+        Args: {
+          p_order_id: string
+          p_schedule_id?: string
+          p_user_id?: string
+          p_zone_id: string
+        }
+        Returns: Json
+      }
       fn_confirm_shipment_receipt: {
         Args: { p_shipment_id: string; p_user_id: string }
         Returns: Json
@@ -2442,6 +2648,12 @@ export type Database = {
     }
     Enums: {
       activity_frequency: "daily" | "weekly" | "biweekly" | "once" | "on_demand"
+      batch_status:
+        | "active"
+        | "phase_transition"
+        | "completed"
+        | "cancelled"
+        | "on_hold"
       compliance_frequency:
         | "once"
         | "per_production"
@@ -2468,6 +2680,7 @@ export type Database = {
         | "accepted_with_observations"
         | "rejected"
         | "quarantine"
+      lineage_operation: "split" | "merge"
       lot_status: "available" | "quarantine" | "expired" | "depleted"
       lot_tracking: "required" | "optional" | "none"
       order_phase_status:
@@ -2682,6 +2895,13 @@ export const Constants = {
   public: {
     Enums: {
       activity_frequency: ["daily", "weekly", "biweekly", "once", "on_demand"],
+      batch_status: [
+        "active",
+        "phase_transition",
+        "completed",
+        "cancelled",
+        "on_hold",
+      ],
       compliance_frequency: [
         "once",
         "per_production",
@@ -2712,6 +2932,7 @@ export const Constants = {
         "rejected",
         "quarantine",
       ],
+      lineage_operation: ["split", "merge"],
       lot_status: ["available", "quarantine", "expired", "depleted"],
       lot_tracking: ["required", "optional", "none"],
       order_phase_status: [
