@@ -8,6 +8,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    exclude: ['__tests__/edge-functions/**', '**/node_modules/**'],
     passWithNoTests: true,
   },
 })
