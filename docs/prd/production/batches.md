@@ -11,8 +11,8 @@
 
 The approval flow was deferred from PRD 23 because it requires the `batches` table (created in this PRD's migration). This PRD includes:
 
-1. **Migration**: `batches` table + `scheduled_activities` table (if needed) + `batch_status` ENUM
-2. **Edge Function**: `approve-production-order` — validates draft status, creates batch, generates scheduled_activities from cultivation_schedule, updates order status + first phase
+1. **Migration**: `batches` table + `batch_status` ENUM. *Note: `scheduled_activities` table deferred to Phase 5 (PRD 26).*
+2. **Edge Function**: `approve-production-order` — validates draft status, creates batch, updates order status + first phase. *Note: scheduled_activities generation deferred to Phase 5 (PRD 26).*
 3. **SQL Function**: `approve_production_order(order_id, zone_id, schedule_id)` — SECURITY DEFINER, atomic transaction
 4. **UI on order detail page** (`/production/orders/[id]`): Enable "Aprobar" button, approval dialog (zone select, schedule select, confirmation checkbox), batch created section, scheduled activities section
 
@@ -62,9 +62,9 @@ Página dentro del layout de dashboard con sidebar.
   - Select: Cultivar (Todos / lista de cultivars que tengan batches)
   - Select: Fase actual (Todas / lista de production_phases)
   - Select: Zona (Todas / lista de zones activas)
-  - Select: Facility (Todas / lista de facilities)
+  - ~~Select: Facility (Todas / lista de facilities)~~ *Deferred — zones already show facility name in dropdown*
   - Input: Buscar por código de batch
-  - DateRange: Rango de fecha de inicio
+  - ~~DateRange: Rango de fecha de inicio~~ *Deferred — consistent with orders page pattern*
 - **Tabla de batches** — Server Component con datos paginados
   - Columnas: Código (batch code, link al detalle), Cultivar, Fase actual (badge), Zona, Plantas, Producto actual, Orden (link), Fecha inicio, Fecha fin esperada, Días en producción (calculado), Costo acumulado ($), Estado (badge con color), Acciones
   - Colores de badge de estado:
@@ -90,10 +90,10 @@ Página dentro del layout de dashboard con sidebar.
 - **RF-05**: Filtro por cultivar: `.eq('cultivar_id', cultivarId)`
 - **RF-06**: Filtro por fase: `.eq('current_phase_id', phaseId)`
 - **RF-07**: Filtro por zona: `.eq('zone_id', zoneId)`
-- **RF-08**: Filtro por facility: zonas filtradas por facility, luego `.in('zone_id', zoneIdsOfFacility)`
+- **RF-08**: ~~Filtro por facility: zonas filtradas por facility, luego `.in('zone_id', zoneIdsOfFacility)`~~ *Deferred — zones dropdown already includes facility name*
 - **RF-09**: Calcular "Días en producción": `Math.ceil((today - start_date) / (1000 * 60 * 60 * 24))`
 - **RF-10**: KPIs se calculan con queries de count separados o con la respuesta paginada
-- **RF-11**: El costo acumulado (`total_cost`) es calculado por trigger `trg_batch_cost_update` — se muestra formateado con la moneda de la empresa
+- **RF-11**: ~~El costo acumulado (`total_cost`) es calculado por trigger `trg_batch_cost_update` — se muestra formateado con la moneda de la empresa~~ *Deferred to Phase 7 — `total_cost` column exists (DEFAULT 0), cost trigger and display deferred*
 - **RF-12**: Click en el código de batch navega a `/production/batches/{id}`. Click en código de orden navega a `/production/orders/{id}`
 - **RF-13**: No hay acciones de creación/edición/eliminación en esta página — los batches se crean desde órdenes y se gestionan desde el detalle
 
@@ -102,7 +102,7 @@ Página dentro del layout de dashboard con sidebar.
 - **RNF-01**: RLS Pattern 2 — batches hereda aislamiento vía `zone_id → facilities.company_id`. Se usa `get_my_zone_ids()` para queries eficientes
 - **RNF-02**: Paginación server-side — el número de batches puede crecer significativamente
 - **RNF-03**: Los filtros combinados usan AND lógico — cada filtro adicional reduce el resultado
-- **RNF-04**: La columna de costo acumulado se oculta si la empresa no tiene `features_enabled.cost_tracking`
+- **RNF-04**: ~~La columna de costo acumulado se oculta si la empresa no tiene `features_enabled.cost_tracking`~~ *Deferred to Phase 7 with RF-11*
 - **RNF-05**: Los KPIs se actualizan con cada cambio de filtro o refresh
 
 ## Flujos principales
@@ -175,7 +175,7 @@ The Edge Function executes transactionally via SQL SECURITY DEFINER function:
 1. Validate order is in status=draft
 2. Update `production_orders.status` → 'approved'
 3. Create `batches` row: cultivar_id, zone_id, current_phase_id=entry_phase, production_order_id, status='active', code auto-generated (LOT-{CULTIVAR_CODE}-{YYMMDD}-{NNN}), start_date=planned_start_date or today
-4. If schedule_id provided, generate `scheduled_activities` from `cultivation_schedules.phase_config` for each order phase
+4. ~~If schedule_id provided, generate `scheduled_activities` from `cultivation_schedules.phase_config` for each order phase~~ *Deferred to Phase 5 (PRD 26)*
 5. Update `production_order_phases[0].status` → 'ready', `.batch_id` → new batch
 6. Return: `{ batch_id, batch_code, scheduled_activities_count }`
 
@@ -183,9 +183,9 @@ The Edge Function executes transactionally via SQL SECURITY DEFINER function:
 
 Updates to `/production/orders/[id]` (PRD 23 page):
 - Enable "Aprobar orden" button (replaces disabled placeholder)
-- **Approval Dialog**: zone select (pre-filled from order), schedule select (from `cultivation_schedules` for cultivar), confirmation checkbox, "Aprobar y crear batch" button
+- **Approval Dialog**: zone select (pre-filled from order), summary section (cultivar, quantity, phases), "Aprobar y crear lote" button. *Note: schedule select deferred to Phase 5 (PRD 26). Confirmation checkbox replaced by deliberate zone selection + summary review.*
 - **Batch section**: visible after approval — batch code, status, link to `/production/batches/{batchId}`
-- **Activities section**: visible after approval — summary list of scheduled activities
+- ~~**Activities section**: visible after approval — summary list of scheduled activities~~ *Deferred to Phase 5 (PRD 26)*
 - Cancellation with batch: warning that cancelling order does not auto-cancel batch
 
 ### Approval RFs

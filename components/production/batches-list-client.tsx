@@ -115,7 +115,7 @@ export function BatchesListClient({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <KpiCard label="Activos" value={kpis.active} />
         <KpiCard label="En transición" value={kpis.in_transition} />
-        <KpiCard label="En pausa" value={kpis.on_hold} />
+        <KpiCard label="En espera" value={kpis.on_hold} />
         <KpiCard label="Completados (mes)" value={kpis.completed_month} />
       </div>
 
@@ -210,7 +210,7 @@ export function BatchesListClient({
             <p className="text-sm">
               {activeFilterCount > 0 || filters.search
                 ? 'No se encontraron lotes con estos filtros.'
-                : 'No hay lotes de producción.'}
+                : 'No hay batches de producción. Aprueba una orden para crear el primero.'}
             </p>
           </div>
         ) : (

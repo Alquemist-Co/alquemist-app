@@ -144,6 +144,7 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel, canAppro
   const [selectedZoneId, setSelectedZoneId] = useState(order.zone_id ?? '')
 
   const isDraft = order.status === 'draft'
+  const isApproved = order.status === 'approved'
   const completedPhases = phases.filter((p) => p.status === 'completed').length
 
   async function handleCancel() {
@@ -194,7 +195,11 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel, canAppro
       return
     }
 
-    toast.success(`Orden aprobada. Batch ${result.batch_code} creado.`)
+    if (result.scheduled_activities_count > 0) {
+      toast.success(`Orden aprobada. Batch ${result.batch_code} creado con ${result.scheduled_activities_count} actividades programadas.`)
+    } else {
+      toast.success(`Batch ${result.batch_code} creado. No se programaron actividades.`)
+    }
     router.refresh()
   }
 
@@ -245,7 +250,7 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel, canAppro
               Editar
             </Button>
           )}
-          {isDraft && canCancel && (
+          {(isDraft || isApproved) && canCancel && (
             <Button
               variant="destructive"
               size="sm"
@@ -460,6 +465,11 @@ export function OrderDetailClient({ order, phases, canWrite, canCancel, canAppro
             <AlertDialogDescription>
               ¿Cancelar la orden {order.code}? Esta acción no se puede deshacer.
             </AlertDialogDescription>
+            {batch && (
+              <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
+                Esta orden tiene un lote asociado ({batch.code}). Cancelar la orden no cancela automáticamente el lote.
+              </p>
+            )}
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Volver</AlertDialogCancel>

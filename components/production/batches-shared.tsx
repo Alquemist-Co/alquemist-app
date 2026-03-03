@@ -43,17 +43,17 @@ export const batchStatusLabels: Record<string, string> = {
   phase_transition: 'En transición',
   completed: 'Completado',
   cancelled: 'Cancelado',
-  on_hold: 'En pausa',
+  on_hold: 'En espera',
 }
 
 // ---------- Badge Styles ----------
 
 export const batchStatusBadgeStyles: Record<string, string> = {
   active: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  phase_transition: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-  completed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  phase_transition: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  completed: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400',
   cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-  on_hold: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+  on_hold: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
 }
 
 // ---------- Select class (reuse pattern) ----------

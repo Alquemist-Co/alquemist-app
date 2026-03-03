@@ -312,6 +312,7 @@ export type Database = {
       batch_lineage: {
         Row: {
           child_batch_id: string
+          created_at: string
           id: string
           operation: Database["public"]["Enums"]["lineage_operation"]
           parent_batch_id: string
@@ -323,6 +324,7 @@ export type Database = {
         }
         Insert: {
           child_batch_id: string
+          created_at?: string
           id?: string
           operation: Database["public"]["Enums"]["lineage_operation"]
           parent_batch_id: string
@@ -334,6 +336,7 @@ export type Database = {
         }
         Update: {
           child_batch_id?: string
+          created_at?: string
           id?: string
           operation?: Database["public"]["Enums"]["lineage_operation"]
           parent_batch_id?: string
@@ -495,6 +498,13 @@ export type Database = {
             columns: ["zone_id"]
             isOneToOne: false
             referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_batches_schedule_id"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "cultivation_schedules"
             referencedColumns: ["id"]
           },
         ]
