@@ -52,7 +52,9 @@ The roadmap for all 43 PRDs across 9 phases. Consult when:
 3. Read the master plan phase section in `docs/prd/00-prd-master-plan.md` for dependencies and ENUMs
 4. Update the tracker status (`[-]` in progress / `[x]` done) as you go
 5. **Keep PRD in sync**: Any adjustment during implementation (new fields, changed flows, added validations, removed features, UX changes) must be reflected back in the corresponding PRD. The PRD is the living spec — it must always match what was actually built
-6. **Strategic commits**: Commit at logical checkpoints — after migrations, after server actions, after UI components, after verification. Don't accumulate all changes into one massive commit
+6. **Defer across PRDs**: If a feature in PRD N depends on a table/resource from PRD M (M > N), defer that feature to PRD M. Update both PRDs: mark it as "deferred to PRD M" in PRD N, and add it as "absorbed from PRD N" in PRD M. Never leave orphaned scope.
+7. **Sync before moving on**: After completing a PRD implementation, update the PRD doc *before* committing. Compare every section (metadata, layout, RFs, RNFs, flows) against what was actually built. This is a blocking step — do not proceed to the next PRD with stale docs.
+8. **Strategic commits**: Commit at logical checkpoints — after migrations, after server actions, after UI components, after verification. Don't accumulate all changes into one massive commit
 
 Phases must be implemented in order — each phase depends on the previous ones.
 
@@ -96,6 +98,56 @@ Emails that require controlled URLs (recovery, invites, notifications) bypass Go
 **Reference implementation**: `app/(auth)/forgot-password/actions.ts`
 
 **Env var**: `RESEND_API_KEY` (required in `.env.local`)
+
+## Edge Functions
+
+Edge Functions are **thin HTTP wrappers** around PostgreSQL SECURITY DEFINER functions. Pattern: auth check → input validation → `supabase.rpc('fn_name', params)` → return JSON. They run on Deno 2 via `Deno.serve()`.
+
+### ES256 vs HS256 JWT (Critical)
+
+GoTrue issues **ES256** JWTs (asymmetric), but Kong (API gateway) validates **HS256** (symmetric). Valid user JWTs get rejected by Kong with `{"msg":"Invalid JWT"}`. **Fix**: Set `verify_jwt = false` per-function in `supabase/config.toml`:
+
+```toml
+[functions.my-function]
+verify_jwt = false
+```
+
+This is safe because the Edge Functions verify auth themselves via `anonClient.auth.getUser()`. **Every new Edge Function needs this config** until Supabase fixes Kong ES256 support.
+
+### Kong `apikey` Header Behavior
+
+When `verify_jwt = false`, Kong still injects the `apikey` header value as `Authorization: Bearer` to the upstream. So if you send `apikey: <anon_key>` but NO `Authorization` header, the Edge Function sees an auth header (the anon key) and `getUser()` fails. To test the "Missing authorization" path, omit BOTH `apikey` and `Authorization` headers.
+
+### `trigger_update_timestamps` Gotcha
+
+The shared trigger sets `NEW.updated_by = auth.uid()`. **Every table with this trigger MUST have an `updated_by UUID` column**. Missing it causes `record "new" has no field "updated_by"` at runtime.
+
+### Adding a New Edge Function (Checklist)
+
+1. Create `supabase/functions/<name>/index.ts` following the auth+rpc pattern
+2. Add `[functions.<name>]` with `verify_jwt = false` in `supabase/config.toml`
+3. Add integration tests in `__tests__/edge-functions/<name>.test.ts`
+4. Ensure seed data covers happy path + error scenarios
+5. Restart Supabase (`npx supabase stop && npx supabase start`) for config changes
+
+## Testing
+
+### Unit Tests (Vitest + jsdom)
+
+- Config: `vitest.config.mts` — jsdom environment, React plugin, `@testing-library/jest-dom` setup
+- Run: `pnpm test:run` (43 schema tests)
+- Location: `__tests__/schemas/`
+- Excludes: `__tests__/edge-functions/**` and `**/node_modules/**`
+
+### Integration Tests (Vitest + Node)
+
+- Config: `vitest.config.integration.mts` — Node environment, sequential execution, 15s timeout
+- Run: `pnpm test:integration` (15 Edge Function tests)
+- Location: `__tests__/edge-functions/`
+- **Requires**: `pnpm dev:reset` before running (resets DB to seed state)
+- Tests are ordered: auth/validation first (no mutations), happy paths (mutate), post-mutation errors last
+- Helpers in `__tests__/edge-functions/helpers.ts`: `getTestJwt()`, `callFunction()`, `createServiceClient()`
+- Uses hardcoded well-known local Supabase keys (deterministic, no `.env` parsing needed)
 
 ## Workflow Orchestration
 

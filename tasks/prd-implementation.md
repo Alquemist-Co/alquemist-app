@@ -37,7 +37,7 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 
 ## Phase 4 — Production (4 PRDs)
 
-- [ ] 22 · `production/orders` — `/production/orders` · prd ✗
+- [x] 22 · `production/orders` — `/production/orders` · prd ✓
 - [ ] 23 · `production/order-detail` — `/production/orders/[id]` · prd ✗
 - [ ] 24 · `production/batches` — `/production/batches` · prd ✗
 - [ ] 25 · `production/batch-detail` — `/production/batches/[id]` · prd ✗
@@ -84,10 +84,10 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | 1 Auth                              | 5/5          | 5/5         |
 | 2 Settings                          | 8/8          | 8/8         |
 | 3 Areas + Inventory                 | 8/8          | 8/8         |
-| 4 Production                        | 0/4          | 0/4         |
+| 4 Production                        | 1/4          | 1/4         |
 | 5 Activities + Quality + Regulatory | 0/7          | 0/7         |
 | 6 Operations                        | 0/4          | 0/4         |
 | 7 Inventory Ops                     | 0/2          | 0/2         |
 | 8 Field                             | 0/4          | 0/4         |
 | 9 Dashboard                         | 0/1          | 0/1         |
-| **Total**                           | **21/43**    | **21/43**   |
+| **Total**                           | **22/43**    | **22/43**   |

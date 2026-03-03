@@ -5,13 +5,22 @@
 - **Ruta**: `/production/batches`
 - **Roles con acceso**: admin (lectura completa), manager (lectura completa), supervisor (lectura completa), operator (lectura completa), viewer (lectura completa)
 - **Tipo componente**: Mixto (Server Component para listado con filtros, Client Components para filtros interactivos)
-- **Edge Functions**: Ninguna — lecturas via PostgREST
+- **Edge Functions**: `approve-production-order` — aprobación transaccional (crea batch + programa actividades, absorbed from PRD 23)
+
+## Absorbed from PRD 23
+
+The approval flow was deferred from PRD 23 because it requires the `batches` table (created in this PRD's migration). This PRD includes:
+
+1. **Migration**: `batches` table + `scheduled_activities` table (if needed) + `batch_status` ENUM
+2. **Edge Function**: `approve-production-order` — validates draft status, creates batch, generates scheduled_activities from cultivation_schedule, updates order status + first phase
+3. **SQL Function**: `approve_production_order(order_id, zone_id, schedule_id)` — SECURITY DEFINER, atomic transaction
+4. **UI on order detail page** (`/production/orders/[id]`): Enable "Aprobar" button, approval dialog (zone select, schedule select, confirmation checkbox), batch created section, scheduled activities section
 
 ## Objetivo
 
 Listar y filtrar todos los batches (lotes de producción) de la empresa. El batch es el **nexo central** del sistema — conecta cultivar, zona, fase, orden, inventario, actividades, calidad y regulatorio. Esta página es el punto de entrada para monitorear el estado de toda la producción activa.
 
-Los batches se crean automáticamente al aprobar una orden de producción (PRD 23). No se crean manualmente desde esta página. Las acciones operativas (transición de fase, split, merge, etc.) se realizan desde la página de detalle (PRD 25).
+Los batches se crean automáticamente al aprobar una orden de producción (via Edge Function in this PRD). No se crean manualmente desde esta página. Las acciones operativas (transición de fase, split, merge, etc.) se realizan desde la página de detalle (PRD 25).
 
 Usuarios principales: todos los roles — cada uno monitorea la producción desde su perspectiva.
 
@@ -149,12 +158,52 @@ Página dentro del layout de dashboard con sidebar.
 | Error de red        | "Error de conexión. Intenta nuevamente" (toast) |
 | Error cargando KPIs | KPIs muestran "—" con tooltip "Error al cargar" |
 
+## Approval Flow (Absorbed from PRD 23)
+
+### Edge Function: `approve-production-order`
+
+```
+POST /functions/v1/approve-production-order
+{
+  order_id: UUID,
+  zone_id: UUID,          // zona inicial para el batch
+  schedule_id: UUID | null // cultivation_schedule a usar (opt)
+}
+```
+
+The Edge Function executes transactionally via SQL SECURITY DEFINER function:
+1. Validate order is in status=draft
+2. Update `production_orders.status` → 'approved'
+3. Create `batches` row: cultivar_id, zone_id, current_phase_id=entry_phase, production_order_id, status='active', code auto-generated (LOT-{CULTIVAR_CODE}-{YYMMDD}-{NNN}), start_date=planned_start_date or today
+4. If schedule_id provided, generate `scheduled_activities` from `cultivation_schedules.phase_config` for each order phase
+5. Update `production_order_phases[0].status` → 'ready', `.batch_id` → new batch
+6. Return: `{ batch_id, batch_code, scheduled_activities_count }`
+
+### UI on Order Detail Page
+
+Updates to `/production/orders/[id]` (PRD 23 page):
+- Enable "Aprobar orden" button (replaces disabled placeholder)
+- **Approval Dialog**: zone select (pre-filled from order), schedule select (from `cultivation_schedules` for cultivar), confirmation checkbox, "Aprobar y crear batch" button
+- **Batch section**: visible after approval — batch code, status, link to `/production/batches/{batchId}`
+- **Activities section**: visible after approval — summary list of scheduled activities
+- Cancellation with batch: warning that cancelling order does not auto-cancel batch
+
+### Approval RFs
+
+- **RF-A1**: Al aprobar, invocar Edge Function `approve-production-order` with order_id, selected zone_id, optional schedule_id
+- **RF-A2**: Tras aprobación, toast "Orden aprobada. Batch {code} creado con {N} actividades programadas" + refresh page
+- **RF-A3**: If no cultivation_schedule exists, approve without activities. Toast variant: "Batch creado. No se programaron actividades."
+- **RF-A4**: Only admin/manager can approve (not supervisor)
+- **RF-A5**: Cancellation of approved/in_progress orders shows warning about existing batch
+
 ## Dependencias
 
 - **Páginas relacionadas**:
   - `/production/batches/[id]` — detalle del batch (PRD 25)
-  - `/production/orders/[id]` — detalle de la orden que generó el batch (PRD 23)
+  - `/production/orders/[id]` — detalle de la orden que generó el batch (PRD 23, extended here)
   - `/areas/zones/[id]` — detalle de la zona donde está el batch (PRD 16)
+- **Edge Function**: `approve-production-order` — config in `supabase/config.toml` with `verify_jwt = false`
+- **SQL Function**: `approve_production_order()` — SECURITY DEFINER, atomic transaction
 - **Settings**: `companies.settings.features_enabled.cost_tracking` — controla visibilidad de columna de costos
-- **Supabase client**: PostgREST para lecturas
-- **React Query**: Cache key `['batches']` para invalidación
+- **Supabase client**: PostgREST para lecturas + Edge Function para aprobación
+
