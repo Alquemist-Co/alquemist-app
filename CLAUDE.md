@@ -97,7 +97,7 @@ Emails that require controlled URLs (recovery, invites, notifications) bypass Go
 
 **Reference implementation**: `app/(auth)/forgot-password/actions.ts`
 
-**Env var**: `RESEND_API_KEY` (required in `.env.local`)
+**Env vars**: `RESEND_API_KEY` (required), `RESEND_FROM_EMAIL` (optional — defaults to sandbox `onboarding@resend.dev`, production uses `Alquemist <noreply@alquemist.co>`)
 
 ## Edge Functions
 
@@ -122,13 +122,19 @@ When `verify_jwt = false`, Kong still injects the `apikey` header value as `Auth
 
 The shared trigger sets `NEW.updated_by = auth.uid()`. **Every table with this trigger MUST have an `updated_by UUID` column**. Missing it causes `record "new" has no field "updated_by"` at runtime.
 
+### CORS in Edge Functions
+
+All Edge Functions use `Deno.env.get('ALLOWED_ORIGIN') ?? '*'` for the `Access-Control-Allow-Origin` header. Locally falls back to `*`. Production restricts to `https://app.alquemist.co` via `supabase secrets set`.
+
 ### Adding a New Edge Function (Checklist)
 
 1. Create `supabase/functions/<name>/index.ts` following the auth+rpc pattern
-2. Add `[functions.<name>]` with `verify_jwt = false` in `supabase/config.toml`
-3. Add integration tests in `__tests__/edge-functions/<name>.test.ts`
-4. Ensure seed data covers happy path + error scenarios
-5. Restart Supabase (`npx supabase stop && npx supabase start`) for config changes
+2. Use `Deno.env.get('ALLOWED_ORIGIN') ?? '*'` for CORS (not hardcoded `*`)
+3. Add `[functions.<name>]` with `verify_jwt = false` in `supabase/config.toml`
+4. Add integration tests in `__tests__/edge-functions/<name>.test.ts`
+5. Ensure seed data covers happy path + error scenarios
+6. Restart Supabase (`npx supabase stop && npx supabase start`) for config changes
+7. **Deploy to production**: `npx supabase functions deploy <name> --no-verify-jwt --project-ref wzyomollizbhlempiabs`
 
 ## Testing
 
@@ -148,6 +154,60 @@ The shared trigger sets `NEW.updated_by = auth.uid()`. **Every table with this t
 - Tests are ordered: auth/validation first (no mutations), happy paths (mutate), post-mutation errors last
 - Helpers in `__tests__/edge-functions/helpers.ts`: `getTestJwt()`, `callFunction()`, `createServiceClient()`
 - Uses hardcoded well-known local Supabase keys (deterministic, no `.env` parsing needed)
+
+## Deployment
+
+### Architecture
+
+- **Frontend**: Vercel (auto-deploy on push to `main`) — `https://app.alquemist.co`
+- **Backend**: Supabase Cloud (project ref: `wzyomollizbhlempiabs`)
+- **Email**: Resend (domain: `alquemist.co`)
+- **CI**: GitHub Actions (`.github/workflows/ci.yml` — lint, type-check, test, build)
+
+### Environment Variables
+
+| Variable | Local | Production (Vercel) |
+|----------|-------|---------------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `http://127.0.0.1:15432` | `https://wzyomollizbhlempiabs.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | JWT anon key from CLI | `sb_publishable_...` from Dashboard |
+| `SUPABASE_SERVICE_ROLE_KEY` | JWT service key from CLI | `sb_secret_...` from Dashboard |
+| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://app.alquemist.co` |
+| `RESEND_API_KEY` | sandbox key | production key |
+| `RESEND_FROM_EMAIL` | (omit — uses default) | `Alquemist <noreply@alquemist.co>` |
+
+**Note**: `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is the new Supabase convention (replaces `ANON_KEY`). Legacy JWT keys from the CLI work identically — the client library accepts both formats.
+
+### Server Actions — Site URL Pattern
+
+Server actions that build URLs (password recovery, invites) must NEVER hardcode `localhost`. Use this pattern:
+
+```typescript
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+if (!siteUrl) throw new Error('NEXT_PUBLIC_SITE_URL is required')
+```
+
+`VERCEL_URL` fallback enables Vercel preview deployments (`*.vercel.app`) to work without hardcoding.
+
+### Deploying Changes
+
+| What | Command |
+|------|---------|
+| Code | Push to `main` → CI runs → Vercel auto-deploys |
+| New migration | `npx supabase db push --linked` after merge |
+| New/updated Edge Function | `npx supabase functions deploy <name> --no-verify-jwt --project-ref wzyomollizbhlempiabs` |
+| Edge Function secrets | `npx supabase secrets set KEY=VALUE --project-ref wzyomollizbhlempiabs` |
+
+### Production Auth Settings (Supabase Dashboard)
+
+- Open signup **disabled** — users join only via admin invite (`inviteUserByEmail`)
+- Min password length: **8**
+- Site URL: `https://app.alquemist.co`
+- Redirect URLs: `https://app.alquemist.co/**`
+
+### Seed Data
+
+`supabase/seed.sql` is for **local development only**. It contains test data (admin@test.com / password123). It is NEVER applied to production. Production bootstrap data is created manually via the Supabase SQL Editor.
 
 ## Workflow Orchestration
 
