@@ -52,6 +52,12 @@ DECLARE
   v_order_1  UUID := '00000000-0000-0000-000a-000000000001';
   v_order_2  UUID := '00000000-0000-0000-000a-000000000002';
   v_order_3  UUID := '00000000-0000-0000-000a-000000000003';
+  v_order_4  UUID := '00000000-0000-0000-000a-000000000004';
+  -- Batches
+  v_batch_1  UUID := '00000000-0000-0000-000b-000000000001';
+  v_batch_2  UUID := '00000000-0000-0000-000b-000000000002';
+  v_batch_3  UUID := '00000000-0000-0000-000b-000000000003';
+  v_batch_4  UUID := '00000000-0000-0000-000b-000000000004';
   -- Regulatory doc types
   v_rdt_coa   UUID := '00000000-0000-0000-0009-000000000001';
   v_rdt_sds   UUID := '00000000-0000-0000-0009-000000000002';
@@ -898,5 +904,98 @@ INSERT INTO production_orders (
 INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, expected_input_qty, expected_output_qty, yield_pct, status, planned_start_date, planned_end_date) VALUES
   (v_order_3, v_phase_cosecha, 1, 3,  200, 140, 70, 'skipped', CURRENT_DATE - interval '5 days', CURRENT_DATE - interval '2 days'),
   (v_order_3, v_phase_secado,  2, 21, 140, 30.8, 22, 'skipped', CURRENT_DATE - interval '2 days', CURRENT_DATE + interval '19 days');
+
+-- Order 4: OG Kush, draft, 25 seeds germ → secado (for approval testing)
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  planned_start_date, planned_end_date,
+  zone_id,
+  status, priority, notes
+) VALUES (
+  v_order_4, v_company_id, 'OP-2026-0004', v_cult_og_kush,
+  v_phase_germ, v_phase_secado,
+  25, v_unit_und,
+  CURRENT_DATE + interval '7 days',
+  CURRENT_DATE + interval '130 days',
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.company_id = v_company_id),
+  'draft', 'normal',
+  'Orden de prueba para flujo de aprobación PRD 24'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, zone_id, expected_input_qty, expected_output_qty, yield_pct, planned_start_date, planned_end_date) VALUES
+  (v_order_4, v_phase_germ,    1, 7,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.company_id = v_company_id),
+   25, 25, 100, CURRENT_DATE + interval '7 days', CURRENT_DATE + interval '14 days'),
+  (v_order_4, v_phase_veg,     2, 28,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+   25, 25, 100, CURRENT_DATE + interval '14 days', CURRENT_DATE + interval '42 days'),
+  (v_order_4, v_phase_flor,    3, 63,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+   25, 25, 100, CURRENT_DATE + interval '42 days', CURRENT_DATE + interval '105 days'),
+  (v_order_4, v_phase_cosecha, 4, 3,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento' AND f.company_id = v_company_id),
+   25, 17.5, 70, CURRENT_DATE + interval '105 days', CURRENT_DATE + interval '108 days'),
+  (v_order_4, v_phase_secado,  5, 21,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento' AND f.company_id = v_company_id),
+   17.5, 3.85, 22, CURRENT_DATE + interval '108 days', CURRENT_DATE + interval '129 days');
+
+-- =============================================================
+-- 31. BATCHES (PRD 24) — seed data for listing page
+-- =============================================================
+
+-- Batch 1: OG Kush, active in vegetativo, linked to order 1
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id, production_order_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_1, 'LOT-OGK-260115-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+  v_phase_veg, v_order_1,
+  100, CURRENT_DATE - interval '21 days', CURRENT_DATE + interval '108 days',
+  'active', v_user_id, v_user_id
+);
+
+-- Mark order 1 as approved (has batch)
+UPDATE production_orders SET status = 'approved' WHERE id = v_order_1;
+
+-- Batch 2: Blue Dream, active in floración
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_2, 'LOT-BLD-260201-001', v_cult_blue_d,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+  v_phase_flor,
+  50, CURRENT_DATE - interval '56 days', CURRENT_DATE + interval '88 days',
+  'active', v_user_id, v_user_id
+);
+
+-- Batch 3: OG Kush, on_hold in vegetativo
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, status, created_by, updated_by
+) VALUES (
+  v_batch_3, 'LOT-OGK-260210-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo B' AND f.company_id = v_company_id),
+  v_phase_veg,
+  30, CURRENT_DATE - interval '14 days',
+  'on_hold', v_user_id, v_user_id
+);
+
+-- Batch 4: OG Kush, completed
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status,
+  yield_wet_kg, yield_dry_kg, total_cost, created_by, updated_by
+) VALUES (
+  v_batch_4, 'LOT-OGK-251201-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado Principal' AND f.company_id = v_company_id),
+  v_phase_secado,
+  80, CURRENT_DATE - interval '130 days', CURRENT_DATE - interval '8 days',
+  'completed',
+  56.0, 12.3, 4500.00, v_user_id, v_user_id
+);
 
 END $$;
