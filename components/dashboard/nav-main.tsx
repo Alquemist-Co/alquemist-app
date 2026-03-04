@@ -77,9 +77,31 @@ const navItems: NavItem[] = [
       { label: 'Recetas', href: '/inventory/recipes' },
     ],
   },
-  { label: 'Actividades', href: '/activities', icon: CalendarDays, disabled: true },
-  { label: 'Calidad', href: '/quality', icon: FileCheck, disabled: true, featureFlag: 'quality' },
-  { label: 'Regulatorio', href: '/regulatory', icon: Shield, disabled: true, featureFlag: 'regulatory' },
+  {
+    label: 'Actividades',
+    href: '/activities',
+    icon: CalendarDays,
+    children: [
+      { label: 'Calendario', href: '/activities/schedule' },
+      { label: 'Historial', href: '/activities/history' },
+    ],
+  },
+  {
+    label: 'Calidad',
+    href: '/quality',
+    icon: FileCheck,
+    children: [
+      { label: 'Tests', href: '/quality/tests' },
+    ],
+  },
+  {
+    label: 'Regulatorio',
+    href: '/regulatory',
+    icon: Shield,
+    children: [
+      { label: 'Documentos', href: '/regulatory/documents' },
+    ],
+  },
   { label: 'Operaciones', href: '/operations', icon: Activity, disabled: true },
   { label: 'Configuración', href: '/settings', icon: Settings },
 ]

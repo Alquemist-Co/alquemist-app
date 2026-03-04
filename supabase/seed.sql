@@ -64,6 +64,10 @@ DECLARE
   v_rdt_coa   UUID := '00000000-0000-0000-0009-000000000001';
   v_rdt_sds   UUID := '00000000-0000-0000-0009-000000000002';
   v_rdt_phyto UUID := '00000000-0000-0000-0009-000000000003';
+  -- Phytosanitary agents
+  v_agent_spider_mite UUID := '00000000-0000-0000-000f-000000000001';
+  v_agent_botrytis    UUID := '00000000-0000-0000-000f-000000000002';
+  v_agent_nitrogen    UUID := '00000000-0000-0000-000f-000000000003';
 BEGIN
 
 -- =============================================================
@@ -1067,5 +1071,334 @@ INSERT INTO batches (
 UPDATE production_order_phases
 SET status = 'ready', batch_id = v_batch_5
 WHERE order_id = v_order_5 AND phase_id = v_phase_germ;
+
+-- =============================================================
+-- 40. PHASE 5: QUALITY TESTS
+-- =============================================================
+
+-- Test 1: Completed + Pass (potency test on batch 3 which is completed)
+INSERT INTO quality_tests (
+  id, batch_id, phase_id, test_type, lab_name, lab_reference,
+  sample_date, result_date, status, overall_pass, notes, performed_by,
+  created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000c-000000000001',
+  v_batch_3, v_phase_cosecha, 'potency', 'ChemHistory Labs', 'CHM-2026-00142',
+  CURRENT_DATE - interval '10 days', CURRENT_DATE - interval '7 days',
+  'completed', true, 'Batch 3 potency analysis — all parameters within limits',
+  v_user_id, v_user_id, v_user_id
+);
+
+-- Test 2: Pending (contaminants on batch 1, active)
+INSERT INTO quality_tests (
+  id, batch_id, phase_id, test_type, lab_name, lab_reference,
+  sample_date, status, performed_by, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000c-000000000002',
+  v_batch_1, v_phase_flor, 'contaminants', 'BioLab Colombia', 'BLC-2026-00089',
+  CURRENT_DATE - interval '2 days',
+  'pending', v_user_id, v_user_id, v_user_id
+);
+
+-- Test 3: Failed (heavy metals on batch 2, on_hold)
+INSERT INTO quality_tests (
+  id, batch_id, phase_id, test_type, lab_name, lab_reference,
+  sample_date, result_date, status, overall_pass, notes, performed_by,
+  created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000c-000000000003',
+  v_batch_2, v_phase_flor, 'heavy_metals', 'ChemHistory Labs', 'CHM-2026-00155',
+  CURRENT_DATE - interval '5 days', CURRENT_DATE - interval '3 days',
+  'failed', false, 'Lead exceeded maximum threshold — batch on hold',
+  v_user_id, v_user_id, v_user_id
+);
+
+-- =============================================================
+-- 41. QUALITY TEST RESULTS
+-- =============================================================
+
+-- Results for Test 1 (potency — passed)
+INSERT INTO quality_test_results (test_id, parameter, value, numeric_value, unit, min_threshold, max_threshold, passed, created_by, updated_by) VALUES
+  ('00000000-0000-0000-000c-000000000001', 'THC', '22.5', 22.5, '%', 0, 35, true, v_user_id, v_user_id),
+  ('00000000-0000-0000-000c-000000000001', 'CBD', '0.8', 0.8, '%', 0, 30, true, v_user_id, v_user_id),
+  ('00000000-0000-0000-000c-000000000001', 'CBN', '0.3', 0.3, '%', 0, 5, true, v_user_id, v_user_id),
+  ('00000000-0000-0000-000c-000000000001', 'Moisture', '11.2', 11.2, '%', null, 15, true, v_user_id, v_user_id);
+
+-- Results for Test 3 (heavy metals — failed on lead)
+INSERT INTO quality_test_results (test_id, parameter, value, numeric_value, unit, min_threshold, max_threshold, passed, created_by, updated_by) VALUES
+  ('00000000-0000-0000-000c-000000000003', 'Lead', '0.72', 0.72, 'ppm', null, 0.5, false, v_user_id, v_user_id),
+  ('00000000-0000-0000-000c-000000000003', 'Arsenic', '0.08', 0.08, 'ppm', null, 0.2, true, v_user_id, v_user_id),
+  ('00000000-0000-0000-000c-000000000003', 'Cadmium', '0.12', 0.12, 'ppm', null, 0.2, true, v_user_id, v_user_id),
+  ('00000000-0000-0000-000c-000000000003', 'Mercury', '0.02', 0.02, 'ppm', null, 0.1, true, v_user_id, v_user_id);
+
+-- =============================================================
+-- 42. PHASE 5: ADDITIONAL REGULATORY DOCUMENTS
+-- =============================================================
+
+-- CoA linked to quality test 1 (valid)
+INSERT INTO regulatory_documents (
+  company_id, doc_type_id, batch_id, quality_test_id,
+  document_number, issue_date, expiry_date, status, field_data,
+  file_path, file_name, file_size_bytes, file_mime_type,
+  verified_by, verified_at, created_by, updated_by
+) VALUES (
+  v_company_id, v_rdt_coa, v_batch_3, '00000000-0000-0000-000c-000000000001',
+  'COA-CHM-2026-00142', CURRENT_DATE - interval '7 days', CURRENT_DATE + interval '358 days',
+  'valid',
+  jsonb_build_object(
+    'lab_name', 'ChemHistory Labs',
+    'analysis_type', 'Full Potency Panel',
+    'sample_id', 'CHM-2026-00142',
+    'methodology', 'HPLC-UV'
+  ),
+  null, null, null, null,
+  v_user_id, now() - interval '6 days',
+  v_user_id, v_user_id
+);
+
+-- Draft SDS (no file yet)
+INSERT INTO regulatory_documents (
+  company_id, doc_type_id, product_id,
+  document_number, issue_date, status, field_data,
+  notes, created_by, updated_by
+) VALUES (
+  v_company_id, v_rdt_sds,
+  (SELECT id FROM products WHERE sku = 'FERT-FLORA-10-20-30' AND company_id = v_company_id),
+  'SDS-FLORA-2026-001', CURRENT_DATE - interval '3 days',
+  'draft',
+  jsonb_build_object(
+    'product_name', 'FloraMax 10-20-30',
+    'manufacturer', 'NutriGrow S.A.S.',
+    'emergency_phone', '+57 1 234 5678'
+  ),
+  'Pending file upload from supplier',
+  v_user_id, v_user_id
+);
+
+-- Expired phytosanitary cert
+INSERT INTO regulatory_documents (
+  company_id, doc_type_id, facility_id,
+  document_number, issue_date, expiry_date, status, field_data,
+  created_by, updated_by
+) VALUES (
+  v_company_id, v_rdt_phyto,
+  (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+  'PHYTO-ICA-2025-00098', CURRENT_DATE - interval '400 days', CURRENT_DATE - interval '35 days',
+  'expired',
+  jsonb_build_object(
+    'inspector_name', 'Dr. María López',
+    'inspection_date', (CURRENT_DATE - interval '401 days')::text,
+    'destination', 'Bogotá',
+    'pest_free', true
+  ),
+  v_user_id, v_user_id
+);
+
+-- Expiring soon (within 30 days) — for KPI testing
+INSERT INTO regulatory_documents (
+  company_id, doc_type_id, batch_id,
+  document_number, issue_date, expiry_date, status, field_data,
+  created_by, updated_by
+) VALUES (
+  v_company_id, v_rdt_coa, v_batch_1,
+  'COA-BLC-2026-00071', CURRENT_DATE - interval '350 days', CURRENT_DATE + interval '15 days',
+  'valid',
+  jsonb_build_object(
+    'lab_name', 'BioLab Colombia',
+    'analysis_type', 'Microbiological Screen',
+    'sample_id', 'BLC-2026-00071'
+  ),
+  v_user_id, v_user_id
+);
+
+-- =============================================================
+-- 42b. PHASE 5: PHYTOSANITARY AGENTS
+-- =============================================================
+
+-- Agent 1: Spider mite (pest/mite)
+INSERT INTO phytosanitary_agents (
+  id, company_id, type, category, code, common_name, scientific_name,
+  crop_type_id, default_plant_parts, visual_symptoms, recommended_actions,
+  severity_scale, is_active, sort_order, created_by, updated_by
+) VALUES (
+  v_agent_spider_mite, v_company_id, 'pest', 'mite', 'SPIDER-MITE',
+  'Ácaro rojo', 'Tetranychus urticae',
+  v_crop_cannabis, '["leaf", "stem"]'::jsonb,
+  'Puntos amarillos en hojas, telarañas finas en envés',
+  'Aplicar acaricida (abamectina), liberar Phytoseiulus persimilis',
+  '{"low": "< 5 individuos/hoja", "medium": "5-15 individuos/hoja", "high": "15-30 individuos/hoja", "critical": "> 30 individuos/hoja"}'::jsonb,
+  true, 1, v_user_id, v_user_id
+);
+
+-- Agent 2: Botrytis (disease/fungus)
+INSERT INTO phytosanitary_agents (
+  id, company_id, type, category, code, common_name, scientific_name,
+  crop_type_id, default_plant_parts, visual_symptoms, recommended_actions,
+  severity_scale, is_active, sort_order, created_by, updated_by
+) VALUES (
+  v_agent_botrytis, v_company_id, 'disease', 'fungus', 'BOTRYTIS',
+  'Moho gris', 'Botrytis cinerea',
+  v_crop_cannabis, '["flower", "stem"]'::jsonb,
+  'Moho gris en cogollos, necrosis en tallos',
+  'Eliminar partes afectadas, mejorar ventilación, reducir humedad < 50%',
+  '{"low": "1-2 cogollos afectados", "medium": "3-5 cogollos", "high": "6-10 cogollos", "critical": "> 10 cogollos o sistémico"}'::jsonb,
+  true, 2, v_user_id, v_user_id
+);
+
+-- Agent 3: Nitrogen deficiency (deficiency/nutrient)
+INSERT INTO phytosanitary_agents (
+  id, company_id, type, category, code, common_name, scientific_name,
+  crop_type_id, default_plant_parts, visual_symptoms, recommended_actions,
+  is_active, sort_order, created_by, updated_by
+) VALUES (
+  v_agent_nitrogen, v_company_id, 'deficiency', 'nutrient', 'N-DEF',
+  'Deficiencia de nitrógeno', null,
+  v_crop_cannabis, '["leaf", "whole_plant"]'::jsonb,
+  'Clorosis generalizada comenzando en hojas bajas, crecimiento lento',
+  'Aumentar fertilización nitrogenada, revisar pH del sustrato (6.0-6.5)',
+  true, 3, v_user_id, v_user_id
+);
+
+-- =============================================================
+-- 43. PHASE 5: SCHEDULED ACTIVITIES (for Block 2)
+-- =============================================================
+
+-- Scheduled activity 1: Riego vegetativo, pending (future)
+INSERT INTO scheduled_activities (
+  id, schedule_id, template_id, batch_id,
+  planned_date, crop_day, phase_id, status,
+  template_snapshot, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000d-000000000001',
+  v_sched_og, v_tmpl_riego_veg, v_batch_1,
+  CURRENT_DATE + interval '2 days', 45, v_phase_veg, 'pending',
+  jsonb_build_object('name', 'Riego Vegetativo', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
+  v_user_id, v_user_id
+);
+
+-- Scheduled activity 2: Fertilización floración, pending (tomorrow)
+INSERT INTO scheduled_activities (
+  id, schedule_id, template_id, batch_id,
+  planned_date, crop_day, phase_id, status,
+  template_snapshot, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000d-000000000002',
+  v_sched_og, v_tmpl_fert_flor, v_batch_1,
+  CURRENT_DATE + interval '1 day', 44, v_phase_veg, 'pending',
+  jsonb_build_object('name', 'Fertilización Floración', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
+  v_user_id, v_user_id
+);
+
+-- Scheduled activity 3: Inspección, completed (executed)
+INSERT INTO scheduled_activities (
+  id, schedule_id, template_id, batch_id,
+  planned_date, crop_day, phase_id, status,
+  template_snapshot, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000d-000000000003',
+  v_sched_og, v_tmpl_insp_diaria, v_batch_1,
+  CURRENT_DATE - interval '1 day', 42, v_phase_veg, 'completed',
+  jsonb_build_object('name', 'Inspección Diaria', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
+  v_user_id, v_user_id
+);
+
+-- Scheduled activity 4: Overdue riego
+INSERT INTO scheduled_activities (
+  id, schedule_id, template_id, batch_id,
+  planned_date, crop_day, phase_id, status,
+  template_snapshot, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000d-000000000004',
+  v_sched_og, v_tmpl_riego_veg, v_batch_5,
+  CURRENT_DATE - interval '3 days', 10, v_phase_germ, 'overdue',
+  jsonb_build_object('name', 'Riego Vegetativo', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
+  v_user_id, v_user_id
+);
+
+-- =============================================================
+-- 44. PHASE 5: EXECUTED ACTIVITY (for Block 2)
+-- =============================================================
+
+-- One executed activity linked to scheduled_activity 3
+INSERT INTO activities (
+  id, activity_type_id, template_id, scheduled_activity_id, batch_id, zone_id,
+  performed_by, performed_at, duration_minutes, phase_id, crop_day,
+  status, notes, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000e-000000000001',
+  v_atype_inspeccion, v_tmpl_insp_diaria,
+  '00000000-0000-0000-000d-000000000003',
+  v_batch_1,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+  v_user_id, now() - interval '1 day', 30,
+  v_phase_veg, 42,
+  'completed', 'Inspección de rutina — todo en orden',
+  v_user_id, v_user_id
+);
+
+-- Link the completed scheduled activity to the execution
+UPDATE scheduled_activities
+SET completed_activity_id = '00000000-0000-0000-000e-000000000001'
+WHERE id = '00000000-0000-0000-000d-000000000003';
+
+-- =============================================================
+-- 45. PHASE 5: ACTIVITY OBSERVATIONS (for Block 2)
+-- =============================================================
+
+-- Observation 1: Spider mite found during inspection
+INSERT INTO activity_observations (
+  activity_id, type, agent_id, plant_part,
+  incidence_value, incidence_unit, severity,
+  sample_size, affected_plants,
+  description, action_taken
+) VALUES (
+  '00000000-0000-0000-000e-000000000001',
+  'pest', v_agent_spider_mite, 'leaf',
+  12, 'count', 'medium',
+  10, 3,
+  'Colonias pequeñas de ácaro rojo en envés de hojas medias',
+  'Programar aplicación de acaricida'
+);
+
+-- Observation 2: Minor nitrogen deficiency noted
+INSERT INTO activity_observations (
+  activity_id, type, agent_id, plant_part,
+  severity, description
+) VALUES (
+  '00000000-0000-0000-000e-000000000001',
+  'deficiency', v_agent_nitrogen, 'leaf',
+  'low',
+  'Ligera clorosis en hojas bajas — posible deficiencia de N'
+);
+
+-- =============================================================
+-- 46. PHASE 5: ADDITIONAL SCHEDULED ACTIVITIES
+-- =============================================================
+
+-- Scheduled activity 5: Another riego for batch 2 (pending, today)
+INSERT INTO scheduled_activities (
+  id, template_id, batch_id,
+  planned_date, crop_day, phase_id, status,
+  template_snapshot, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000d-000000000005',
+  v_tmpl_riego_veg, v_batch_2,
+  CURRENT_DATE, 30, v_phase_flor, 'pending',
+  jsonb_build_object('name', 'Riego Vegetativo', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
+  v_user_id, v_user_id
+);
+
+-- Scheduled activity 6: Skipped fertilization
+INSERT INTO scheduled_activities (
+  id, template_id, batch_id,
+  planned_date, crop_day, phase_id, status,
+  template_snapshot, created_by, updated_by
+) VALUES (
+  '00000000-0000-0000-000d-000000000006',
+  v_tmpl_fert_flor, v_batch_3,
+  CURRENT_DATE - interval '5 days', 85, v_phase_cosecha, 'skipped',
+  jsonb_build_object('name', 'Fertilización Floración', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
+  v_user_id, v_user_id
+);
 
 END $$;

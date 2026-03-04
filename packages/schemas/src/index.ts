@@ -38,7 +38,14 @@ export {
   regulatoryDocTypeSchema, type RegulatoryDocTypeInput,
   productRequirementSchema, type ProductRequirementInput,
   shipmentRequirementSchema, type ShipmentRequirementInput,
+  createRegulatoryDocumentSchema, type CreateRegulatoryDocumentInput,
+  updateRegulatoryDocumentSchema, type UpdateRegulatoryDocumentInput,
 } from './regulatory'
+export {
+  createQualityTestSchema, type CreateQualityTestInput,
+  updateQualityTestSchema, type UpdateQualityTestInput,
+  qualityTestResultSchema, type QualityTestResultInput,
+} from './quality'
 export {
   facilitySchema, type FacilityInput,
 } from './facilities'
@@ -75,3 +82,15 @@ export {
   productionOrderSchema, type ProductionOrderInput,
   calculateYieldsSchema, type CalculateYieldsInput,
 } from './production-orders'
+export {
+  observationTypeEnum, type ObservationType,
+  observationSeverityEnum, type ObservationSeverity,
+  plantPartEnum, type PlantPart,
+  incidenceUnitEnum, type IncidenceUnit,
+  activityStatusEnum, type ActivityStatus,
+  scheduledActivityStatusEnum, type ScheduledActivityStatus,
+  activityResourceSchema, type ActivityResourceInput,
+  activityObservationSchema, type ActivityObservationInput,
+  executeActivitySchema, type ExecuteActivityInput,
+  rescheduleActivitySchema, type RescheduleActivityInput,
+} from './activities'

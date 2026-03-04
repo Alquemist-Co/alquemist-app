@@ -44,13 +44,13 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 
 ## Phase 5 — Activities + Quality + Regulatory (7 PRDs)
 
-- [ ] 26 · `activities/schedule` — `/activities/schedule` · prd ✗
-- [ ] 27 · `activities/execute` — `/activities/execute/[id]` · prd ✗
-- [ ] 28 · `activities/history` — `/activities/history` · prd ✗
-- [ ] 29 · `quality/tests` — `/quality/tests` · prd ✗
-- [ ] 30 · `quality/test-detail` — `/quality/tests/[id]` · prd ✗
-- [ ] 31 · `regulatory/documents` — `/regulatory/documents` · prd ✗
-- [ ] 32 · `regulatory/document-detail` — `/regulatory/documents/[id]` · prd ✗
+- [-] 26 · `activities/schedule` — `/activities/schedule` · prd ✓
+- [-] 27 · `activities/execute` — `/activities/execute/[id]` · prd ✓
+- [-] 28 · `activities/history` — `/activities/history` · prd ✓
+- [x] 29 · `quality/tests` — `/quality/tests` · prd ✓
+- [x] 30 · `quality/test-detail` — `/quality/tests/[id]` · prd ✓
+- [x] 31 · `regulatory/documents` — `/regulatory/documents` · prd ✓
+- [x] 32 · `regulatory/document-detail` — `/regulatory/documents/[id]` · prd ✓
 
 ## Phase 6 — Operations (4 PRDs)
 
@@ -85,7 +85,7 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | 2 Settings                          | 8/8          | 8/8         |
 | 3 Areas + Inventory                 | 8/8          | 8/8         |
 | 4 Production                        | 4/4          | 4/4         |
-| 5 Activities + Quality + Regulatory | 0/7          | 0/7         |
+| 5 Activities + Quality + Regulatory | 7/7          | 4/7         |
 | 6 Operations                        | 0/4          | 0/4         |
 | 7 Inventory Ops                     | 0/2          | 0/2         |
 | 8 Field                             | 0/4          | 0/4         |

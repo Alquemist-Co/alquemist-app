@@ -34,6 +34,260 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          activity_type_id: string
+          batch_id: string
+          created_at: string
+          created_by: string | null
+          crop_day: number | null
+          duration_minutes: number | null
+          id: string
+          measurement_data: Json | null
+          notes: string | null
+          performed_at: string
+          performed_by: string
+          phase_id: string | null
+          scheduled_activity_id: string | null
+          status: Database["public"]["Enums"]["activity_status"]
+          template_id: string | null
+          updated_at: string
+          updated_by: string | null
+          zone_id: string
+        }
+        Insert: {
+          activity_type_id: string
+          batch_id: string
+          created_at?: string
+          created_by?: string | null
+          crop_day?: number | null
+          duration_minutes?: number | null
+          id?: string
+          measurement_data?: Json | null
+          notes?: string | null
+          performed_at?: string
+          performed_by: string
+          phase_id?: string | null
+          scheduled_activity_id?: string | null
+          status?: Database["public"]["Enums"]["activity_status"]
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          zone_id: string
+        }
+        Update: {
+          activity_type_id?: string
+          batch_id?: string
+          created_at?: string
+          created_by?: string | null
+          crop_day?: number | null
+          duration_minutes?: number | null
+          id?: string
+          measurement_data?: Json | null
+          notes?: string | null
+          performed_at?: string
+          performed_by?: string
+          phase_id?: string | null
+          scheduled_activity_id?: string | null
+          status?: Database["public"]["Enums"]["activity_status"]
+          template_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_activity_type_id_fkey"
+            columns: ["activity_type_id"]
+            isOneToOne: false
+            referencedRelation: "activity_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_scheduled_activity_id_fkey"
+            columns: ["scheduled_activity_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_observations: {
+        Row: {
+          action_taken: string | null
+          activity_id: string
+          affected_plants: number | null
+          agent_id: string | null
+          created_at: string
+          description: string
+          id: string
+          incidence_unit: Database["public"]["Enums"]["incidence_unit"] | null
+          incidence_value: number | null
+          plant_part: Database["public"]["Enums"]["plant_part"] | null
+          sample_size: number | null
+          severity: Database["public"]["Enums"]["observation_severity"]
+          severity_pct: number | null
+          type: Database["public"]["Enums"]["observation_type"]
+        }
+        Insert: {
+          action_taken?: string | null
+          activity_id: string
+          affected_plants?: number | null
+          agent_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          incidence_unit?: Database["public"]["Enums"]["incidence_unit"] | null
+          incidence_value?: number | null
+          plant_part?: Database["public"]["Enums"]["plant_part"] | null
+          sample_size?: number | null
+          severity?: Database["public"]["Enums"]["observation_severity"]
+          severity_pct?: number | null
+          type: Database["public"]["Enums"]["observation_type"]
+        }
+        Update: {
+          action_taken?: string | null
+          activity_id?: string
+          affected_plants?: number | null
+          agent_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          incidence_unit?: Database["public"]["Enums"]["incidence_unit"] | null
+          incidence_value?: number | null
+          plant_part?: Database["public"]["Enums"]["plant_part"] | null
+          sample_size?: number | null
+          severity?: Database["public"]["Enums"]["observation_severity"]
+          severity_pct?: number | null
+          type?: Database["public"]["Enums"]["observation_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_observations_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_observations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "phytosanitary_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_resources: {
+        Row: {
+          activity_id: string
+          cost_total: number | null
+          created_at: string
+          id: string
+          inventory_item_id: string | null
+          product_id: string
+          quantity_actual: number
+          quantity_planned: number | null
+          transaction_id: string | null
+          unit_id: string
+        }
+        Insert: {
+          activity_id: string
+          cost_total?: number | null
+          created_at?: string
+          id?: string
+          inventory_item_id?: string | null
+          product_id: string
+          quantity_actual: number
+          quantity_planned?: number | null
+          transaction_id?: string | null
+          unit_id: string
+        }
+        Update: {
+          activity_id?: string
+          cost_total?: number | null
+          created_at?: string
+          id?: string
+          inventory_item_id?: string | null
+          product_id?: string
+          quantity_actual?: number
+          quantity_planned?: number | null
+          transaction_id?: string | null
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_resources_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_resources_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_resources_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_resources_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_resources_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units_of_measure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_template_checklist: {
         Row: {
           created_at: string
@@ -1124,6 +1378,84 @@ export type Database = {
           },
         ]
       }
+      phytosanitary_agents: {
+        Row: {
+          category: Database["public"]["Enums"]["agent_category"]
+          code: string | null
+          common_name: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          crop_type_id: string | null
+          default_plant_parts: Json | null
+          id: string
+          is_active: boolean
+          recommended_actions: string | null
+          scientific_name: string | null
+          severity_scale: Json | null
+          sort_order: number
+          type: Database["public"]["Enums"]["agent_type"]
+          updated_at: string
+          updated_by: string | null
+          visual_symptoms: string | null
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["agent_category"]
+          code?: string | null
+          common_name: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          crop_type_id?: string | null
+          default_plant_parts?: Json | null
+          id?: string
+          is_active?: boolean
+          recommended_actions?: string | null
+          scientific_name?: string | null
+          severity_scale?: Json | null
+          sort_order?: number
+          type: Database["public"]["Enums"]["agent_type"]
+          updated_at?: string
+          updated_by?: string | null
+          visual_symptoms?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["agent_category"]
+          code?: string | null
+          common_name?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          crop_type_id?: string | null
+          default_plant_parts?: Json | null
+          id?: string
+          is_active?: boolean
+          recommended_actions?: string | null
+          scientific_name?: string | null
+          severity_scale?: Json | null
+          sort_order?: number
+          type?: Database["public"]["Enums"]["agent_type"]
+          updated_at?: string
+          updated_by?: string | null
+          visual_symptoms?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "phytosanitary_agents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "phytosanitary_agents_crop_type_id_fkey"
+            columns: ["crop_type_id"]
+            isOneToOne: false
+            referencedRelation: "crop_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_regulatory_requirements: {
         Row: {
           applies_to_scope: Database["public"]["Enums"]["compliance_scope"]
@@ -1652,6 +1984,141 @@ export type Database = {
           },
         ]
       }
+      quality_test_results: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          max_threshold: number | null
+          min_threshold: number | null
+          numeric_value: number | null
+          parameter: string
+          passed: boolean | null
+          test_id: string
+          unit: string | null
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_threshold?: number | null
+          min_threshold?: number | null
+          numeric_value?: number | null
+          parameter: string
+          passed?: boolean | null
+          test_id: string
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_threshold?: number | null
+          min_threshold?: number | null
+          numeric_value?: number | null
+          parameter?: string
+          passed?: boolean | null
+          test_id?: string
+          unit?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_test_results_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "quality_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quality_tests: {
+        Row: {
+          batch_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          lab_name: string | null
+          lab_reference: string | null
+          notes: string | null
+          overall_pass: boolean | null
+          performed_by: string | null
+          phase_id: string | null
+          result_date: string | null
+          sample_date: string
+          status: Database["public"]["Enums"]["test_status"]
+          test_type: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lab_name?: string | null
+          lab_reference?: string | null
+          notes?: string | null
+          overall_pass?: boolean | null
+          performed_by?: string | null
+          phase_id?: string | null
+          result_date?: string | null
+          sample_date?: string
+          status?: Database["public"]["Enums"]["test_status"]
+          test_type: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lab_name?: string | null
+          lab_reference?: string | null
+          notes?: string | null
+          overall_pass?: boolean | null
+          performed_by?: string | null
+          phase_id?: string | null
+          result_date?: string | null
+          sample_date?: string
+          status?: Database["public"]["Enums"]["test_status"]
+          test_type?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quality_tests_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_tests_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quality_tests_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recipe_executions: {
         Row: {
           batch_id: string | null
@@ -1857,14 +2324,25 @@ export type Database = {
           doc_type_id: string
           document_number: string | null
           expiry_date: string | null
+          facility_id: string | null
           field_data: Json
+          file_mime_type: string | null
+          file_name: string | null
           file_path: string | null
+          file_size_bytes: number | null
           id: string
+          inventory_item_id: string | null
           issue_date: string
+          notes: string | null
+          product_id: string | null
+          quality_test_id: string | null
           shipment_id: string | null
-          status: string
+          status: Database["public"]["Enums"]["doc_status"]
+          superseded_by_id: string | null
           updated_at: string
           updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           batch_id?: string | null
@@ -1874,14 +2352,25 @@ export type Database = {
           doc_type_id: string
           document_number?: string | null
           expiry_date?: string | null
+          facility_id?: string | null
           field_data?: Json
+          file_mime_type?: string | null
+          file_name?: string | null
           file_path?: string | null
+          file_size_bytes?: number | null
           id?: string
+          inventory_item_id?: string | null
           issue_date: string
+          notes?: string | null
+          product_id?: string | null
+          quality_test_id?: string | null
           shipment_id?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          superseded_by_id?: string | null
           updated_at?: string
           updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           batch_id?: string | null
@@ -1891,16 +2380,34 @@ export type Database = {
           doc_type_id?: string
           document_number?: string | null
           expiry_date?: string | null
+          facility_id?: string | null
           field_data?: Json
+          file_mime_type?: string | null
+          file_name?: string | null
           file_path?: string | null
+          file_size_bytes?: number | null
           id?: string
+          inventory_item_id?: string | null
           issue_date?: string
+          notes?: string | null
+          product_id?: string | null
+          quality_test_id?: string | null
           shipment_id?: string | null
-          status?: string
+          status?: Database["public"]["Enums"]["doc_status"]
+          superseded_by_id?: string | null
           updated_at?: string
           updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "regulatory_documents_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "regulatory_documents_company_id_fkey"
             columns: ["company_id"]
@@ -1916,10 +2423,52 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "regulatory_documents_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_quality_test_id_fkey"
+            columns: ["quality_test_id"]
+            isOneToOne: false
+            referencedRelation: "quality_tests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "regulatory_documents_shipment_id_fkey"
             columns: ["shipment_id"]
             isOneToOne: false
             referencedRelation: "shipments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_superseded_by_id_fkey"
+            columns: ["superseded_by_id"]
+            isOneToOne: false
+            referencedRelation: "regulatory_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "regulatory_documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -1992,6 +2541,93 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "resource_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_activities: {
+        Row: {
+          batch_id: string
+          completed_activity_id: string | null
+          created_at: string
+          created_by: string | null
+          crop_day: number | null
+          id: string
+          phase_id: string | null
+          planned_date: string
+          schedule_id: string | null
+          status: Database["public"]["Enums"]["scheduled_activity_status"]
+          template_id: string | null
+          template_snapshot: Json | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          batch_id: string
+          completed_activity_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop_day?: number | null
+          id?: string
+          phase_id?: string | null
+          planned_date: string
+          schedule_id?: string | null
+          status?: Database["public"]["Enums"]["scheduled_activity_status"]
+          template_id?: string | null
+          template_snapshot?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          batch_id?: string
+          completed_activity_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          crop_day?: number | null
+          id?: string
+          phase_id?: string | null
+          planned_date?: string
+          schedule_id?: string | null
+          status?: Database["public"]["Enums"]["scheduled_activity_status"]
+          template_id?: string | null
+          template_snapshot?: Json | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sched_act_completed_activity_fkey"
+            columns: ["completed_activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_activities_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_activities_phase_id_fkey"
+            columns: ["phase_id"]
+            isOneToOne: false
+            referencedRelation: "production_phases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_activities_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "cultivation_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scheduled_activities_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "activity_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -2662,6 +3298,19 @@ export type Database = {
     }
     Enums: {
       activity_frequency: "daily" | "weekly" | "biweekly" | "once" | "on_demand"
+      activity_status: "in_progress" | "completed" | "cancelled"
+      agent_category:
+        | "insect"
+        | "mite"
+        | "fungus"
+        | "bacteria"
+        | "virus"
+        | "nematode"
+        | "mollusk"
+        | "nutrient"
+        | "environmental"
+        | "other"
+      agent_type: "pest" | "disease" | "deficiency" | "abiotic"
       batch_status:
         | "active"
         | "phase_transition"
@@ -2682,6 +3331,7 @@ export type Database = {
         | "origin"
         | "safety"
         | "commercial"
+      doc_status: "draft" | "valid" | "expired" | "revoked" | "superseded"
       facility_type:
         | "indoor_warehouse"
         | "greenhouse"
@@ -2689,6 +3339,7 @@ export type Database = {
         | "open_field"
         | "vertical_farm"
       flow_direction: "input" | "output"
+      incidence_unit: "count" | "percentage"
       inspection_result:
         | "accepted"
         | "accepted_with_observations"
@@ -2697,6 +3348,14 @@ export type Database = {
       lineage_operation: "split" | "merge"
       lot_status: "available" | "quarantine" | "expired" | "depleted"
       lot_tracking: "required" | "optional" | "none"
+      observation_severity: "info" | "low" | "medium" | "high" | "critical"
+      observation_type:
+        | "pest"
+        | "disease"
+        | "deficiency"
+        | "environmental"
+        | "general"
+        | "measurement"
       order_phase_status:
         | "pending"
         | "ready"
@@ -2710,6 +3369,7 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+      plant_part: "root" | "stem" | "leaf" | "flower" | "fruit" | "whole_plant"
       product_procurement_type: "purchased" | "produced" | "both"
       product_role: "primary" | "secondary" | "byproduct" | "waste"
       quantity_basis:
@@ -2718,6 +3378,7 @@ export type Database = {
         | "per_m2"
         | "per_zone"
         | "per_L_solution"
+      scheduled_activity_status: "pending" | "completed" | "skipped" | "overdue"
       shipment_direction: "inbound" | "outbound"
       shipment_doc_applies_when:
         | "always"
@@ -2742,6 +3403,12 @@ export type Database = {
         | "bed"
         | "trellis_row"
         | "nft_channel"
+      test_status:
+        | "pending"
+        | "in_progress"
+        | "completed"
+        | "failed"
+        | "rejected"
       transaction_type:
         | "receipt"
         | "consumption"
@@ -2909,6 +3576,20 @@ export const Constants = {
   public: {
     Enums: {
       activity_frequency: ["daily", "weekly", "biweekly", "once", "on_demand"],
+      activity_status: ["in_progress", "completed", "cancelled"],
+      agent_category: [
+        "insect",
+        "mite",
+        "fungus",
+        "bacteria",
+        "virus",
+        "nematode",
+        "mollusk",
+        "nutrient",
+        "environmental",
+        "other",
+      ],
+      agent_type: ["pest", "disease", "deficiency", "abiotic"],
       batch_status: [
         "active",
         "phase_transition",
@@ -2932,6 +3613,7 @@ export const Constants = {
         "safety",
         "commercial",
       ],
+      doc_status: ["draft", "valid", "expired", "revoked", "superseded"],
       facility_type: [
         "indoor_warehouse",
         "greenhouse",
@@ -2940,6 +3622,7 @@ export const Constants = {
         "vertical_farm",
       ],
       flow_direction: ["input", "output"],
+      incidence_unit: ["count", "percentage"],
       inspection_result: [
         "accepted",
         "accepted_with_observations",
@@ -2949,6 +3632,15 @@ export const Constants = {
       lineage_operation: ["split", "merge"],
       lot_status: ["available", "quarantine", "expired", "depleted"],
       lot_tracking: ["required", "optional", "none"],
+      observation_severity: ["info", "low", "medium", "high", "critical"],
+      observation_type: [
+        "pest",
+        "disease",
+        "deficiency",
+        "environmental",
+        "general",
+        "measurement",
+      ],
       order_phase_status: [
         "pending",
         "ready",
@@ -2964,6 +3656,7 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      plant_part: ["root", "stem", "leaf", "flower", "fruit", "whole_plant"],
       product_procurement_type: ["purchased", "produced", "both"],
       product_role: ["primary", "secondary", "byproduct", "waste"],
       quantity_basis: [
@@ -2973,6 +3666,7 @@ export const Constants = {
         "per_zone",
         "per_L_solution",
       ],
+      scheduled_activity_status: ["pending", "completed", "skipped", "overdue"],
       shipment_direction: ["inbound", "outbound"],
       shipment_doc_applies_when: [
         "always",
@@ -2999,6 +3693,13 @@ export const Constants = {
         "bed",
         "trellis_row",
         "nft_channel",
+      ],
+      test_status: [
+        "pending",
+        "in_progress",
+        "completed",
+        "failed",
+        "rejected",
       ],
       transaction_type: [
         "receipt",
