@@ -37,7 +37,7 @@ Usuarios principales: operarios y supervisores en el día a día de producción.
 | inventory_transactions      | W           | Generadas automáticamente al ejecutar (type='consumption' o 'application') via Edge Fun  |
 | units_of_measure            | R           | Unidades de los recursos                                                                 |
 | phytosanitary_agents        | R           | Catálogo de agentes para observaciones tipo pest/disease/deficiency                      |
-| attachments                 | W           | Fotos adjuntas (via Supabase Storage + registro en attachments)                          |
+| attachments                 | W           | **DIFERIDO Fase 6** — Fotos adjuntas (requiere migración pre-PRD 33)                    |
 | users                       | R           | Usuario actual (performed_by)                                                            |
 
 ## ENUMs utilizados
@@ -239,7 +239,9 @@ Página dentro del layout de dashboard con sidebar. Formulario multi-sección ve
   10. Retorna: `{ activity_id, transactions_created, phase_changed }`
 - **RF-11**: Tras ejecución exitosa, toast "Actividad completada exitosamente" + si phase_changed: toast adicional "Batch avanzó a fase {nombre}" + navegar al calendario o al batch
 
-### Fotos
+### Fotos (DIFERIDO a Fase 6)
+
+> **Diferido**: RF-12 a RF-15 requieren la tabla `attachments` que se crea en la migración pre-PRD 33 (Fase 6). La UI de fotos y la lógica de upload se implementarán junto con esa migración. Ver master plan Fase 6 → "Deferred de Fase 5".
 
 - **RF-12**: Las fotos se suben a Supabase Storage: `activity-attachments/{company_id}/{batch_id}/{activity_id}/{uuid}.jpg`
 - **RF-13**: Compresión client-side: max 1920px de lado mayor, JPEG calidad 80%, preservar EXIF (GPS, timestamp)

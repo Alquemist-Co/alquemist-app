@@ -1,5 +1,21 @@
 # Task Tracking
 
+## Phase 6 Pre-work (before PRD 33)
+
+- [ ] Migration: `attachments` table (entity_type ENUM, RLS via company_id)
+- [ ] Migration: `alerts` table + ENUMs (alert_type, alert_severity, alert_status)
+- [ ] Migration: `sensors`, `environmental_readings` tables + ENUMs
+- [ ] Migration: `overhead_costs` table + ENUMs
+- [ ] Migration: 6 pg_cron jobs + SQL functions:
+  - [ ] `expire_documents` (daily 1AM) — fixes Phase 5 data integrity gap
+  - [ ] `check_overdue_activities` (hourly) — fixes Phase 5 data integrity gap
+  - [ ] `check_expiring_documents` (daily 6AM)
+  - [ ] `check_low_inventory` (daily 7AM)
+  - [ ] `check_stale_batches` (daily 8AM)
+  - [ ] `check_env_readings` (every 15 min)
+- [ ] Photo upload in execute-activity (PRD 27 RF-12 to RF-15) — implement with attachments table
+- [ ] Integration tests for `execute-activity` Edge Function
+
 ## PRD 15 — Zones Implementation
 
 - [x] Zod schemas: `packages/schemas/src/zones.ts` (zoneSchema + zoneStructureSchema)

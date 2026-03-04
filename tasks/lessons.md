@@ -32,6 +32,14 @@
 - When an Edge Function creates related records in the same transaction (e.g., shipment_items → inventory_items), use `DEFERRABLE INITIALLY DEFERRED` on the FK constraint.
 - Pattern: `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY ... DEFERRABLE INITIALLY DEFERRED`.
 
+### Deferred features need explicit ownership in future PRDs
+- When deferring a feature from PRD N to Phase M, update THREE places:
+  1. The source PRD (mark RF as DIFERIDO with cross-reference)
+  2. The master plan (Phase M pre-work section)
+  3. The target PRD (add Pre-requisitos section that explicitly owns the migration/implementation)
+- Without explicit ownership, deferred items become orphaned and create data integrity gaps.
+- Example: Phase 5 deferred pg_cron jobs (expire_documents, check_overdue_activities) — without them, documents never expire and activities never get marked overdue.
+
 ### useSearchParams() requires Suspense boundary in Next.js 16
 - Pages using `useSearchParams()` fail during static generation without a `<Suspense>` boundary.
 - Fix: wrap children in auth layout (or relevant layout) with `<Suspense>`.

@@ -1,47 +1,16 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
 Alquemist is an agricultural/horticultural management platform — cultivation tracking, inventory, quality control, IoT monitoring, scheduling, and offline-capable operations. Multi-tenant with role-based access (admin, manager, supervisor, operator, viewer).
 
 ## Foundational Documents
 
-Three documents define the entire system. **Read the relevant document(s) before planning any feature or change.**
+**Read the relevant document(s) before planning any feature or change.**
 
-### Architecture — `docs/fundational/alquemist-architecture-system.md`
-
-The single source of truth for HOW the system is built. Consult when:
-
-- Deciding **PostgREST vs Edge Function** for a new endpoint (§5 — ~70% PostgREST for CRUD, ~30% Edge Functions for transactional flows)
-- Implementing **auth, RLS, or multi-tenancy** (§7 — 4 RLS policy types, roles in app_metadata, service role usage)
-- Working with **triggers or database functions** (§4 — inventory balance, zone capacity, facility totals, updated_at)
-- Building **async jobs** (§8 — pg_cron: expiring docs, overdue activities, low inventory, stale batches, env readings)
-- Setting up **file uploads** (§9 — Supabase Storage buckets, RLS on storage)
-- Implementing **IoT/environmental monitoring** (§10 — webhook pipeline, sensor readings)
-- Making **deployment or infrastructure** decisions (§11-12 — Vercel + Supabase Cloud, scalability limits)
-- Working on **offline/PWA** features (§1 — retry queue in Service Worker, not offline-first)
-- Choosing **Server vs Client Components** (§6 — SSR for dashboards/lists, Client for forms/interactivity)
-
-### Data Model — `docs/fundational/alquemist-data-model`
-
-The single source of truth for WHAT the system manages. Consult when:
-
-- Writing or reviewing **SQL migrations** — exact column types, ENUMs, FK relationships, constraints, defaults
-- Implementing **any feature that touches a table** — understand the table's domain, cross-domain FKs, and which fields are calculated vs stored
-- Understanding **operational flows** — Flows 1-8 show step-by-step how tables interact during real operations (order creation, harvest, shipment reception, split/merge, etc.)
-- Writing **queries or aggregations** — §7 has recommended composite indexes and 16 analytical query patterns
-- Working with **inventory** — immutable append-only transactions, transformation_out/in pairs, related_transaction_id linking
-- Understanding **batch as nexus** — how the central batch table connects all 9 domains via cross-domain FKs
-
-### Master Plan — `docs/prd/00-prd-master-plan.md`
-
-The roadmap for all 43 PRDs across 9 phases. Consult when:
-
-- Starting a **new PRD implementation** — phase dependencies, required tables, exact ENUM values per phase
-- Needing the **PRD template** structure for writing new PRDs
-- Understanding **phase order** and what each phase unlocks for subsequent phases
+- **Architecture** — `docs/fundational/alquemist-architecture-system.md` — HOW the system is built (PostgREST vs Edge Functions, auth/RLS, triggers, async jobs, file uploads, IoT, deployment, offline/PWA, Server vs Client Components)
+- **Data Model** — `docs/fundational/alquemist-data-model` — WHAT the system manages (table schemas, ENUMs, FKs, operational flows, indexes, inventory transactions, batch as nexus)
+- **Master Plan** — `docs/prd/00-prd-master-plan.md` — Phase dependencies, required tables, ENUM values, PRD template
 
 ## PRD Implementation
 
@@ -49,12 +18,12 @@ The roadmap for all 43 PRDs across 9 phases. Consult when:
 
 1. Check `tasks/prd-implementation.md` for current progress and what's next
 2. Read the relevant PRD in `docs/prd/<grupo>/<pagina>.md`
-3. Read the master plan phase section in `docs/prd/00-prd-master-plan.md` for dependencies and ENUMs
+3. Read the master plan phase section for dependencies and ENUMs
 4. Update the tracker status (`[-]` in progress / `[x]` done) as you go
-5. **Keep PRD in sync**: Any adjustment during implementation (new fields, changed flows, added validations, removed features, UX changes) must be reflected back in the corresponding PRD. The PRD is the living spec — it must always match what was actually built
-6. **Defer across PRDs**: If a feature in PRD N depends on a table/resource from PRD M (M > N), defer that feature to PRD M. Update both PRDs: mark it as "deferred to PRD M" in PRD N, and add it as "absorbed from PRD N" in PRD M. Never leave orphaned scope.
-7. **Sync before moving on**: After completing a PRD implementation, update the PRD doc *before* committing. Compare every section (metadata, layout, RFs, RNFs, flows) against what was actually built. This is a blocking step — do not proceed to the next PRD with stale docs.
-8. **Strategic commits**: Commit at logical checkpoints — after migrations, after server actions, after UI components, after verification. Don't accumulate all changes into one massive commit
+5. **Keep PRD in sync**: Any adjustment during implementation must be reflected back in the PRD. The PRD is the living spec — it must always match what was actually built
+6. **Defer across PRDs**: If a feature in PRD N depends on a table/resource from PRD M (M > N), defer that feature to PRD M. Update both PRDs. Never leave orphaned scope
+7. **Sync before moving on**: After completing a PRD, compare every section against what was built before committing. Blocking step
+8. **Strategic commits**: Commit at logical checkpoints — migrations, server actions, UI, verification
 
 Phases must be implemented in order — each phase depends on the previous ones.
 
@@ -66,253 +35,100 @@ Phases must be implemented in order — each phase depends on the previous ones.
 
 ## UI Components (shadcn/ui)
 
-This project uses **shadcn/ui** (new-york style, Tailwind CSS 4, lucide icons, RSC enabled). Config lives in `components.json`. Components are imported from `@/components/ui/<name>`. Use `cn()` from `lib/utils.ts` for conditional class merging.
+Config: `components.json` (new-york style, Tailwind CSS 4, lucide icons, RSC). Import from `@/components/ui/<name>`. Use `cn()` from `lib/utils.ts`.
 
-### Rules
-
-- **Never build custom UI** when shadcn has an equivalent component — always check the registry first
-- **Check `components/ui/` first** before adding a new component — it may already be installed
-- Use the existing `cn()` utility for all className composition, never raw `clsx` or template literals
-
-### Adding New Components (MCP Workflow)
-
-When a feature needs a component not yet in `components/ui/`, use the shadcn MCP tools in order:
-
-1. **Search** — `mcp__shadcn__search_items_in_registries` with `registries: ["@shadcn"]` and your query
-2. **View details** — `mcp__shadcn__view_items_in_registries` with items like `["@shadcn/select"]`
-3. **Check examples** — `mcp__shadcn__get_item_examples_from_registries` (e.g. query `"select-demo"`)
-4. **Get install command** — `mcp__shadcn__get_add_command_for_items` with `["@shadcn/select"]`
-5. **Install** — run the returned command (typically `pnpm dlx shadcn@latest add <component>`)
-6. **Audit** — run `mcp__shadcn__get_audit_checklist` to verify imports, deps, and TS errors
+- **Never build custom UI** when shadcn has an equivalent — check registry first
+- **Check `components/ui/` first** before adding — it may already be installed
+- Use `cn()` for all className composition, never raw `clsx` or template literals
+- **Adding components**: use shadcn MCP tools (search → view → examples → install → audit)
 
 ## Transactional Email (Resend)
 
-Emails that require controlled URLs (recovery, invites, notifications) bypass GoTrue's built-in mailer and use **Resend** via `admin.generateLink()`:
-
-1. `admin.auth.admin.generateLink({ type, email })` — gets `hashed_token` without sending email
-2. Build the URL manually pointing to `/auth/confirm?token_hash=xxx&type=yyy&redirect_to=zzz`
-3. Send via `resend.emails.send()` with full HTML control
-
-**Why**: GoTrue's `GOTRUE_MAILER_EXTERNAL_HOSTS` strips `redirect_to` from emails, breaking recovery/invite flows. This pattern gives full control over URLs and works identically in local and production.
-
-**Reference implementation**: `app/(auth)/forgot-password/actions.ts`
-
-**Env vars**: `RESEND_API_KEY` (required), `RESEND_FROM_EMAIL` (optional — defaults to sandbox `onboarding@resend.dev`, production uses `Alquemist <noreply@alquemist.co>`)
+Never use GoTrue's built-in mailer — it strips `redirect_to` in production, breaking recovery/invite flows. Use `generateLink()` + Resend instead. Reference: `app/(auth)/forgot-password/actions.ts`.
 
 ## Edge Functions
-
-Edge Functions are **thin HTTP wrappers** around PostgreSQL SECURITY DEFINER functions. Pattern: auth check → input validation → `supabase.rpc('fn_name', params)` → return JSON. They run on Deno 2 via `Deno.serve()`.
-
-### ES256 vs HS256 JWT (Critical)
-
-GoTrue issues **ES256** JWTs (asymmetric), but Kong (API gateway) validates **HS256** (symmetric). Valid user JWTs get rejected by Kong with `{"msg":"Invalid JWT"}`. **Fix**: Set `verify_jwt = false` per-function in `supabase/config.toml`:
-
-```toml
-[functions.my-function]
-verify_jwt = false
-```
-
-This is safe because the Edge Functions verify auth themselves via `anonClient.auth.getUser()`. **Every new Edge Function needs this config** until Supabase fixes Kong ES256 support.
-
-### Kong `apikey` Header Behavior
-
-When `verify_jwt = false`, Kong still injects the `apikey` header value as `Authorization: Bearer` to the upstream. So if you send `apikey: <anon_key>` but NO `Authorization` header, the Edge Function sees an auth header (the anon key) and `getUser()` fails. To test the "Missing authorization" path, omit BOTH `apikey` and `Authorization` headers.
 
 ### `trigger_update_timestamps` Gotcha
 
 The shared trigger sets `NEW.updated_by = auth.uid()`. **Every table with this trigger MUST have an `updated_by UUID` column**. Missing it causes `record "new" has no field "updated_by"` at runtime.
 
-### CORS in Edge Functions
+### New Edge Function Checklist
 
-All Edge Functions use `Deno.env.get('ALLOWED_ORIGIN') ?? '*'` for the `Access-Control-Allow-Origin` header. Locally falls back to `*`. Production restricts to `https://app.alquemist.co` via `supabase secrets set`.
-
-### Adding a New Edge Function (Checklist)
-
-1. Create `supabase/functions/<name>/index.ts` following the auth+rpc pattern
-2. Use `Deno.env.get('ALLOWED_ORIGIN') ?? '*'` for CORS (not hardcoded `*`)
-3. Add `[functions.<name>]` with `verify_jwt = false` in `supabase/config.toml`
-4. Add integration tests in `__tests__/edge-functions/<name>.test.ts`
-5. Ensure seed data covers happy path + error scenarios
-6. Restart Supabase (`npx supabase stop && npx supabase start`) for config changes
-7. **Deploy to production**: `npx supabase functions deploy <name> --no-verify-jwt --project-ref wzyomollizbhlempiabs`
+1. Create `supabase/functions/<name>/index.ts` — follow existing functions as reference
+2. Add `[functions.<name>]` with `verify_jwt = false` in `supabase/config.toml`
+3. Add integration tests in `__tests__/edge-functions/<name>.test.ts`
+4. Seed data must cover happy path + error scenarios
+5. Deploy: `npx supabase functions deploy <name> --no-verify-jwt --project-ref wzyomollizbhlempiabs`
 
 ## Testing
 
-### Unit Tests (Vitest + jsdom)
+Integration tests (`pnpm test:integration`) require `pnpm dev:reset` before running — resets DB to seed state.
 
-- Config: `vitest.config.mts` — jsdom environment, React plugin, `@testing-library/jest-dom` setup
-- Run: `pnpm test:run` (43 schema tests)
-- Location: `__tests__/schemas/`
-- Excludes: `__tests__/edge-functions/**` and `**/node_modules/**`
+## Production
 
-### Integration Tests (Vitest + Node)
-
-- Config: `vitest.config.integration.mts` — Node environment, sequential execution, 15s timeout
-- Run: `pnpm test:integration` (15 Edge Function tests)
-- Location: `__tests__/edge-functions/`
-- **Requires**: `pnpm dev:reset` before running (resets DB to seed state)
-- Tests are ordered: auth/validation first (no mutations), happy paths (mutate), post-mutation errors last
-- Helpers in `__tests__/edge-functions/helpers.ts`: `getTestJwt()`, `callFunction()`, `createServiceClient()`
-- Uses hardcoded well-known local Supabase keys (deterministic, no `.env` parsing needed)
-
-## Environments
-
-Two environments exist — local development and production. They are completely independent.
-
-### Environment Comparison
-
-| Aspect | Local Development | Production |
-|--------|-------------------|------------|
-| App URL | `http://localhost:3000` | `https://app.alquemist.co` |
-| Supabase | Docker containers via CLI (ports 1543x) | Cloud: `wzyomollizbhlempiabs.supabase.co` |
-| Database | `postgresql://postgres:postgres@127.0.0.1:15433/postgres` | Supabase Cloud managed |
-| Auth users | Seed: `admin@test.com` / `password123` | Bootstrap via SQL Editor |
-| Email | Inbucket at `http://127.0.0.1:15435` (catch-all) | Resend via `alquemist.co` domain |
-| Edge Functions | Local Deno runtime (`supabase start`) | Deployed via `supabase functions deploy --no-verify-jwt` |
-| Seed data | `supabase/seed.sql` (applied by `supabase start` / `dev:reset`) | Never — manual SQL only |
-| Env file | `.env.local` (auto-generated by `setup-dev.sh`) | Vercel env vars (Dashboard) |
-| Deploy | N/A | Push to `main` → CI → Vercel auto-deploy |
-| CI | Run manually: `pnpm lint && pnpm type-check && pnpm test:run` | GitHub Actions on push/PR to `main` |
-
-### Environment Variables
-
-| Variable | Local | Production (Vercel) |
-|----------|-------|---------------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | `http://127.0.0.1:15432` | `https://wzyomollizbhlempiabs.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | JWT anon key from CLI | publishable key from Dashboard |
-| `SUPABASE_SERVICE_ROLE_KEY` | JWT service key from CLI | secret key from Dashboard |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` | `https://app.alquemist.co` |
-| `RESEND_API_KEY` | sandbox key | production key |
-| `RESEND_FROM_EMAIL` | (omit — defaults to `onboarding@resend.dev`) | `Alquemist <noreply@alquemist.co>` |
-
-**Note**: `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is the new Supabase convention (replaces `ANON_KEY`). Legacy JWT keys from the local CLI work identically.
-
-### Local Development
-
-#### Quick Start
-
-| Command | Purpose |
-|---------|---------|
-| `pnpm dev:setup` | Full clean setup — prerequisites, Docker, Supabase, deps, types, health check. Run first time or after issues. |
-| `pnpm dev:start` | Daily start — ensures Supabase is running + starts Next.js (Turbopack). |
-| `pnpm dev` | Next.js only (if Supabase already running). |
-| `pnpm dev:reset` | Reset DB to seed state (runs `supabase db reset`). Required before `pnpm test:integration`. |
-| `pnpm dev:stop` | Stop Supabase containers. |
-| `pnpm dev:health` | Health check — verifies Supabase services + DB connectivity. |
-
-#### Local Supabase Ports (WSL2-safe, avoids Hyper-V conflicts)
-
-| Service | Port |
-|---------|------|
-| API (Kong) | 15432 |
-| Database | 15433 |
-| Studio | 15434 |
-| Inbucket (email) | 15435 |
-| Analytics | 15437 |
-
-#### Generating Types
-
-After migration changes: `pnpm gen:types` — reads from local Supabase, writes to `types/database.ts`.
-
-### Production
-
-#### Architecture
-
-- **Frontend**: Vercel (auto-deploy on push to `main`) — `https://app.alquemist.co`
-- **Backend**: Supabase Cloud (project ref: `wzyomollizbhlempiabs`)
-- **Email**: Resend (domain: `alquemist.co`, sender: `noreply@alquemist.co`)
+- **Frontend**: Vercel → `https://app.alquemist.co` (auto-deploy on push to `main`)
+- **Backend**: Supabase Cloud (ref: `wzyomollizbhlempiabs`)
+- **Email**: Resend (`noreply@alquemist.co`)
 - **CI**: GitHub Actions (`.github/workflows/ci.yml` — lint, type-check, test, build)
 
-#### Deploying Changes
+### Deploying Changes
 
 | What | Command |
 |------|---------|
-| Code | Push to `main` → CI runs → Vercel auto-deploys |
-| New migration | `npx supabase db push --linked` after merge |
-| New/updated Edge Function | `npx supabase functions deploy <name> --no-verify-jwt --project-ref wzyomollizbhlempiabs` |
+| Code | Push to `main` → CI → Vercel |
+| Migration | `npx supabase db push --linked` |
+| Edge Function | `npx supabase functions deploy <name> --no-verify-jwt --project-ref wzyomollizbhlempiabs` |
 | All Edge Functions | `npx supabase functions deploy --no-verify-jwt --project-ref wzyomollizbhlempiabs` |
-| Edge Function secrets | `npx supabase secrets set KEY=VALUE --project-ref wzyomollizbhlempiabs` |
+| EF secrets | `npx supabase secrets set KEY=VALUE --project-ref wzyomollizbhlempiabs` |
 
-#### Auth Settings (Supabase Dashboard)
+### Auth Settings (Supabase Dashboard)
 
-- Open signup **disabled** — users join only via admin invite (`inviteUserByEmail`)
+- Open signup **disabled** — users join only via admin invite
 - Min password length: **8**
 - Site URL: `https://app.alquemist.co`
 - Redirect URLs: `https://app.alquemist.co/**`
 
-#### Seed Data
+### Key Differences
 
-`supabase/seed.sql` is for **local development only**. It contains test data (`admin@test.com` / `password123`). It is NEVER applied to production. Production data is created manually via the Supabase SQL Editor.
-
-### Key Differences to Remember
-
-- **`supabase/config.toml` is local-only** — production Supabase config lives in the Dashboard. Changes to config.toml do NOT affect production.
-- **`verify_jwt = false`** in config.toml is for local Kong; production uses the `--no-verify-jwt` flag at deploy time.
-- **`ALLOWED_ORIGIN`** defaults to `*` locally (permissive), restricted to `https://app.alquemist.co` in production via `supabase secrets set`.
-- **Seed data** is local-only. Never runs on production.
-- **Preview deployments**: Vercel creates `*.vercel.app` URLs for PRs. To support auth emails on previews, add the Vercel team wildcard to Supabase Dashboard → Authentication → Redirect URLs.
-
-### Server Actions — Site URL Pattern
-
-Server actions that build URLs (password recovery, invites) must NEVER hardcode `localhost`. Use this pattern:
-
-```typescript
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-  || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-if (!siteUrl) throw new Error('NEXT_PUBLIC_SITE_URL is required')
-```
-
-`VERCEL_URL` fallback enables Vercel preview deployments to work without hardcoding.
+- `supabase/config.toml` is **local-only** — production config lives in Dashboard
+- **Preview deployments**: Vercel `*.vercel.app` URLs for PRs. Add wildcard to Supabase Dashboard → Authentication → Redirect URLs
 
 ## Workflow Orchestration
 
 ### 1. Plan Node Default
 
 - Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately - don't keep pushing
-- Use plan mode for verification steps, not just building
+- If something goes sideways, STOP and re-plan immediately
 - Write detailed specs upfront to reduce ambiguity
 
 ### 2. Subagent Strategy
 
 - Use subagents liberally to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One tack per subagent for focused execution
+- One task per subagent for focused execution
 
 ### 3. Self-Improvement Loop
 
 - After ANY correction from the user: update `tasks/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+- Write rules that prevent the same mistake
+- Review lessons at session start
 
 ### 4. Verification Before Done
 
 - Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
 - Run tests, check logs, demonstrate correctness
 
 ### 5. Demand Elegance (Balanced)
 
 - For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes - don't over-engineer
-- Challenge your own work before presenting it
+- Skip this for simple, obvious fixes — don't over-engineer
 
 ### 6. Autonomous Bug Fixing
 
 - When given a bug report: just fix it. Don't ask for hand-holding
-- Point at logs, errors, failing tests - then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
+- Point at logs, errors, failing tests — then resolve them
 
 ## Task Management
 
 1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to `tasks/todo.md`
-6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+2. **Track Progress**: Mark items complete as you go
+3. **Capture Lessons**: Update `tasks/lessons.md` after corrections

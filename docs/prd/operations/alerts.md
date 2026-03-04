@@ -305,6 +305,29 @@ Página dentro del layout de dashboard con sidebar.
 | Error cargando contexto expandido   | "Error al cargar detalles de la alerta" (inline)                   |
 | Error de red                        | "Error de conexión. Intenta nuevamente" (toast)                    |
 
+## Pre-requisitos de infraestructura (migración pre-PRD 33)
+
+Este PRD es dueño de crear la migración de infraestructura compartida de Fase 6. Antes de implementar esta página, crear una migración que incluya:
+
+1. **Tabla `attachments`** — adjuntos genéricos (fotos de actividades, observaciones, lotes):
+   - `id`, `company_id`, `entity_type` (ENUM), `entity_id`, `file_url`, `file_name`, `mime_type`, `file_size`, `uploaded_by`, timestamps
+   - RLS via company_id directo
+   - Resuelve el deferral de PRD 27 RF-12 a RF-15 (photo upload en ejecución de actividades)
+
+2. **Tablas `sensors`, `environmental_readings`** + ENUMs (`sensor_type`, `env_parameter`)
+
+3. **Tabla `overhead_costs`** + ENUMs (`cost_category`, `cost_frequency`)
+
+4. **6 pg_cron jobs** con sus funciones SQL correspondientes:
+   - `expire_documents` (diario 1:00 AM) — `UPDATE regulatory_documents SET status='expired' WHERE expiry_date < CURRENT_DATE AND status='valid'` — **corrige gap de data integrity de Fase 5**
+   - `check_overdue_activities` (cada hora) — `UPDATE scheduled_activities SET status='overdue' WHERE planned_date < CURRENT_DATE AND status='pending'` + INSERT INTO alerts — **corrige gap de data integrity de Fase 5**
+   - `check_expiring_documents` (diario 6:00 AM) — INSERT INTO alerts type='regulatory_expiring' para docs que vencen en 30 días
+   - `check_low_inventory` (diario 7:00 AM) — INSERT INTO alerts type='low_inventory'
+   - `check_stale_batches` (diario 8:00 AM) — INSERT INTO alerts type='stale_batch'
+   - `check_env_readings` (cada 15 min) — INSERT INTO alerts type='env_out_of_range'
+
+**Nota**: Los 2 primeros jobs son correcciones de data integrity de Fase 5 (documentos que nunca expiran, actividades que nunca se marcan overdue). Se crean aquí porque necesitan la tabla `alerts` para notificar.
+
 ## Dependencias
 
 - **Páginas relacionadas**:
@@ -315,12 +338,13 @@ Página dentro del layout de dashboard con sidebar.
   - `/quality/tests/[id]` — tests fallidos (PRD 30)
   - `/operations/sensors` — sensores fuera de rango (PRD 35)
   - `/operations/environmental` — lecturas ambientales (PRD 34)
-- **pg_cron jobs** (generan alertas):
+- **pg_cron jobs** (generan alertas — creados en migración pre-PRD 33, ver sección anterior):
   - `check_overdue_activities` — cada hora
   - `check_low_inventory` — diario 7:00 AM
   - `check_stale_batches` — diario 8:00 AM
   - `check_env_readings` — cada 15 min
   - `check_expiring_documents` — diario 6:00 AM
+  - `expire_documents` — diario 1:00 AM
 - **Supabase Realtime**: Canal `alerts` para INSERT + UPDATE en tiempo real
 - **Supabase client**: PostgREST para lecturas y updates (acknowledge/resolve)
 - **React Query**: Cache keys `['alerts', { filters, page }]`, `['alert-counts']`, `['alert-entity', entityType, entityId]`

@@ -118,3 +118,37 @@ export const shipmentRequirementSchema = z
     }
   )
 export type ShipmentRequirementInput = z.infer<typeof shipmentRequirementSchema>
+
+// ---------- Create Regulatory Document (PRD 31) ----------
+
+export const createRegulatoryDocumentSchema = z.object({
+  doc_type_id: z.string().uuid('Selecciona un tipo de documento'),
+  document_number: z.string().max(100).optional().or(z.literal('')),
+  issue_date: z.string().min(1, 'La fecha de emisión es requerida'),
+  field_data: z.record(z.string(), z.unknown()).default({}),
+  notes: z.string().max(2000).optional().or(z.literal('')),
+  batch_id: z.string().uuid().optional().nullable(),
+  product_id: z.string().uuid().optional().nullable(),
+  facility_id: z.string().uuid().optional().nullable(),
+  shipment_id: z.string().uuid().optional().nullable(),
+  inventory_item_id: z.string().uuid().optional().nullable(),
+  quality_test_id: z.string().uuid().optional().nullable(),
+})
+
+export type CreateRegulatoryDocumentInput = z.infer<typeof createRegulatoryDocumentSchema>
+
+// ---------- Update Regulatory Document (PRD 32) ----------
+
+export const updateRegulatoryDocumentSchema = z.object({
+  document_number: z.string().max(100).optional().or(z.literal('')),
+  notes: z.string().max(2000).optional().or(z.literal('')),
+  field_data: z.record(z.string(), z.unknown()).optional(),
+  batch_id: z.string().uuid().optional().nullable(),
+  product_id: z.string().uuid().optional().nullable(),
+  facility_id: z.string().uuid().optional().nullable(),
+  shipment_id: z.string().uuid().optional().nullable(),
+  inventory_item_id: z.string().uuid().optional().nullable(),
+  quality_test_id: z.string().uuid().optional().nullable(),
+})
+
+export type UpdateRegulatoryDocumentInput = z.infer<typeof updateRegulatoryDocumentSchema>

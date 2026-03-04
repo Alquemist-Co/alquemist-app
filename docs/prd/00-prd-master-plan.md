@@ -433,6 +433,24 @@ Lo que ocurre durante la ejecución del batch.
 
 Soporte transversal: IoT, alertas, costos, inventario visible.
 
+**Pre-work de infraestructura (antes de PRDs):**
+- Migración: `attachments` table (adjuntos genéricos — fotos de actividades, observaciones, lotes)
+- Migración: `alerts` table + ENUMs (alert_type, alert_severity, alert_status)
+- Migración: `sensors`, `environmental_readings` tables + ENUMs (sensor_type, env_parameter)
+- Migración: `overhead_costs` table + ENUMs (cost_type, allocation_basis)
+- pg_cron jobs (6 SQL functions + cron schedules):
+  - `expire_documents` (diario 1:00 AM) — UPDATE regulatory_documents SET status='expired' WHERE expiry_date < today AND status='valid'
+  - `check_overdue_activities` (cada hora) — UPDATE scheduled_activities SET status='overdue' WHERE planned_date < today AND status='pending'
+  - `check_expiring_documents` (diario 6:00 AM) — INSERT INTO alerts type='regulatory_expiring' para docs que vencen en 30 días
+  - `check_low_inventory` (diario 7:00 AM) — INSERT INTO alerts type='low_inventory'
+  - `check_stale_batches` (diario 8:00 AM) — INSERT INTO alerts type='stale_batch'
+  - `check_env_readings` (cada 15 min) — INSERT INTO alerts type='env_out_of_range'
+- **Nota**: Los primeros 2 jobs (`expire_documents`, `check_overdue_activities`) corrigen gaps de data integrity de Fase 5. Los otros 4 generan alertas consumidas por PRD 33.
+
+**Deferred de Fase 5:**
+- Photo upload en ejecución de actividades (PRD 27 RF-12 a RF-15) — requiere tabla `attachments` + UI upload + client-side compression. Implementar junto con attachments migration.
+- Integration tests para Edge Function `execute-activity`
+
 ### Documentación fundacional a consultar
 
 - **Arquitectura**: §10 Monitoreo Ambiental (IoT pipeline, webhook de sensores), §8 Procesamiento Asíncrono (pg_cron jobs: check_expiring_documents, check_overdue_activities, check_low_inventory, check_stale_batches, check_env_readings, expire_documents), §4 (triggers)
