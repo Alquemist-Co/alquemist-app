@@ -3276,6 +3276,23 @@ export type Database = {
         Args: { p_shipment_id: string; p_user_id: string }
         Returns: Json
       }
+      fn_execute_activity: {
+        Args: {
+          p_activity_type_id: string
+          p_batch_id: string
+          p_checklist_results?: Json
+          p_duration_minutes?: number
+          p_measurement_data?: Json
+          p_notes?: string
+          p_observations?: Json
+          p_performed_by?: string
+          p_phase_id?: string
+          p_resources?: Json
+          p_scheduled_activity_id: string
+          p_zone_id: string
+        }
+        Returns: Json
+      }
       fn_execute_recipe: {
         Args: {
           p_batch_id?: string

@@ -382,6 +382,9 @@ verify_jwt = false
 [functions.transition-batch-phase]
 verify_jwt = false
 
+[functions.execute-activity]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 15437
