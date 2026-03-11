@@ -40,6 +40,26 @@
 - Without explicit ownership, deferred items become orphaned and create data integrity gaps.
 - Example: Phase 5 deferred pg_cron jobs (expire_documents, check_overdue_activities) — without them, documents never expire and activities never get marked overdue.
 
+### UUID columns cannot have DEFAULT ''
+- `UUID DEFAULT ''` fails with `invalid input syntax for type uuid: ""`.
+- For `updated_by UUID` columns that get set by `trigger_update_timestamps()`, just leave them nullable: `updated_by UUID`.
+- The `DEFAULT ''` trick only works for TEXT/VARCHAR columns.
+
+### Partitioned tables need publish_via_partition_root for Realtime
+- PostgreSQL partitioned tables route INSERTs to child partitions.
+- Supabase Realtime listens on the parent table, so events from partitions are invisible.
+- Fix: `ALTER PUBLICATION supabase_realtime SET (publish_via_partition_root = true);`
+
+### RLS policies must match UI role checks
+- If the UI shows a button for roles `['admin', 'manager', 'supervisor']`, the RLS UPDATE policy must include all 3 roles.
+- Supabase returns 0 rows (no error) when RLS blocks an update — silent failures.
+- Always cross-reference `canEdit`/`canToggle` role arrays with the corresponding RLS policies.
+
+### Enum parity between related types
+- `sensor_type` and `env_parameter` must share the same values (or have explicit mappings).
+- A sensor type without a corresponding env_parameter makes readings uninsertable.
+- Keep a mapping table/comment in the migration when names differ (e.g., `light` → `light_ppfd`).
+
 ### useSearchParams() requires Suspense boundary in Next.js 16
 - Pages using `useSearchParams()` fail during static generation without a `<Suspense>` boundary.
 - Fix: wrap children in auth layout (or relevant layout) with `<Suspense>`.
