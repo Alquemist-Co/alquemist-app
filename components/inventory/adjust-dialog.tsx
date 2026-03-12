@@ -54,6 +54,12 @@ export function AdjustDialog({ open, onOpenChange, item, onSuccess }: Props) {
 
   async function onSubmit(values: AdjustInventoryInput) {
     if (!item) return
+    if (values.quantity < 0 && Math.abs(values.quantity) > item.quantity_available) {
+      form.setError('quantity', {
+        message: `No puedes retirar más de ${item.quantity_available.toLocaleString()} ${item.unit_code}`,
+      })
+      return
+    }
     setIsLoading(true)
     try {
       const supabase = createClient()
@@ -65,7 +71,12 @@ export function AdjustDialog({ open, onOpenChange, item, onSuccess }: Props) {
         },
       })
       if (error) {
-        toast.error('Error al ajustar el inventario.')
+        let message = 'Error al ajustar el inventario.'
+        try {
+          const body = await (error as { context?: Response }).context?.json()
+          if (body?.error) message = body.error
+        } catch { /* use default message */ }
+        toast.error(message)
         return
       }
       toast.success('Ajuste de inventario registrado.')
@@ -136,9 +147,10 @@ export function AdjustDialog({ open, onOpenChange, item, onSuccess }: Props) {
                   </FormControl>
                   <FormMessage />
                   {watchedQty !== 0 && item && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className={`text-xs ${newQty < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {currentQty.toLocaleString()} {watchedQty > 0 ? '+' : ''}{' '}
                       {watchedQty.toLocaleString()} = {newQty.toLocaleString()} {item.unit_code}
+                      {newQty < 0 && ' (excede disponible)'}
                     </p>
                   )}
                 </FormItem>

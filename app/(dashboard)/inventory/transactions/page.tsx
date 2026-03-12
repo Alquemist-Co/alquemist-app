@@ -23,16 +23,6 @@ const VALID_TYPES: TransactionType[] = [
   'release',
 ]
 
-const ENTRY_TYPES: TransactionType[] = ['receipt', 'transfer_in', 'transformation_in', 'return']
-const EXIT_TYPES: TransactionType[] = [
-  'consumption',
-  'application',
-  'transfer_out',
-  'transformation_out',
-  'waste',
-]
-const ADJUST_TYPES: TransactionType[] = ['adjustment', 'reservation', 'release']
-
 type SearchParams = Promise<{
   type?: string
   item_id?: string
@@ -134,87 +124,37 @@ export default async function TransactionsPage({
   const totalCount = count ?? 0
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
 
-  // Build KPI queries and reference data in parallel
-  let entriesQuery = supabase
-    .from('inventory_transactions')
-    .select('cost_total', { count: 'exact' })
-    .in('type', ENTRY_TYPES)
-
-  let exitsQuery = supabase
-    .from('inventory_transactions')
-    .select('cost_total', { count: 'exact' })
-    .in('type', EXIT_TYPES)
-
-  let adjustQuery = supabase
-    .from('inventory_transactions')
-    .select('cost_total', { count: 'exact' })
-    .in('type', ADJUST_TYPES)
-
-  // Apply date filters to KPIs
-  if (params.from) {
-    entriesQuery = entriesQuery.gte('timestamp', params.from)
-    exitsQuery = exitsQuery.gte('timestamp', params.from)
-    adjustQuery = adjustQuery.gte('timestamp', params.from)
-  }
-  if (params.to) {
-    entriesQuery = entriesQuery.lte('timestamp', params.to + 'T23:59:59')
-    exitsQuery = exitsQuery.lte('timestamp', params.to + 'T23:59:59')
-    adjustQuery = adjustQuery.lte('timestamp', params.to + 'T23:59:59')
-  }
-
-  // Apply zone/batch/item filters to KPIs too
-  if (params.zone_id) {
-    entriesQuery = entriesQuery.eq('zone_id', params.zone_id)
-    exitsQuery = exitsQuery.eq('zone_id', params.zone_id)
-    adjustQuery = adjustQuery.eq('zone_id', params.zone_id)
-  }
-  if (params.batch_id) {
-    entriesQuery = entriesQuery.eq('batch_id', params.batch_id)
-    exitsQuery = exitsQuery.eq('batch_id', params.batch_id)
-    adjustQuery = adjustQuery.eq('batch_id', params.batch_id)
-  }
-  if (params.item_id) {
-    entriesQuery = entriesQuery.eq('inventory_item_id', params.item_id)
-    exitsQuery = exitsQuery.eq('inventory_item_id', params.item_id)
-    adjustQuery = adjustQuery.eq('inventory_item_id', params.item_id)
-  }
-
+  // KPI aggregation (single DB query) + reference data in parallel
   const [
-    { data: entriesData, count: entriesCount },
-    { data: exitsData, count: exitsCount },
-    { data: adjustData, count: adjustCount },
+    { data: kpiData },
     { data: zonesData },
     { data: batchesData },
   ] = await Promise.all([
-    entriesQuery,
-    exitsQuery,
-    adjustQuery,
+    supabase.rpc('fn_transaction_kpis', {
+      p_zone_id: params.zone_id || undefined,
+      p_batch_id: params.batch_id || undefined,
+      p_item_id: params.item_id || undefined,
+      p_from: params.from || undefined,
+      p_to: params.to ? params.to + 'T23:59:59' : undefined,
+    }),
     supabase.from('zones').select('id, name').order('name'),
     supabase.from('batches').select('id, code').eq('is_active', true).order('code'),
   ])
 
-  // Sum cost_total for each category
-  const entriesCostTotal = (entriesData ?? []).reduce(
-    (sum, t) => sum + (t.cost_total ? Number(t.cost_total) : 0),
-    0,
-  )
-  const exitsCostTotal = (exitsData ?? []).reduce(
-    (sum, t) => sum + (t.cost_total ? Number(t.cost_total) : 0),
-    0,
-  )
-  const adjustCostTotal = (adjustData ?? []).reduce(
-    (sum, t) => sum + (t.cost_total ? Number(t.cost_total) : 0),
-    0,
-  )
+  const kpiResult = kpiData as {
+    entries_count: number; entries_cost: number
+    exits_count: number; exits_cost: number
+    adjust_count: number; adjust_cost: number
+  } | null
 
   const kpis = {
-    entriesCount: entriesCount ?? 0,
-    entriesCost: entriesCostTotal,
-    exitsCount: exitsCount ?? 0,
-    exitsCost: exitsCostTotal,
-    adjustCount: adjustCount ?? 0,
-    adjustCost: adjustCostTotal,
-    periodCost: entriesCostTotal + exitsCostTotal + adjustCostTotal,
+    entriesCount: kpiResult?.entries_count ?? 0,
+    entriesCost: kpiResult?.entries_cost ?? 0,
+    exitsCount: kpiResult?.exits_count ?? 0,
+    exitsCost: kpiResult?.exits_cost ?? 0,
+    adjustCount: kpiResult?.adjust_count ?? 0,
+    adjustCost: kpiResult?.adjust_cost ?? 0,
+    periodCost: (kpiResult?.entries_cost ?? 0) + (kpiResult?.exits_cost ?? 0) + (kpiResult?.adjust_cost ?? 0),
   }
 
   const zones = (zonesData ?? []).map((z) => ({ id: z.id, name: z.name }))

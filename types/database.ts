@@ -4149,6 +4149,16 @@ export type Database = {
         Returns: Json
       }
       fn_expire_documents: { Args: never; Returns: undefined }
+      fn_transaction_kpis: {
+        Args: {
+          p_batch_id?: string
+          p_from?: string
+          p_item_id?: string
+          p_to?: string
+          p_zone_id?: string
+        }
+        Returns: Json
+      }
       fn_transfer_inventory: {
         Args: {
           p_quantity: number

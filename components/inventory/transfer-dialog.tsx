@@ -73,7 +73,12 @@ export function TransferDialog({ open, onOpenChange, item, zones, onSuccess }: P
         },
       })
       if (error) {
-        toast.error('Error al transferir inventario.')
+        let message = 'Error al transferir inventario.'
+        try {
+          const body = await (error as { context?: Response }).context?.json()
+          if (body?.error) message = body.error
+        } catch { /* use default message */ }
+        toast.error(message)
         return
       }
       toast.success('Transferencia registrada.')
