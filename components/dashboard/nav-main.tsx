@@ -72,6 +72,8 @@ const navItems: NavItem[] = [
     icon: Package,
     children: [
       { label: 'Productos', href: '/inventory/products' },
+      { label: 'Stock', href: '/inventory/items' },
+      { label: 'Transacciones', href: '/inventory/transactions' },
       { label: 'Proveedores', href: '/inventory/suppliers' },
       { label: 'Envíos', href: '/inventory/shipments' },
       { label: 'Recetas', href: '/inventory/recipes' },
@@ -102,7 +104,17 @@ const navItems: NavItem[] = [
       { label: 'Documentos', href: '/regulatory/documents' },
     ],
   },
-  { label: 'Operaciones', href: '/operations', icon: Activity, disabled: true },
+  {
+    label: 'Operaciones',
+    href: '/operations',
+    icon: Activity,
+    children: [
+      { label: 'Alertas', href: '/operations/alerts' },
+      { label: 'Ambiental', href: '/operations/environmental' },
+      { label: 'Sensores', href: '/operations/sensors' },
+      { label: 'Costos', href: '/operations/costs' },
+    ],
+  },
   { label: 'Configuración', href: '/settings', icon: Settings },
 ]
 

@@ -54,15 +54,15 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 
 ## Phase 6 — Operations (4 PRDs)
 
-- [ ] 33 · `operations/alerts` — `/operations/alerts` · prd ✗
-- [ ] 34 · `operations/environmental` — `/operations/environmental` · prd ✗
-- [ ] 35 · `operations/sensors` — `/operations/sensors` · prd ✗
-- [ ] 36 · `operations/costs` — `/operations/costs` · prd ✗
+- [x] 33 · `operations/alerts` — `/operations/alerts` · prd ✓
+- [x] 34 · `operations/environmental` — `/operations/environmental` · prd ✓
+- [x] 35 · `operations/sensors` — `/operations/sensors` · prd ✓
+- [x] 36 · `operations/costs` — `/operations/costs` · prd ✓
 
 ## Phase 7 — Inventory Ops (2 PRDs)
 
-- [ ] 37 · `inventory/items` — `/inventory/items` · prd ✗
-- [ ] 38 · `inventory/transactions` — `/inventory/transactions` · prd ✗
+- [x] 37 · `inventory/items` — `/inventory/items` · prd ✓
+- [x] 38 · `inventory/transactions` — `/inventory/transactions` · prd ✓
 
 ## Phase 8 — Field (4 PRDs)
 
@@ -86,8 +86,8 @@ PRD doc: `prd ✓` written · `prd ✗` not yet written
 | 3 Areas + Inventory                 | 8/8          | 8/8         |
 | 4 Production                        | 4/4          | 4/4         |
 | 5 Activities + Quality + Regulatory | 7/7          | 7/7         |
-| 6 Operations                        | 0/4          | 0/4         |
-| 7 Inventory Ops                     | 0/2          | 0/2         |
+| 6 Operations                        | 4/4          | 4/4         |
+| 7 Inventory Ops                     | 2/2          | 2/2         |
 | 8 Field                             | 0/4          | 0/4         |
 | 9 Dashboard                         | 0/1          | 0/1         |
-| **Total**                           | **32/43**    | **32/43**   |
+| **Total**                           | **38/43**    | **38/43**   |

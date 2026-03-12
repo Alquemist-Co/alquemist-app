@@ -563,6 +563,157 @@ export type Database = {
           },
         ]
       }
+      alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          batch_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          message: string
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["alert_severity"]
+          status: Database["public"]["Enums"]["alert_status"]
+          title: string | null
+          triggered_at: string
+          type: Database["public"]["Enums"]["alert_type"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          batch_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          message: string
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          status?: Database["public"]["Enums"]["alert_status"]
+          title?: string | null
+          triggered_at?: string
+          type: Database["public"]["Enums"]["alert_type"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          batch_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          status?: Database["public"]["Enums"]["alert_status"]
+          title?: string | null
+          triggered_at?: string
+          type?: Database["public"]["Enums"]["alert_type"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "alerts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attachments: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          entity_id: string
+          entity_type: string
+          file_size_bytes: number | null
+          file_type: string
+          file_url: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+          uploaded_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          file_size_bytes?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+          uploaded_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          file_size_bytes?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+          uploaded_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       batch_lineage: {
         Row: {
           child_batch_id: string
@@ -998,6 +1149,532 @@ export type Database = {
           },
         ]
       }
+      environmental_readings: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "environmental_readings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "environmental_readings_sensor_id_fkey"
+            columns: ["sensor_id"]
+            isOneToOne: false
+            referencedRelation: "sensors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "environmental_readings_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      environmental_readings_2026_01: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_02: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_03: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_04: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_05: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_06: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_07: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_08: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_09: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_10: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_11: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2026_12: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
+      environmental_readings_2027_01: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          timestamp?: string
+          unit: string
+          value: number
+          zone_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          parameter?: Database["public"]["Enums"]["env_parameter"]
+          sensor_id?: string
+          timestamp?: string
+          unit?: string
+          value?: number
+          zone_id?: string
+        }
+        Relationships: []
+      }
       facilities: {
         Row: {
           address: string
@@ -1275,6 +1952,85 @@ export type Database = {
           },
           {
             foreignKeyName: "inventory_transactions_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      overhead_costs: {
+        Row: {
+          allocation_basis: Database["public"]["Enums"]["allocation_basis"]
+          amount: number
+          company_id: string
+          cost_type: Database["public"]["Enums"]["cost_type"]
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string
+          facility_id: string
+          id: string
+          notes: string | null
+          period_end: string
+          period_start: string
+          updated_at: string
+          updated_by: string | null
+          zone_id: string | null
+        }
+        Insert: {
+          allocation_basis?: Database["public"]["Enums"]["allocation_basis"]
+          amount: number
+          company_id?: string
+          cost_type: Database["public"]["Enums"]["cost_type"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description: string
+          facility_id: string
+          id?: string
+          notes?: string | null
+          period_end: string
+          period_start: string
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string | null
+        }
+        Update: {
+          allocation_basis?: Database["public"]["Enums"]["allocation_basis"]
+          amount?: number
+          company_id?: string
+          cost_type?: Database["public"]["Enums"]["cost_type"]
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string
+          facility_id?: string
+          id?: string
+          notes?: string | null
+          period_end?: string
+          period_start?: string
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "overhead_costs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "overhead_costs_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "overhead_costs_zone_id_fkey"
             columns: ["zone_id"]
             isOneToOne: false
             referencedRelation: "zones"
@@ -2632,6 +3388,66 @@ export type Database = {
           },
         ]
       }
+      sensors: {
+        Row: {
+          brand_model: string | null
+          calibration_date: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          serial_number: string | null
+          type: Database["public"]["Enums"]["sensor_type"]
+          updated_at: string
+          updated_by: string | null
+          zone_id: string
+        }
+        Insert: {
+          brand_model?: string | null
+          calibration_date?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          serial_number?: string | null
+          type: Database["public"]["Enums"]["sensor_type"]
+          updated_at?: string
+          updated_by?: string | null
+          zone_id: string
+        }
+        Update: {
+          brand_model?: string | null
+          calibration_date?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          serial_number?: string | null
+          type?: Database["public"]["Enums"]["sensor_type"]
+          updated_at?: string
+          updated_by?: string | null
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sensors_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sensors_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipment_doc_requirements: {
         Row: {
           applies_when: Database["public"]["Enums"]["shipment_doc_applies_when"]
@@ -3254,12 +4070,35 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_batch_cogs: {
+        Args: {
+          p_batch_status?: Database["public"]["Enums"]["batch_status"]
+          p_company_id: string
+          p_facility_id?: string
+        }
+        Returns: {
+          batch_code: string
+          batch_id: string
+          direct_cost: number
+          overhead_allocated: number
+          total_cogs: number
+        }[]
+      }
       calculate_cascade_yields: {
         Args: {
           p_cultivar_id: string
           p_entry_phase_id: string
           p_exit_phase_id: string
           p_initial_quantity: number
+        }
+        Returns: Json
+      }
+      fn_adjust_inventory: {
+        Args: {
+          p_item_id: string
+          p_quantity_change: number
+          p_reason: string
+          p_user_id: string
         }
         Returns: Json
       }
@@ -3272,10 +4111,16 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_check_env_readings: { Args: never; Returns: undefined }
+      fn_check_expiring_documents: { Args: never; Returns: undefined }
+      fn_check_low_inventory: { Args: never; Returns: undefined }
+      fn_check_overdue_activities: { Args: never; Returns: undefined }
+      fn_check_stale_batches: { Args: never; Returns: undefined }
       fn_confirm_shipment_receipt: {
         Args: { p_shipment_id: string; p_user_id: string }
         Returns: Json
       }
+      fn_create_next_env_partition: { Args: never; Returns: undefined }
       fn_execute_activity: {
         Args: {
           p_activity_type_id: string
@@ -3303,14 +4148,51 @@ export type Database = {
         }
         Returns: Json
       }
+      fn_expire_documents: { Args: never; Returns: undefined }
+      fn_transfer_inventory: {
+        Args: {
+          p_quantity: number
+          p_reason?: string
+          p_source_item_id: string
+          p_target_zone_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       fn_transition_batch_phase: {
         Args: { p_batch_id: string; p_user_id?: string; p_zone_id?: string }
         Returns: Json
+      }
+      get_env_readings_aggregated: {
+        Args: {
+          p_end: string
+          p_interval?: string
+          p_parameter: Database["public"]["Enums"]["env_parameter"]
+          p_start: string
+          p_zone_id: string
+        }
+        Returns: {
+          avg_value: number
+          bucket: string
+          max_value: number
+          min_value: number
+          reading_count: number
+        }[]
       }
       get_my_company_id: { Args: never; Returns: string }
       get_my_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      get_sensors_last_reading: {
+        Args: { p_sensor_ids: string[] }
+        Returns: {
+          last_reading_at: string
+          parameter: Database["public"]["Enums"]["env_parameter"]
+          sensor_id: string
+          unit: string
+          value: number
+        }[]
       }
     }
     Enums: {
@@ -3328,6 +4210,26 @@ export type Database = {
         | "environmental"
         | "other"
       agent_type: "pest" | "disease" | "deficiency" | "abiotic"
+      alert_severity: "info" | "warning" | "high" | "critical"
+      alert_status: "pending" | "acknowledged" | "resolved"
+      alert_type:
+        | "overdue_activity"
+        | "low_inventory"
+        | "stale_batch"
+        | "expiring_item"
+        | "env_out_of_range"
+        | "order_delayed"
+        | "quality_failed"
+        | "regulatory_expiring"
+        | "regulatory_missing"
+        | "pest_detected"
+        | "phi_violation"
+      allocation_basis:
+        | "per_m2"
+        | "per_plant"
+        | "per_batch"
+        | "per_zone"
+        | "even_split"
       batch_status:
         | "active"
         | "phase_transition"
@@ -3340,6 +4242,14 @@ export type Database = {
         | "annual"
         | "per_shipment"
       compliance_scope: "per_batch" | "per_lot" | "per_product" | "per_facility"
+      cost_type:
+        | "energy"
+        | "rent"
+        | "depreciation"
+        | "insurance"
+        | "maintenance"
+        | "labor_fixed"
+        | "other"
       crop_category: "annual" | "perennial" | "biennial"
       doc_category:
         | "quality"
@@ -3349,6 +4259,15 @@ export type Database = {
         | "safety"
         | "commercial"
       doc_status: "draft" | "valid" | "expired" | "revoked" | "superseded"
+      env_parameter:
+        | "temperature"
+        | "humidity"
+        | "co2"
+        | "light_ppfd"
+        | "ec"
+        | "ph"
+        | "soil_moisture"
+        | "vpd"
       facility_type:
         | "indoor_warehouse"
         | "greenhouse"
@@ -3396,6 +4315,15 @@ export type Database = {
         | "per_zone"
         | "per_L_solution"
       scheduled_activity_status: "pending" | "completed" | "skipped" | "overdue"
+      sensor_type:
+        | "temperature"
+        | "humidity"
+        | "co2"
+        | "light"
+        | "ec"
+        | "ph"
+        | "soil_moisture"
+        | "vpd"
       shipment_direction: "inbound" | "outbound"
       shipment_doc_applies_when:
         | "always"
@@ -3607,6 +4535,28 @@ export const Constants = {
         "other",
       ],
       agent_type: ["pest", "disease", "deficiency", "abiotic"],
+      alert_severity: ["info", "warning", "high", "critical"],
+      alert_status: ["pending", "acknowledged", "resolved"],
+      alert_type: [
+        "overdue_activity",
+        "low_inventory",
+        "stale_batch",
+        "expiring_item",
+        "env_out_of_range",
+        "order_delayed",
+        "quality_failed",
+        "regulatory_expiring",
+        "regulatory_missing",
+        "pest_detected",
+        "phi_violation",
+      ],
+      allocation_basis: [
+        "per_m2",
+        "per_plant",
+        "per_batch",
+        "per_zone",
+        "even_split",
+      ],
       batch_status: [
         "active",
         "phase_transition",
@@ -3621,6 +4571,15 @@ export const Constants = {
         "per_shipment",
       ],
       compliance_scope: ["per_batch", "per_lot", "per_product", "per_facility"],
+      cost_type: [
+        "energy",
+        "rent",
+        "depreciation",
+        "insurance",
+        "maintenance",
+        "labor_fixed",
+        "other",
+      ],
       crop_category: ["annual", "perennial", "biennial"],
       doc_category: [
         "quality",
@@ -3631,6 +4590,16 @@ export const Constants = {
         "commercial",
       ],
       doc_status: ["draft", "valid", "expired", "revoked", "superseded"],
+      env_parameter: [
+        "temperature",
+        "humidity",
+        "co2",
+        "light_ppfd",
+        "ec",
+        "ph",
+        "soil_moisture",
+        "vpd",
+      ],
       facility_type: [
         "indoor_warehouse",
         "greenhouse",
@@ -3684,6 +4653,16 @@ export const Constants = {
         "per_L_solution",
       ],
       scheduled_activity_status: ["pending", "completed", "skipped", "overdue"],
+      sensor_type: [
+        "temperature",
+        "humidity",
+        "co2",
+        "light",
+        "ec",
+        "ph",
+        "soil_moisture",
+        "vpd",
+      ],
       shipment_direction: ["inbound", "outbound"],
       shipment_doc_applies_when: [
         "always",

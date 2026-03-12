@@ -128,7 +128,7 @@ VALUES (
       'regulatory', true,
       'iot', false,
       'field_app', false,
-      'cost_tracking', false
+      'cost_tracking', true
     )
   )
 );
@@ -783,6 +783,103 @@ WHERE ii.company_id = v_company_id
   AND ii.quantity_available > 0;
 
 -- =============================================================
+-- 27b. PHASE 7: Additional inventory scenarios + transactions
+-- =============================================================
+
+-- Expired item (FERT-MICRO in Procesamiento, expired 2 weeks ago)
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, cost_per_unit, expiration_date, source_type, lot_status, created_by
+) VALUES (
+  v_company_id,
+  (SELECT id FROM products WHERE sku = 'FERT-MICRO'),
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Procesamiento'),
+  1.5, v_unit_l, 'INV-MICRO-EXP', 88000,
+  (now() - interval '14 days')::date,
+  'purchase', 'expired', v_user_id
+);
+
+-- Substrate about to expire (in 15 days)
+INSERT INTO inventory_items (
+  company_id, product_id, zone_id, quantity_available, unit_id,
+  batch_number, cost_per_unit, expiration_date, source_type, lot_status, created_by
+) VALUES (
+  v_company_id,
+  (SELECT id FROM products WHERE sku = 'SUST-PERL'),
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Almacén General'),
+  8, v_unit_und, 'INV-PERL-EXPIRING', 22000,
+  (now() + interval '15 days')::date,
+  'purchase', 'available', v_user_id
+);
+
+-- Adjustment transaction: physical count found +2 units of seeds
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id,
+  cost_per_unit, cost_total, user_id, reason
+)
+SELECT
+  v_company_id, 'adjustment', ii.id, 2, v_unit_und, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * 2, v_user_id,
+  'Conteo físico 01/03/2026 — encontradas 2 unidades adicionales'
+FROM inventory_items ii
+WHERE ii.batch_number = 'SHP-SHP-2026-0001-1' AND ii.company_id = v_company_id;
+
+-- Consumption transactions: fertilizers used in activities
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id,
+  cost_per_unit, cost_total, user_id
+)
+SELECT
+  v_company_id, 'consumption', ii.id, 0.5, v_unit_l, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * 0.5, v_user_id
+FROM inventory_items ii
+WHERE ii.batch_number = 'INV-FLORA-001' AND ii.company_id = v_company_id;
+
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id,
+  cost_per_unit, cost_total, user_id
+)
+SELECT
+  v_company_id, 'consumption', ii.id, 0.3, v_unit_l, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * 0.3, v_user_id
+FROM inventory_items ii
+WHERE ii.batch_number = 'INV-GROW-001' AND ii.company_id = v_company_id;
+
+-- Application transaction
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id,
+  cost_per_unit, cost_total, user_id
+)
+SELECT
+  v_company_id, 'application', ii.id, 0.2, v_unit_l, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * 0.2, v_user_id
+FROM inventory_items ii
+WHERE ii.batch_number = 'INV-MICRO-001' AND ii.company_id = v_company_id;
+
+-- Waste transaction
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id,
+  cost_per_unit, cost_total, user_id, reason
+)
+SELECT
+  v_company_id, 'waste', ii.id, 0.1, v_unit_l, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * 0.1, v_user_id,
+  'Derrame accidental durante preparación de solución'
+FROM inventory_items ii
+WHERE ii.batch_number = 'INV-FLORA-001' AND ii.company_id = v_company_id;
+
+-- Receipt transactions for the new items
+INSERT INTO inventory_transactions (
+  company_id, type, inventory_item_id, quantity, unit_id, zone_id, cost_per_unit, cost_total, user_id
+)
+SELECT
+  v_company_id, 'receipt', ii.id, ii.quantity_available, ii.unit_id, ii.zone_id,
+  ii.cost_per_unit, COALESCE(ii.cost_per_unit, 0) * ii.quantity_available, v_user_id
+FROM inventory_items ii
+WHERE ii.company_id = v_company_id
+  AND ii.batch_number IN ('INV-MICRO-EXP', 'INV-PERL-EXPIRING');
+
+-- =============================================================
 -- 28. RECIPE EXECUTION RECORD (for execution history dialog)
 -- =============================================================
 INSERT INTO recipe_executions (
@@ -1400,5 +1497,162 @@ INSERT INTO scheduled_activities (
   jsonb_build_object('name', 'Fertilización Floración', 'resources', '[]'::jsonb, 'checklist', '[]'::jsonb),
   v_user_id, v_user_id
 );
+
+-- =============================================================
+-- 47. PHASE 6: SENSORS (PRD 35)
+-- =============================================================
+
+INSERT INTO sensors (id, company_id, zone_id, type, brand_model, serial_number, calibration_date, is_active, created_by, updated_by)
+VALUES
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+   'temperature', 'Trolmaster HCS-1', 'TM-HCS1-001', CURRENT_DATE - interval '30 days', true, v_user_id, v_user_id),
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+   'humidity', 'Trolmaster HCS-1', 'TM-HCS1-002', CURRENT_DATE - interval '30 days', true, v_user_id, v_user_id),
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+   'temperature', 'Trolmaster HCS-1', 'TM-HCS1-003', CURRENT_DATE - interval '15 days', true, v_user_id, v_user_id),
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a04', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+   'humidity', 'Trolmaster HCS-1', 'TM-HCS1-004', CURRENT_DATE - interval '15 days', true, v_user_id, v_user_id),
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a05', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+   'co2', 'Autopilot APC-8200', 'AP-8200-001', CURRENT_DATE - interval '60 days', true, v_user_id, v_user_id),
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a06', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagación' AND f.company_id = v_company_id),
+   'temperature', 'Generic DHT22', 'DHT22-001', NULL, true, v_user_id, v_user_id),
+  -- Inactive sensor
+  ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a07', v_company_id,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración B' AND f.company_id = v_company_id),
+   'temperature', 'Trolmaster HCS-1', 'TM-HCS1-005', CURRENT_DATE - interval '180 days', false, v_user_id, v_user_id);
+
+-- =============================================================
+-- 48. PHASE 6: ENVIRONMENTAL READINGS (PRD 34)
+-- Sample time series — last 24h of readings for sensors in active zones
+-- =============================================================
+
+-- Temperature readings for Vegetativo A (every 30 min, last 6 hours)
+INSERT INTO environmental_readings (company_id, sensor_id, zone_id, parameter, value, unit, timestamp)
+SELECT
+  v_company_id,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01',
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+  'temperature',
+  23 + (random() * 4)::numeric(4,1),  -- 23-27°C range
+  '°C',
+  now() - (n * interval '30 minutes')
+FROM generate_series(0, 11) AS n;
+
+-- Humidity readings for Vegetativo A
+INSERT INTO environmental_readings (company_id, sensor_id, zone_id, parameter, value, unit, timestamp)
+SELECT
+  v_company_id,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02',
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A' AND f.company_id = v_company_id),
+  'humidity',
+  45 + (random() * 15)::numeric(4,1),  -- 45-60% range
+  '%RH',
+  now() - (n * interval '30 minutes')
+FROM generate_series(0, 11) AS n;
+
+-- Temperature readings for Floración A (some out of range to trigger alerts)
+INSERT INTO environmental_readings (company_id, sensor_id, zone_id, parameter, value, unit, timestamp)
+SELECT
+  v_company_id,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03',
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+  'temperature',
+  CASE WHEN n < 3 THEN 30 + (random() * 2)::numeric(4,1)  -- Out of range (>28)
+       ELSE 22 + (random() * 5)::numeric(4,1)  -- Normal range
+  END,
+  '°C',
+  now() - (n * interval '30 minutes')
+FROM generate_series(0, 11) AS n;
+
+-- CO2 readings for Floración A
+INSERT INTO environmental_readings (company_id, sensor_id, zone_id, parameter, value, unit, timestamp)
+SELECT
+  v_company_id,
+  'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a05',
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+  'co2',
+  800 + (random() * 400)::numeric(6,1),  -- 800-1200 ppm
+  'ppm',
+  now() - (n * interval '30 minutes')
+FROM generate_series(0, 11) AS n;
+
+-- =============================================================
+-- 49. PHASE 6: ALERTS (PRD 33) — mixed types and statuses
+-- =============================================================
+
+INSERT INTO alerts (id, company_id, type, severity, title, entity_type, entity_id, batch_id, message, triggered_at, status, acknowledged_by, acknowledged_at, resolved_at)
+VALUES
+  -- Pending critical: env out of range
+  ('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b01', v_company_id, 'env_out_of_range', 'critical',
+   'Floración A: temperature fuera de rango',
+   'sensor', 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03', v_batch_1,
+   'temperature = 31.2 °C (rango optimo: 20 - 28) en zona Floración A.',
+   now() - interval '15 minutes', 'pending', NULL, NULL, NULL),
+
+  -- Pending warning: stale batch
+  ('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b02', v_company_id, 'stale_batch', 'warning',
+   'Batch sin actividad: ' || (SELECT code FROM batches WHERE id = v_batch_4),
+   'batch', v_batch_4, v_batch_4,
+   'El batch no tiene actividad reciente.',
+   now() - interval '2 hours', 'pending', NULL, NULL, NULL),
+
+  -- Acknowledged warning: overdue activity
+  ('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b03', v_company_id, 'overdue_activity', 'warning',
+   'Actividad vencida: Riego Vegetativo',
+   'scheduled_activity', '00000000-0000-0000-000d-000000000005', v_batch_2,
+   'La actividad "Riego Vegetativo" del batch está vencida.',
+   now() - interval '1 day', 'acknowledged', v_user_id, now() - interval '12 hours', NULL),
+
+  -- Resolved info: regulatory expiring
+  ('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b04', v_company_id, 'regulatory_expiring', 'info',
+   'Documento regulatorio por vencer',
+   'regulatory_document', (SELECT id FROM regulatory_documents LIMIT 1), NULL,
+   'Un documento regulatorio está próximo a vencer.',
+   now() - interval '3 days', 'resolved', v_user_id, now() - interval '2 days', now() - interval '1 day'),
+
+  -- Pending high: low inventory
+  ('b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b05', v_company_id, 'low_inventory', 'high',
+   'Inventario bajo: Fertilizante NPK',
+   'inventory_item', (SELECT id FROM inventory_items WHERE company_id = v_company_id LIMIT 1), NULL,
+   'Fertilizante NPK tiene stock bajo.',
+   now() - interval '6 hours', 'pending', NULL, NULL, NULL);
+
+-- =============================================================
+-- 50. PHASE 6: OVERHEAD COSTS (PRD 36)
+-- =============================================================
+
+INSERT INTO overhead_costs (id, company_id, facility_id, zone_id, cost_type, description, amount, currency, period_start, period_end, allocation_basis, created_by, updated_by)
+VALUES
+  ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c01', v_company_id,
+   (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   NULL, 'energy', 'Electricidad Febrero 2026', 4500000, 'COP',
+   '2026-02-01', '2026-02-28', 'per_m2', v_user_id, v_user_id),
+
+  ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c02', v_company_id,
+   (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   NULL, 'rent', 'Arriendo Febrero 2026', 8000000, 'COP',
+   '2026-02-01', '2026-02-28', 'even_split', v_user_id, v_user_id),
+
+  ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c03', v_company_id,
+   (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floración A' AND f.company_id = v_company_id),
+   'maintenance', 'Mantenimiento HVAC Floración A', 1200000, 'COP',
+   '2026-02-01', '2026-02-28', 'per_batch', v_user_id, v_user_id),
+
+  ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c04', v_company_id,
+   (SELECT id FROM facilities WHERE name = 'Invernadero Norte' AND company_id = v_company_id),
+   NULL, 'insurance', 'Seguro Invernadero Q1 2026', 3000000, 'COP',
+   '2026-01-01', '2026-03-31', 'even_split', v_user_id, v_user_id),
+
+  ('c0eebc99-9c0b-4ef8-bb6d-6bb9bd380c05', v_company_id,
+   (SELECT id FROM facilities WHERE name = 'Nave Principal' AND company_id = v_company_id),
+   NULL, 'labor_fixed', 'Nómina fija operarios Febrero', 12000000, 'COP',
+   '2026-02-01', '2026-02-28', 'per_plant', v_user_id, v_user_id);
 
 END $$;
