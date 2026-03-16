@@ -106,6 +106,7 @@ describe('shipmentItemSchema', () => {
 describe('inspectionLineSchema', () => {
   it('accepts valid accepted inspection', () => {
     const result = inspectionLineSchema.safeParse({
+      expected_quantity: 20,
       received_quantity: 10,
       rejected_quantity: 0,
       inspection_result: 'accepted',
@@ -115,6 +116,7 @@ describe('inspectionLineSchema', () => {
 
   it('accepts quarantine result', () => {
     const result = inspectionLineSchema.safeParse({
+      expected_quantity: 20,
       received_quantity: 10,
       rejected_quantity: 0,
       inspection_result: 'quarantine',
@@ -124,6 +126,7 @@ describe('inspectionLineSchema', () => {
 
   it('rejects missing inspection_result', () => {
     const result = inspectionLineSchema.safeParse({
+      expected_quantity: 20,
       received_quantity: 10,
       rejected_quantity: 0,
     })
@@ -132,6 +135,7 @@ describe('inspectionLineSchema', () => {
 
   it('rejects negative received_quantity', () => {
     const result = inspectionLineSchema.safeParse({
+      expected_quantity: 20,
       received_quantity: -1,
       rejected_quantity: 0,
       inspection_result: 'rejected',
@@ -141,9 +145,40 @@ describe('inspectionLineSchema', () => {
 
   it('rejects invalid inspection_result value', () => {
     const result = inspectionLineSchema.safeParse({
+      expected_quantity: 20,
       received_quantity: 10,
       rejected_quantity: 0,
       inspection_result: 'maybe',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects when received + rejected exceeds expected', () => {
+    const result = inspectionLineSchema.safeParse({
+      expected_quantity: 10,
+      received_quantity: 8,
+      rejected_quantity: 5,
+      inspection_result: 'accepted',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects non-zero received_quantity when result is rejected', () => {
+    const result = inspectionLineSchema.safeParse({
+      expected_quantity: 10,
+      received_quantity: 5,
+      rejected_quantity: 5,
+      inspection_result: 'rejected',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects zero received_quantity when result is not rejected', () => {
+    const result = inspectionLineSchema.safeParse({
+      expected_quantity: 10,
+      received_quantity: 0,
+      rejected_quantity: 0,
+      inspection_result: 'accepted',
     })
     expect(result.success).toBe(false)
   })
