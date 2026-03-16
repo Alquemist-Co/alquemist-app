@@ -1,5 +1,14 @@
 import { z } from 'zod'
 
+export const climateConfigSchema = z.object({
+  temperature: z.object({ min: z.number(), max: z.number() }),
+  humidity: z.object({ min: z.number(), max: z.number() }),
+  co2: z.object({ min: z.number(), max: z.number() }).optional(),
+  photoperiod: z.object({ hours_light: z.number(), hours_dark: z.number() }).optional(),
+}).optional().nullable()
+
+export type ClimateConfigInput = z.infer<typeof climateConfigSchema>
+
 export const zoneSchema = z.object({
   facility_id: z.string().uuid('Selecciona una instalación'),
   name: z.string().min(1, 'El nombre es requerido').max(200, 'Máximo 200 caracteres'),

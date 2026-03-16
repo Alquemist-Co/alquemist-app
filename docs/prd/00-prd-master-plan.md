@@ -161,9 +161,9 @@ Autenticación, onboarding de empresa, e invitación de usuarios.
 
 - [x] 01 · `auth/login.md` — `/login` — Login con email/password, manejo de sesión, redirect post-login por rol
 - [x] 02 · `auth/signup.md` — `/signup` — Onboarding inicial: primer admin registra empresa + su cuenta de administrador
-- [x] 03 · `auth/invite.md` — `/invite/[token]` — Activación de cuenta vía invitación: set password, completar perfil
+- [x] 03 · `auth/invite.md` — `/invite` — Activación de cuenta vía invitación: set password, completar perfil (token exchanged via `/auth/confirm` callback)
 - [x] 04 · `auth/forgot-password.md` — `/forgot-password` — Solicitar restablecimiento de contraseña por email
-- [x] 05 · `auth/reset-password.md` — `/reset-password/[token]` — Establecer nueva contraseña desde link del email
+- [x] 05 · `auth/reset-password.md` — `/reset-password` — Establecer nueva contraseña desde link del email (token exchanged via `/auth/confirm` callback)
 
 ### Dependencias
 

@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { inviteActivationSchema, type InviteActivationInput } from '@/schemas/auth'
 import { createClient } from '@/lib/supabase/client'
+import { getRoleRedirect } from '@/lib/auth/utils'
 import { activateInvite } from './actions'
 import { toast } from 'sonner'
 import { Sprout } from 'lucide-react'
@@ -132,7 +133,7 @@ export default function InvitePage() {
         return
       }
 
-      router.push('/settings')
+      router.push(getRoleRedirect(userData.role))
     } catch {
       toast.error('Error inesperado. Intenta nuevamente.')
       setState('ready')

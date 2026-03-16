@@ -131,7 +131,9 @@ export const selectClass =
 
 export function formatDate(d: string | null) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
+  // Append time component for date-only strings to avoid UTC timezone shift
+  const dateStr = d.length === 10 ? d + 'T00:00:00' : d
+  return new Date(dateStr).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 export function formatDateTime(d: string | null) {

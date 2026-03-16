@@ -75,6 +75,7 @@ export type MarkReceivedInput = z.infer<typeof markReceivedSchema>
 // ---------- Inspection Line (PRD 20) ----------
 
 export const inspectionLineSchema = z.object({
+  expected_quantity: z.number().positive(),
   received_quantity: z.number({ message: 'Ingresa la cantidad' }).nonnegative('No puede ser negativo'),
   rejected_quantity: z.number({ message: 'Ingresa la cantidad' }).nonnegative('No puede ser negativo'),
   inspection_result: z.enum(
@@ -83,6 +84,28 @@ export const inspectionLineSchema = z.object({
   ),
   inspection_notes: z.string().max(2000, 'Máximo 2000 caracteres').optional().or(z.literal('')),
   inspection_data: z.record(z.string(), z.unknown()).optional().nullable(),
+}).superRefine((data, ctx) => {
+  if (data.received_quantity + data.rejected_quantity > data.expected_quantity) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'La suma de cantidad recibida y rechazada no puede superar la cantidad esperada',
+      path: ['received_quantity'],
+    })
+  }
+  if (data.inspection_result === 'rejected' && data.received_quantity !== 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'La cantidad recibida debe ser 0 cuando el resultado es rechazado',
+      path: ['received_quantity'],
+    })
+  }
+  if (data.inspection_result !== 'rejected' && data.received_quantity <= 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'La cantidad recibida debe ser mayor a 0',
+      path: ['received_quantity'],
+    })
+  }
 })
 
 export type InspectionLineInput = z.infer<typeof inspectionLineSchema>

@@ -39,6 +39,15 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Role check
+    const userRole = user.user_metadata?.role || user.app_metadata?.role
+    if (!['admin', 'manager', 'supervisor'].includes(userRole)) {
+      return new Response(
+        JSON.stringify({ error: 'Insufficient permissions' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     // 2. Parse and validate input
     const body = await req.json()
     const { inventory_item_id, destination_zone_id, quantity, reason } = body

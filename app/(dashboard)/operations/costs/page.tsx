@@ -60,6 +60,7 @@ export default async function CostsPage({
 
   const currency = company?.currency ?? 'COP'
   const canEdit = ['admin', 'manager'].includes(role)
+  const canDelete = role === 'admin'
   const page = Math.max(1, parseInt(params.page || '1', 10) || 1)
   const offset = (page - 1) * PAGE_SIZE
 
@@ -194,6 +195,7 @@ export default async function CostsPage({
         zones={zonesData}
         currency={currency}
         canEdit={canEdit}
+        canDelete={canDelete}
         companyId={companyId}
         userId={currentUser.id}
         totalPages={totalPages}

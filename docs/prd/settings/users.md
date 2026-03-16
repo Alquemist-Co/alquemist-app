@@ -18,7 +18,7 @@ Usuarios principales: admin y manager de la empresa.
 | Tabla      | Operaciones | Notas                                                                                                                                        |
 | ---------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | users      | R/W         | Listar todos los usuarios de la empresa; crear registro al invitar; actualizar role, permissions, assigned_facility_id, is_active            |
-| auth.users | W           | Crear cuenta via Supabase Admin API al invitar (`auth.admin.createUser` o `auth.admin.inviteUserByEmail`). Actualizar al reenviar invitación |
+| auth.users | W           | Crear cuenta via `auth.admin.createUser()` al invitar. Generar link via `auth.admin.generateLink()` + enviar email via Resend |
 | companies  | R           | Nombre de empresa para contexto                                                                                                              |
 | facilities | R           | Lista de facilities para asignar al usuario (FK assigned_facility_id)                                                                        |
 
@@ -69,16 +69,16 @@ Página dentro del layout de dashboard con sidebar.
 - **RF-04**: El estado "Pendiente" se deriva de `last_login_at IS NULL` — indica que el usuario fue invitado pero no ha activado su cuenta
 - **RF-05**: Al invitar usuario, ejecutar Server Action transaccional (usa `admin.ts` con service role):
   1. Verificar que el email no existe en la empresa
-  2. Crear usuario en auth.users via `auth.admin.inviteUserByEmail({ email, options: { data: { full_name } } })` — Supabase envía email de invitación automáticamente
-  3. Setear `app_metadata = { company_id, role }` en auth.users
-  4. Crear registro en `users`: company_id, email, full_name, role, assigned_facility_id, permissions, is_active=true
+  2. Crear usuario en auth.users via `auth.admin.createUser()` con `app_metadata = { company_id, role }` y `email_confirm: true`
+  3. Crear registro en `users`: company_id, email, full_name, role, assigned_facility_id, permissions, is_active=true
+  4. Generar invite link via `auth.admin.generateLink({ type: 'invite' })` y enviar email via Resend (never GoTrue built-in mailer)
   5. Si falla → rollback (eliminar registros creados)
 - **RF-06**: Admin puede asignar cualquier rol. Manager solo puede asignar supervisor, operator o viewer
 - **RF-07**: Admin no puede degradar su propio rol ni desactivarse a sí mismo
 - **RF-08**: Al editar usuario, ejecutar `supabase.from('users').update({ role, assigned_facility_id, permissions, full_name }).eq('id', userId)` + actualizar `app_metadata.role` via Server Action si el rol cambió
 - **RF-09**: Desactivar usuario: `supabase.from('users').update({ is_active: false }).eq('id', userId)`. No elimina auth.users — el usuario simplemente no puede iniciar sesión (verificado en post-login, ver PRD auth-login RF-05)
 - **RF-10**: Reactivar usuario: `supabase.from('users').update({ is_active: true }).eq('id', userId)`
-- **RF-11**: Reenviar invitación: invocar `auth.admin.inviteUserByEmail()` nuevamente para el email — Supabase genera nuevo token y reenvía email
+- **RF-11**: Reenviar invitación: generar nuevo invite link via `auth.admin.generateLink({ type: 'invite' })` y enviar email via Resend
 - **RF-12**: Mostrar dialog de confirmación antes de desactivar un usuario: "¿Desactivar a {nombre}? El usuario no podrá iniciar sesión."
 - **RF-13**: Tras cualquier operación exitosa (invitar, editar, desactivar, reactivar), invalidar query cache `['users-list']` y mostrar toast de éxito
 - **RF-14**: Validar campos del dialog de invitación con Zod antes de enviar
@@ -127,7 +127,7 @@ Página dentro del layout de dashboard con sidebar.
 
 1. Admin ve usuario con estado "Pendiente" (last_login_at IS NULL)
 2. Click en menú de acciones → "Reenviar invitación"
-3. Server Action invoca `auth.admin.inviteUserByEmail()` nuevamente
+3. Server Action generates new invite link via `generateLink()` + sends email via Resend
 4. Toast "Invitación reenviada a {email}"
 
 ### Editar rol y permisos
@@ -193,10 +193,10 @@ Mismo schema que invitación pero sin `email` (read-only).
 
 - **Páginas relacionadas**:
   - `/settings/profile` — el usuario edita su propia info allí, no aquí
-  - `/invite/[token]` — página donde el usuario invitado activa su cuenta
+  - `/invite` — página donde el usuario invitado activa su cuenta (token exchanged via `/auth/confirm`)
   - `/settings/company` — la empresa debe existir (Fase 1)
 - **Server Action**: Operación transaccional que usa `src/lib/supabase/admin.ts` (service role) para crear auth.users
-- **Supabase Auth**: `auth.admin.inviteUserByEmail()` para envío de invitaciones
+- **Supabase Auth**: `auth.admin.createUser()` + `auth.admin.generateLink()` + Resend para envío de invitaciones (never GoTrue built-in mailer)
 - **React Query**: Cache key `['users-list']` para invalidación
 - **Facilities** (Fase 3): El select de facility referencia a `facilities` — si no hay facilities creadas, el campo es opcional y muestra estado vacío apropiado
 

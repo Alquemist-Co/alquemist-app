@@ -127,6 +127,9 @@ export function ScheduleClient({
       const atype = activityTypes.find((t) => t.id === filters.type)
       if (atype && a.activity_type_name !== atype.name) return false
     }
+    if (filters.batch) {
+      if (a.batch_id !== filters.batch) return false
+    }
     return true
   })
 

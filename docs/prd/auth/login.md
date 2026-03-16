@@ -149,7 +149,7 @@ Nota: No se valida longitud mínima de password en login (solo en signup/reset).
 - **Páginas relacionadas**:
   - `/forgot-password` — link desde formulario
   - `/signup` — link desde footer
-  - `/invite/[token]` — flujo alternativo que también termina en sesión activa
+  - `/invite` — flujo alternativo que también termina en sesión activa (token exchanged via `/auth/confirm`)
 - **Middleware**: `src/lib/auth/middleware.ts` — redirect de usuarios autenticados y sesiones expiradas
 - **Supabase client**: `src/lib/supabase/browser.ts` — cliente para auth en browser
 - **Store**: `src/stores/auth-store.ts` — Zustand store hidratado post-login

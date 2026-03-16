@@ -228,7 +228,7 @@ export function HistoryClient({
     setExporting(true)
     try {
       const supabase = createClient()
-      const { data, error } = await supabase
+      let exportQuery = supabase
         .from('activities')
         .select(`
           performed_at, crop_day, status, duration_minutes, notes,
@@ -240,6 +240,21 @@ export function HistoryClient({
           resources:activity_resources(count),
           observations:activity_observations(count)
         `)
+
+      // Apply the same filters as the main query
+      if (filters.status) exportQuery = exportQuery.eq('status', filters.status as 'completed')
+      if (filters.batch) exportQuery = exportQuery.eq('batch_id', filters.batch)
+      if (filters.type) exportQuery = exportQuery.eq('activity_type_id', filters.type)
+      if (filters.zone) exportQuery = exportQuery.eq('zone_id', filters.zone)
+      if (filters.operator) exportQuery = exportQuery.eq('performed_by', filters.operator)
+      if (filters.date_from) exportQuery = exportQuery.gte('performed_at', filters.date_from)
+      if (filters.date_to) exportQuery = exportQuery.lte('performed_at', filters.date_to + 'T23:59:59')
+      if (filters.search?.trim()) {
+        const term = `%${filters.search.trim()}%`
+        exportQuery = exportQuery.or(`notes.ilike.${term}`)
+      }
+
+      const { data, error } = await exportQuery
         .order('performed_at', { ascending: false })
         .limit(5000)
 

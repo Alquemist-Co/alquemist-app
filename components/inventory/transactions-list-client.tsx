@@ -159,7 +159,9 @@ function formatQuantity(qty: number, type: string, unitCode: string | null): str
   const unit = unitCode ? ` ${unitCode}` : ''
   if (ENTRY_TYPES.includes(type)) return `+${abs}${unit}`
   if (EXIT_TYPES.includes(type)) return `-${abs}${unit}`
-  return `${qty >= 0 ? '+' : ''}${abs}${unit}`
+  // Adjustments: show sign based on actual quantity value
+  const sign = qty > 0 ? '+' : qty < 0 ? '-' : ''
+  return `${sign}${abs}${unit}`
 }
 
 function quantityColor(type: string): string {
@@ -283,8 +285,8 @@ export function TransactionsListClient({
 
   function handleExport() {
     startExport(async () => {
-      if (totalCount > 1000) {
-        toast.info(`Exportando ${totalCount} registros (max 1000). Esto puede tomar un momento.`)
+      if (totalCount > 10000) {
+        toast.info(`Exportando ${totalCount} registros (max 10000). Esto puede tomar un momento.`)
       }
       const result = await exportTransactionsCsv({
         type: filters.type || undefined,
@@ -388,7 +390,7 @@ export function TransactionsListClient({
         <div className="relative max-sm:w-full">
           <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por razon..."
+            placeholder="Buscar por producto, lote o razón..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="h-9 w-full pl-8 sm:w-[200px] lg:w-[280px]"

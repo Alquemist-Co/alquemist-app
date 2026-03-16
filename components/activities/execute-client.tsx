@@ -1017,6 +1017,7 @@ function scaleQuantity(
       return quantity * (plantCount ?? 0)
     case 'per_m2':
       return quantity * (areaM2 ?? 0)
+    case 'per_L_solution':
     case 'per_zone':
     case 'fixed':
     default:

@@ -105,10 +105,10 @@ export async function exportTransactionsCsv(
   }
   if (filters.search?.trim()) {
     const term = `%${filters.search.trim()}%`
-    query = query.or(`reason.ilike.${term}`)
+    query = query.or(`reason.ilike.${term},inventory_item.product.name.ilike.${term},inventory_item.batch_number.ilike.${term}`)
   }
 
-  const { data, error } = await query.order('timestamp', { ascending: false }).limit(1000)
+  const { data, error } = await query.order('timestamp', { ascending: false }).limit(10000)
 
   if (error) {
     return { data: null, error: 'Error al cargar las transacciones para exportar.' }

@@ -51,7 +51,7 @@ export type TransferInventoryInput = z.infer<typeof transferInventorySchema>
 
 export const changeLotStatusSchema = z.object({
   lot_status: lotStatusEnum,
-  reason: z.string().max(2000, 'Máximo 2000 caracteres').optional().or(z.literal('')),
+  reason: z.string().min(1, 'La razón es requerida').max(2000, 'Máximo 2000 caracteres'),
 })
 
 export type ChangeLotStatusInput = z.infer<typeof changeLotStatusSchema>

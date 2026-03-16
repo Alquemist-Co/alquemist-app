@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginInput } from '@/schemas/auth'
 import { createClient } from '@/lib/supabase/client'
+import { getRoleRedirect } from '@/lib/auth/utils'
 import { toast } from 'sonner'
 import { Sprout } from 'lucide-react'
 import Link from 'next/link'
@@ -57,7 +58,14 @@ export default function LoginPage() {
       })
 
       if (signInError) {
-        toast.error('Credenciales inválidas. Verifica tu email y contraseña.')
+        if (signInError.message?.includes('email_not_confirmed')) {
+          toast.error('Tu email no ha sido confirmado. Revisa tu bandeja de entrada.')
+        } else if (signInError.message?.includes('user_banned')) {
+          toast.error('Tu cuenta ha sido suspendida. Contacta al administrador.')
+        } else {
+          toast.error('Credenciales inválidas. Verifica tu email y contraseña.')
+        }
+        form.setValue('password', '')
         return
       }
 
@@ -89,7 +97,7 @@ export default function LoginPage() {
       // Update last_login_at (fire-and-forget)
       supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', (await supabase.auth.getUser()).data.user!.id).then()
 
-      router.push('/settings')
+      router.push(getRoleRedirect(userData.role))
     } catch {
       toast.error('Error inesperado. Intenta nuevamente.')
     } finally {

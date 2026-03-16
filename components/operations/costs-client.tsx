@@ -132,6 +132,7 @@ type Props = {
   zones: Zone[]
   currency: string
   canEdit: boolean
+  canDelete: boolean
   companyId: string
   userId: string
   totalPages: number
@@ -159,6 +160,7 @@ export function CostsClient({
   zones,
   currency,
   canEdit,
+  canDelete,
   companyId,
   userId,
   totalPages,
@@ -542,7 +544,7 @@ export function CostsClient({
                         <TableHead className="text-right">Monto</TableHead>
                         <TableHead>Periodo</TableHead>
                         <TableHead>Prorrateo</TableHead>
-                        {canEdit && <TableHead className="w-20" />}
+                        {(canEdit || canDelete) && <TableHead className="w-20" />}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -580,28 +582,32 @@ export function CostsClient({
                                 c.allocation_basis}
                             </Badge>
                           </TableCell>
-                          {canEdit && (
+                          {(canEdit || canDelete) && (
                             <TableCell>
                               <div className="flex gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7"
-                                  onClick={() => {
-                                    setEditingCost(c)
-                                    setDialogOpen(true)
-                                  }}
-                                >
-                                  <Pencil className="h-3.5 w-3.5" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-7 w-7 text-destructive"
-                                  onClick={() => setDeleteTarget(c)}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
+                                {canEdit && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => {
+                                      setEditingCost(c)
+                                      setDialogOpen(true)
+                                    }}
+                                  >
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
+                                {canDelete && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-destructive"
+                                    onClick={() => setDeleteTarget(c)}
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                )}
                               </div>
                             </TableCell>
                           )}

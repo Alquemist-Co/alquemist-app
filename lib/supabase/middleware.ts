@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { getRoleRedirect } from '@/lib/auth/utils'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -48,16 +49,26 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isAuthRoute) {
-    // Authenticated user on auth page → redirect to settings
+    // Authenticated user on auth page → redirect to role-based default route
+    const role = (user.app_metadata?.role as string) ?? 'viewer'
     const url = request.nextUrl.clone()
-    url.pathname = '/settings'
+    url.pathname = getRoleRedirect(role)
     return NextResponse.redirect(url)
   }
 
-  if (!user && !isAuthRoute && pathname !== '/') {
+  if (!user && !isAuthRoute) {
     // Unauthenticated user on protected route → redirect to login
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+
+    // PD-04: Detect expired session by checking for existing auth cookie
+    const hadSession = request.cookies.getAll().some(
+      (c) => c.name.startsWith('sb-') && c.name.endsWith('-auth-token')
+    )
+    if (hadSession) {
+      url.searchParams.set('expired', 'true')
+    }
+
     return NextResponse.redirect(url)
   }
 

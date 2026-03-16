@@ -63,6 +63,21 @@ export default async function RegulatoryDocumentsPage({
     query = query.eq('status', params.status as 'draft')
   }
 
+  if (params.category?.trim()) {
+    // Get doc type IDs matching the category, then filter
+    const { data: matchingDocTypes } = await supabase
+      .from('regulatory_doc_types')
+      .select('id')
+      .eq('category', params.category.trim() as 'origin')
+    const matchingIds = (matchingDocTypes ?? []).map((dt) => dt.id)
+    if (matchingIds.length > 0) {
+      query = query.in('doc_type_id', matchingIds)
+    } else {
+      // No doc types match this category — force empty result
+      query = query.eq('doc_type_id', '00000000-0000-0000-0000-000000000000')
+    }
+  }
+
   if (params.doc_type) {
     query = query.eq('doc_type_id', params.doc_type)
   }

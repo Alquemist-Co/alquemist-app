@@ -116,9 +116,9 @@ export default async function QualityTestsPage({
     supabase.from('quality_tests').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
     supabase.from('quality_tests').select('id', { count: 'exact', head: true }).eq('status', 'in_progress'),
     supabase.from('quality_tests').select('id', { count: 'exact', head: true }).eq('status', 'completed')
-      .gte('updated_at', monthStart),
+      .gte('result_date', monthStart),
     supabase.from('quality_tests').select('id', { count: 'exact', head: true }).eq('status', 'failed')
-      .gte('updated_at', monthStart),
+      .gte('result_date', monthStart),
     supabase.from('batches').select('id, code, cultivar:cultivars(id, name), phase:production_phases!batches_current_phase_id_fkey(id, name)')
       .in('status', ['active', 'phase_transition', 'on_hold'])
       .order('code'),

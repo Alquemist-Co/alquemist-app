@@ -114,7 +114,7 @@ export default async function TransactionsPage({
 
   if (params.search?.trim()) {
     const term = `%${params.search.trim()}%`
-    query = query.or(`reason.ilike.${term}`)
+    query = query.or(`reason.ilike.${term},inventory_item.product.name.ilike.${term},inventory_item.batch_number.ilike.${term}`)
   }
 
   const { data: transactions, count } = await query

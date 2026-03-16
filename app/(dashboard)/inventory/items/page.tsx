@@ -62,6 +62,16 @@ export default async function InventoryItemsPage({
 
   const showDepleted = params.show_depleted === '1'
 
+  // If facility_id filter, resolve zone IDs for that facility
+  let facilityZoneIds: string[] | null = null
+  if (params.facility_id) {
+    const { data: fzData } = await supabase
+      .from('zones')
+      .select('id')
+      .eq('facility_id', params.facility_id)
+    facilityZoneIds = (fzData ?? []).map((z) => z.id)
+  }
+
   // Build main query
   let query = supabase
     .from('inventory_items')
@@ -82,6 +92,12 @@ export default async function InventoryItemsPage({
 
   if (params.zone_id) {
     query = query.eq('zone_id', params.zone_id)
+  } else if (facilityZoneIds !== null) {
+    if (facilityZoneIds.length === 0) {
+      // No zones in this facility — return empty
+      facilityZoneIds = ['00000000-0000-0000-0000-000000000000']
+    }
+    query = query.in('zone_id', facilityZoneIds)
   }
 
   if (params.lot_status && VALID_LOT_STATUS.includes(params.lot_status)) {
@@ -94,7 +110,7 @@ export default async function InventoryItemsPage({
 
   if (params.search?.trim()) {
     const term = `%${params.search.trim()}%`
-    query = query.or(`batch_number.ilike.${term}`)
+    query = query.or(`batch_number.ilike.${term},product.name.ilike.${term}`)
   }
 
   // Exclude depleted by default
@@ -123,7 +139,7 @@ export default async function InventoryItemsPage({
     supabase
       .from('inventory_items')
       .select('id', { count: 'exact', head: true })
-      .in('lot_status', ['available', 'quarantine']),
+      .neq('lot_status', 'depleted' as 'available'),
     supabase
       .from('inventory_items')
       .select('id', { count: 'exact', head: true })
@@ -134,7 +150,8 @@ export default async function InventoryItemsPage({
       .eq('lot_status', 'expired'),
     supabase
       .from('inventory_items')
-      .select('product_id'),
+      .select('product_id')
+      .neq('lot_status', 'depleted' as 'available'),
     supabase
       .from('products')
       .select('id, name, sku')

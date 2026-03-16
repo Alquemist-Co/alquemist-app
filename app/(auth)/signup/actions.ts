@@ -18,24 +18,7 @@ export async function signup(raw: unknown): Promise<SignupResult> {
   const data = parsed.data
   const admin = createAdminClient()
 
-  // 1. Create auth user (duplicate-email check is implicit)
-  const { data: authData, error: authError } = await admin.auth.admin.createUser({
-    email: data.email,
-    password: data.password,
-    email_confirm: true,
-    app_metadata: { role: 'admin' },
-  })
-
-  if (authError) {
-    if (authError.message?.includes('already been registered') || authError.message?.includes('already exists')) {
-      return { success: false, error: 'Este email ya está registrado', field: 'email' }
-    }
-    return { success: false, error: 'Error al crear la cuenta. Intenta nuevamente.' }
-  }
-
-  const userId = authData.user.id
-
-  // 2. Create company
+  // 1. Create company first (with service role — no auth user yet)
   const { data: companyData, error: companyError } = await admin
     .from('companies')
     .insert({
@@ -44,30 +27,41 @@ export async function signup(raw: unknown): Promise<SignupResult> {
       country: data.country,
       timezone: data.timezone,
       currency: data.currency,
-      created_by: userId,
     })
     .select('id')
     .single()
 
   if (companyError || !companyData) {
-    // Rollback: delete auth user
-    await admin.auth.admin.deleteUser(userId)
     return { success: false, error: 'Error al crear la empresa. Intenta nuevamente.' }
   }
 
   const companyId = companyData.id
 
-  // 3. Update auth metadata with company_id
-  const { error: metaError } = await admin.auth.admin.updateUserById(userId, {
-    app_metadata: { company_id: companyId, role: 'admin' },
+  // 2. Create auth user with company_id already in metadata
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
+    email: data.email,
+    password: data.password,
+    email_confirm: true,
+    app_metadata: { role: 'admin', company_id: companyId },
   })
 
-  if (metaError) {
-    // Rollback: delete company + auth user
+  if (authError) {
+    // Rollback: delete company
     await admin.from('companies').delete().eq('id', companyId)
-    await admin.auth.admin.deleteUser(userId)
-    return { success: false, error: 'Error al configurar la cuenta. Intenta nuevamente.' }
+
+    if (authError.message?.includes('already been registered') || authError.message?.includes('already exists')) {
+      return { success: false, error: 'Este email ya está registrado', field: 'email' }
+    }
+    return { success: false, error: 'Error al crear la cuenta. Intenta nuevamente.' }
   }
+
+  const userId = authData.user.id
+
+  // 3. Update company created_by now that we have the user id
+  await admin
+    .from('companies')
+    .update({ created_by: userId })
+    .eq('id', companyId)
 
   // 4. Create public.users record
   const { error: userError } = await admin.from('users').insert({
@@ -81,9 +75,9 @@ export async function signup(raw: unknown): Promise<SignupResult> {
   })
 
   if (userError) {
-    // Rollback: delete company + auth user
-    await admin.from('companies').delete().eq('id', companyId)
+    // Rollback: delete auth user + company
     await admin.auth.admin.deleteUser(userId)
+    await admin.from('companies').delete().eq('id', companyId)
     return { success: false, error: 'Error al crear el usuario. Intenta nuevamente.' }
   }
 

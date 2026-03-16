@@ -28,6 +28,7 @@ export default async function FacilitiesPage() {
   const { data: facilities } = await supabase
     .from('facilities')
     .select('*, zones:zones(id)')
+    .eq('is_active', true)
     .order('name')
 
   const facilitiesWithCount = (facilities ?? []).map((f) => ({

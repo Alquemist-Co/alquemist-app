@@ -266,41 +266,45 @@ export function AlertsListClient({
   async function handleBulkAcknowledge() {
     const ids = Array.from(selectedIds)
     const supabase = createClient()
-    let count = 0
-    for (const id of ids) {
-      const { error } = await supabase
-        .from('alerts')
-        .update({
-          status: 'acknowledged' as const,
-          acknowledged_by: userId,
-          acknowledged_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .eq('status', 'pending' as const)
-      if (!error) count++
-    }
+    const { data, error } = await supabase
+      .from('alerts')
+      .update({
+        status: 'acknowledged' as const,
+        acknowledged_by: userId,
+        acknowledged_at: new Date().toISOString(),
+      })
+      .in('id', ids)
+      .eq('status', 'pending' as const)
+      .select('id')
+
     setSelectedIds(new Set())
-    toast.success(`${count} alerta(s) reconocida(s).`)
+    if (error) {
+      toast.error('Error al reconocer alertas.')
+    } else {
+      toast.success(`${data?.length ?? ids.length} alerta(s) reconocida(s).`)
+    }
     router.refresh()
   }
 
   async function handleBulkResolve() {
     const ids = Array.from(selectedIds)
     const supabase = createClient()
-    let count = 0
-    for (const id of ids) {
-      const { error } = await supabase
-        .from('alerts')
-        .update({
-          status: 'resolved' as const,
-          resolved_at: new Date().toISOString(),
-        })
-        .eq('id', id)
-        .in('status', ['pending', 'acknowledged'] as unknown as ['pending'])
-      if (!error) count++
-    }
+    const { data, error } = await supabase
+      .from('alerts')
+      .update({
+        status: 'resolved' as const,
+        resolved_at: new Date().toISOString(),
+      })
+      .in('id', ids)
+      .in('status', ['pending', 'acknowledged'] as unknown as ['pending'])
+      .select('id')
+
     setSelectedIds(new Set())
-    toast.success(`${count} alerta(s) resuelta(s).`)
+    if (error) {
+      toast.error('Error al resolver alertas.')
+    } else {
+      toast.success(`${data?.length ?? ids.length} alerta(s) resuelta(s).`)
+    }
     router.refresh()
   }
 
@@ -313,7 +317,7 @@ export function AlertsListClient({
     })
   }
 
-  const pendingTotal = kpis.critical + kpis.high + kpis.warning + kpis.info
+  const pendingTotal = kpis.critical + kpis.high + kpis.warning + kpis.info - kpis.acknowledged
 
   const kpiCards = [
     { label: 'Críticas', value: kpis.critical, style: 'text-red-600', pulse: kpis.critical > 0 },

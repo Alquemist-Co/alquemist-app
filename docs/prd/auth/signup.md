@@ -71,14 +71,12 @@ Página pública fuera del layout de dashboard. Sin sidebar ni topbar. Diseño l
 - **RF-03**: El select de moneda se pre-selecciona según país (ej: Colombia → COP, México → MXN, USA → USD)
 - **RF-04**: Validar todos los campos con Zod antes de enviar
 - **RF-05**: Al submit, ejecutar Server Action transaccional (usa `admin.ts` con service role key):
-  1. Verificar que el email no existe en auth.users
-  2. Crear registro en `companies` con los datos del paso 1, `is_active = true`
-  3. Crear usuario en `auth.users` via Supabase Admin API (`auth.admin.createUser`)
-  4. Setear `app_metadata = { company_id: <new_company_id>, role: 'admin' }`
-  5. Se crea automáticamente row en `auth.identities` via Admin API
-  6. Crear registro en `users` con: company_id, email, full_name, phone, role='admin', is_active=true
-  7. Seed automático de datos de catálogo para la nueva empresa (ver RF-10)
-  8. Si cualquier paso 1-6 falla → rollback (eliminar registros creados). Si paso 7 falla → se ignora (signup exitoso sin seed)
+  1. Crear registro en `companies` con los datos del paso 1, `is_active = true`
+  2. Crear usuario en `auth.users` via `auth.admin.createUser()` con `app_metadata = { company_id, role: 'admin' }` y `email_confirm: true`. Si el email ya existe, `createUser` retorna error → rollback company → retornar error
+  3. Actualizar `companies.created_by` con el nuevo user id
+  4. Crear registro en `users` con: id (mismo que auth user), company_id, email, full_name, phone, role='admin', created_by. Si falla → rollback auth user + company
+  5. Seed automático de datos de catálogo para la nueva empresa (ver RF-10)
+  6. Si cualquier paso 1-4 falla → rollback (eliminar registros creados). Si paso 5 falla → se ignora (signup exitoso sin seed)
 - **RF-06**: Post-creación exitosa, auto-login: `signInWithPassword({ email, password })` en el cliente
 - **RF-07**: Hidratar auth-store con datos del nuevo usuario y empresa
 - **RF-08**: Redirect a `/settings/company` para completar configuración adicional (logo, regulatory_mode, features)

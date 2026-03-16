@@ -28,7 +28,15 @@ export const createOverheadCostSchema = z.object({
 }).refine(
   (data) => data.period_start <= data.period_end,
   { message: 'La fecha de inicio debe ser anterior a la fecha de fin', path: ['period_start'] }
-)
+).superRefine((data, ctx) => {
+  if (data.allocation_basis === 'per_zone' && !data.zone_id) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'La zona es requerida cuando el prorrateo es por zona',
+      path: ['zone_id'],
+    })
+  }
+})
 
 export type CreateOverheadCostInput = z.infer<typeof createOverheadCostSchema>
 

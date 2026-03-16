@@ -147,13 +147,12 @@ export function StatusDialog({ open, onOpenChange, item, onSuccess }: Props) {
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Razon (opcional)</FormLabel>
+                  <FormLabel>Razón *</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Motivo del cambio de estado..."
                       rows={2}
                       {...field}
-                      value={field.value ?? ''}
                     />
                   </FormControl>
                   <FormMessage />

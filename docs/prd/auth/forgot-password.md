@@ -5,11 +5,11 @@
 - **Ruta**: `/forgot-password`
 - **Roles con acceso**: Público (sin autenticación)
 - **Tipo componente**: Client Component (`'use client'`)
-- **Edge Functions**: Ninguna — usa `supabase.auth.resetPasswordForEmail()` (built-in)
+- **Edge Functions**: Ninguna — usa Server Action con `generateLink()` + Resend (per CLAUDE.md mandate: never use GoTrue's built-in mailer)
 
 ## Objetivo
 
-Permitir a un usuario que olvidó su contraseña solicitar un link de restablecimiento por email. Es el primer paso del flujo de recuperación (forgot → email → reset). Usa el mecanismo nativo de Supabase Auth para generar y enviar el token de recovery.
+Permitir a un usuario que olvidó su contraseña solicitar un link de restablecimiento por email. Es el primer paso del flujo de recuperación (forgot → email → reset). Usa `admin.auth.admin.generateLink({ type: 'recovery' })` para generar el token y Resend para enviar el email (nunca GoTrue built-in mailer, que rompe `redirect_to` en producción).
 
 Usuarios principales: cualquier usuario registrado que no recuerda su contraseña.
 
@@ -17,9 +17,9 @@ Usuarios principales: cualquier usuario registrado que no recuerda su contraseñ
 
 | Tabla      | Operaciones | Notas                                                                     |
 | ---------- | ----------- | ------------------------------------------------------------------------- |
-| auth.users | R           | Supabase verifica internamente si el email existe y genera recovery token |
+| auth.users | R           | `generateLink()` verifica internamente si el email existe y genera recovery token |
 
-No se accede directamente a tablas del modelo de Alquemist. Todo el flujo es manejado por Supabase Auth.
+No se accede directamente a tablas del modelo de Alquemist. El token se genera via Supabase Admin API y el email se envía via Resend.
 
 ## ENUMs utilizados
 
@@ -48,10 +48,10 @@ Página pública fuera del layout de dashboard. Diseño minimalista.
 
 - **RF-01**: El usuario ingresa su email y envía el formulario
 - **RF-02**: Validar formato de email con Zod antes de enviar
-- **RF-03**: Llamar `supabase.auth.resetPasswordForEmail(email, { redirectTo })` donde `redirectTo` apunta a `/reset-password`
+- **RF-03**: Server Action llama `admin.auth.admin.generateLink({ type: 'recovery', email })` para obtener el token, construye URL de confirmación (`/auth/confirm?token_hash=...&type=recovery&redirect_to=/reset-password`), y envía el email via Resend con template branded en español
 - **RF-04**: Mostrar SIEMPRE el mismo mensaje de éxito, independientemente de si el email existe o no (prevenir enumeración de usuarios)
-- **RF-05**: El link enviado por email incluye un token de recovery que Supabase genera automáticamente
-- **RF-06**: El link de recovery redirige a `/reset-password` con los parámetros de sesión en el URL fragment
+- **RF-05**: El link enviado por email apunta a `/auth/confirm` con `token_hash`, `type=recovery` y `redirect_to=/reset-password`
+- **RF-06**: `/auth/confirm` intercambia el token por una sesión y redirige a `/reset-password`
 - **RF-07**: Si el usuario ya tiene sesión activa, permitir el acceso (puede querer cambiar su contraseña) pero mostrar nota: "Tienes una sesión activa. También puedes cambiar tu contraseña desde tu perfil"
 
 ## Requisitos no funcionales
@@ -59,7 +59,7 @@ Página pública fuera del layout de dashboard. Diseño minimalista.
 - **RNF-01**: NUNCA revelar si el email existe en el sistema — el mensaje de éxito es siempre el mismo
 - **RNF-02**: Rate limiting delegado a Supabase Auth (built-in, ~5 requests por hora por email)
 - **RNF-03**: El token de recovery tiene expiración (configurable en Supabase, default 1 hora)
-- **RNF-04**: El email se envía via el servicio de email configurado en Supabase (built-in o custom SMTP)
+- **RNF-04**: El email se envía via Resend (`noreply@alquemist.co`), nunca via GoTrue built-in mailer
 
 ## Flujos principales
 
@@ -68,20 +68,20 @@ Página pública fuera del layout de dashboard. Diseño minimalista.
 1. Usuario navega a `/forgot-password`
 2. Ingresa su email → click "Enviar link"
 3. Validación Zod pasa → botón se deshabilita, muestra loading
-4. `resetPasswordForEmail()` se ejecuta exitosamente
+4. Server Action genera link via `generateLink()` y envía email via Resend
 5. UI cambia a estado de éxito: "Revisa tu bandeja de entrada"
 6. Usuario revisa email → click en link → navega a `/reset-password`
 
 ### Email no registrado
 
 1. Usuario ingresa email que no existe
-2. `resetPasswordForEmail()` se ejecuta (Supabase no genera email pero no retorna error)
+2. `generateLink()` retorna error (email not found), Server Action ignora el error
 3. UI muestra el MISMO mensaje de éxito (no revela que el email no existe)
 4. No se envía ningún email
 
 ### Error de red
 
-1. `resetPasswordForEmail()` falla por error de conexión
+1. Server Action falla por error de conexión
 2. Mostrar toast: "Error de conexión. Intenta nuevamente"
 3. Formulario se re-habilita
 
@@ -123,5 +123,7 @@ email: z.string().min(1, 'El email es requerido').email('Formato de email invál
   - `/login` — link de regreso, origen típico del flujo
   - `/reset-password` — destino del link enviado por email
   - `/settings/profile` (Fase 2) — alternativa para cambiar contraseña estando autenticado
-- **Supabase client**: `src/lib/supabase/browser.ts` — `resetPasswordForEmail()`
-- **Configuración Supabase**: Template de email de recovery (configurable en Supabase dashboard), redirect URL permitida
+- **Server Action**: `app/(auth)/forgot-password/actions.ts` — `requestPasswordReset()` via `generateLink()` + Resend
+- **Admin client**: `lib/supabase/admin.ts` — service role for `generateLink()`
+- **Email template**: `lib/email/templates.ts` — `recoveryEmailTemplate()` (branded, Spanish)
+- **Auth confirm**: `app/auth/confirm/route.ts` — exchanges token_hash for session
