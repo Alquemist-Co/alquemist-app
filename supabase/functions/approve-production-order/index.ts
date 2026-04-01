@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') ?? '*',
+  'Access-Control-Allow-Origin': Deno.env.get('ALLOWED_ORIGIN') || Deno.env.get('SITE_URL') || 'https://app.alquemist.co',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     }
 
     // Role check
-    const userRole = user.user_metadata?.role || user.app_metadata?.role
+    const userRole = user.app_metadata?.role
     if (!['admin', 'manager'].includes(userRole)) {
       return new Response(
         JSON.stringify({ error: 'Insufficient permissions' }),

@@ -41,10 +41,16 @@ export default function LoginPage() {
     defaultValues: { email: '', password: '' },
   })
 
-  // Show expired session toast on mount
+  // Show session/suspension toasts on mount
   useEffect(() => {
     if (searchParams.get('expired') === 'true') {
       toast.error('Tu sesión ha expirado. Inicia sesión nuevamente.')
+    }
+    const suspended = searchParams.get('suspended')
+    if (suspended === 'user') {
+      toast.error('Tu cuenta ha sido suspendida. Contacta al administrador.')
+    } else if (suspended === 'company') {
+      toast.error('Tu empresa ha sido suspendida. Contacta al administrador.')
     }
   }, [searchParams])
 
@@ -52,7 +58,7 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       })
@@ -73,6 +79,7 @@ export default function LoginPage() {
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('role, is_active, company_id, companies(is_active)')
+        .eq('id', signInData.user.id)
         .single()
 
       if (userError || !userData) {
@@ -94,8 +101,11 @@ export default function LoginPage() {
         return
       }
 
-      // Update last_login_at (fire-and-forget)
-      supabase.from('users').update({ last_login_at: new Date().toISOString() }).eq('id', (await supabase.auth.getUser()).data.user!.id).then()
+      // Update last_login_at (best-effort, don't block redirect)
+      await supabase
+        .from('users')
+        .update({ last_login_at: new Date().toISOString() })
+        .eq('id', signInData.user.id)
 
       router.push(getRoleRedirect(userData.role))
     } catch {

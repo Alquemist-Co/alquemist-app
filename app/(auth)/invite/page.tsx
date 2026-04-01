@@ -58,9 +58,9 @@ export default function InvitePage() {
     if (hasTokenError) return
 
     async function loadUser() {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { user } } = await supabase.auth.getUser()
 
-      if (!session) {
+      if (!user) {
         setState('invalid-token')
         return
       }
@@ -68,7 +68,7 @@ export default function InvitePage() {
       const { data, error } = await supabase
         .from('users')
         .select('email, full_name, phone, role, is_active, company_id, companies(name)')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single()
 
       if (error || !data) {

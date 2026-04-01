@@ -87,33 +87,7 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
 
   const userId = authData.user.id
 
-  // 2. Generate invite link and send via Resend
-  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
-    type: 'invite',
-    email: data.email,
-  })
-
-  if (linkError || !linkData) {
-    await admin.auth.admin.deleteUser(userId)
-    return { success: false, error: 'Error al generar el enlace de invitación.' }
-  }
-
-  const confirmUrl = `${siteUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&redirect_to=/invite`
-  const emailTemplate = inviteEmailTemplate({ fullName: data.full_name, email: data.email, confirmUrl })
-
-  const { error: emailError } = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL ?? 'Alquemist <onboarding@resend.dev>',
-    to: data.email,
-    subject: emailTemplate.subject,
-    html: emailTemplate.html,
-  })
-
-  if (emailError) {
-    await admin.auth.admin.deleteUser(userId)
-    return { success: false, error: 'Error al enviar el email de invitación.' }
-  }
-
-  // 3. Set app_metadata
+  // 2. Set app_metadata (before email, so user has correct role when they click the link)
   const { error: metaError } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { company_id: companyId, role: data.role },
   })
@@ -123,7 +97,7 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
     return { success: false, error: 'Error al configurar el usuario. Intenta nuevamente.' }
   }
 
-  // 4. Create public.users record
+  // 3. Create public.users record (before email, so data exists when user clicks)
   const { error: userError } = await admin.from('users').insert({
     id: userId,
     company_id: companyId,
@@ -139,6 +113,34 @@ export async function inviteUser(raw: unknown): Promise<ActionResult> {
   if (userError) {
     await admin.auth.admin.deleteUser(userId)
     return { success: false, error: 'Error al crear el registro de usuario. Intenta nuevamente.' }
+  }
+
+  // 4. Generate invite link and send via Resend (last step — triggers user action)
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: 'invite',
+    email: data.email,
+  })
+
+  if (linkError || !linkData) {
+    await admin.from('users').delete().eq('id', userId)
+    await admin.auth.admin.deleteUser(userId)
+    return { success: false, error: 'Error al generar el enlace de invitación.' }
+  }
+
+  const confirmUrl = `${siteUrl}/auth/confirm?token_hash=${linkData.properties.hashed_token}&type=invite&redirect_to=/invite`
+  const emailTemplate = inviteEmailTemplate({ fullName: data.full_name, email: data.email, confirmUrl })
+
+  const { error: emailError } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL ?? 'Alquemist <onboarding@resend.dev>',
+    to: data.email,
+    subject: emailTemplate.subject,
+    html: emailTemplate.html,
+  })
+
+  if (emailError) {
+    await admin.from('users').delete().eq('id', userId)
+    await admin.auth.admin.deleteUser(userId)
+    return { success: false, error: 'Error al enviar el email de invitación.' }
   }
 
   return { success: true }
@@ -211,11 +213,14 @@ export async function editUser(userId: string, raw: unknown): Promise<ActionResu
     })
     if (metaError) {
       // Revert the DB change
-      await admin
+      const { error: revertError } = await admin
         .from('users')
         .update({ role: targetUser.role, updated_by: currentUser.id })
         .eq('id', userId)
         .eq('company_id', companyId)
+      if (revertError) {
+        console.error(`[editUser] CRITICAL: Failed to revert role for user ${userId}. DB has role '${data.role}', auth has role '${targetUser.role}'. Revert error:`, revertError)
+      }
       return { success: false, error: 'Error al actualizar el rol en autenticación.' }
     }
   }
@@ -271,7 +276,7 @@ export async function resendInvite(userId: string): Promise<ActionResult> {
   // Fetch user to get email, name and verify pending status
   const { data: targetUser } = await admin
     .from('users')
-    .select('email, full_name, last_login_at')
+    .select('email, full_name, is_active')
     .eq('id', userId)
     .eq('company_id', currentUser.company_id)
     .single()
@@ -280,7 +285,7 @@ export async function resendInvite(userId: string): Promise<ActionResult> {
     return { success: false, error: 'Usuario no encontrado.' }
   }
 
-  if (targetUser.last_login_at !== null) {
+  if (targetUser.is_active) {
     return { success: false, error: 'Este usuario ya ha aceptado la invitación.' }
   }
 

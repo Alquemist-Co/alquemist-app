@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: userData } = await supabase
     .from('users')
-    .select('id, email, full_name, phone, role, company:companies(id, name, settings)')
+    .select('id, email, full_name, phone, role, is_active, company:companies(id, name, is_active, settings)')
     .eq('id', authUser.id)
     .single()
 
@@ -27,7 +27,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect('/login')
   }
 
-  const company = userData.company as unknown as AuthUser['company']
+  if (!userData.is_active) {
+    redirect('/login?suspended=user')
+  }
+
+  const companyData = userData.company as unknown as { id: string; name: string; is_active: boolean; settings: unknown } | null
+  if (!companyData?.is_active) {
+    redirect('/login?suspended=company')
+  }
 
   const initialUser: AuthUser = {
     id: userData.id,
@@ -35,7 +42,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     full_name: userData.full_name,
     phone: userData.phone,
     role: userData.role as AuthUser['role'],
-    company,
+    company: companyData as AuthUser['company'],
     facility: null,
   }
 

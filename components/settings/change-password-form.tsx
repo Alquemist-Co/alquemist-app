@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { changePasswordSchema, type ChangePasswordInput } from '@/schemas/settings'
-import { createClient } from '@/lib/supabase/client'
+import { changePassword } from '@/app/(dashboard)/settings/profile/actions'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -34,7 +34,7 @@ function getPasswordStrength(password: string): { label: string; level: number; 
   return { label: 'Fuerte', level: 3, color: 'bg-green-500' }
 }
 
-export function ChangePasswordForm({ email }: { email: string }) {
+export function ChangePasswordForm() {
   const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<ChangePasswordInput>({
@@ -52,26 +52,14 @@ export function ChangePasswordForm({ email }: { email: string }) {
   async function onSubmit(values: ChangePasswordInput) {
     setIsLoading(true)
     try {
-      const supabase = createClient()
+      const result = await changePassword(values)
 
-      // Verify current password
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: values.current_password,
-      })
-
-      if (signInError) {
-        toast.error('La contraseña actual es incorrecta.')
-        return
-      }
-
-      // Update password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: values.new_password,
-      })
-
-      if (updateError) {
-        toast.error('Error al cambiar la contraseña.')
+      if (!result.success) {
+        if (result.field) {
+          form.setError(result.field as keyof ChangePasswordInput, { message: result.error })
+        } else {
+          toast.error(result.error)
+        }
         return
       }
 

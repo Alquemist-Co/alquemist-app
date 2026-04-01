@@ -47,8 +47,8 @@ export default function ResetPasswordPage() {
     let settled = false
 
     // Check for existing session (set by auth/confirm callback)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && !settled) {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user && !settled) {
         settled = true
         setState('ready')
       }

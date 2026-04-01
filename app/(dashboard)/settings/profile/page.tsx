@@ -45,7 +45,7 @@ export default async function ProfilePage() {
         }}
       />
 
-      <ChangePasswordForm email={userData.email} />
+      <ChangePasswordForm />
     </div>
   )
 }
