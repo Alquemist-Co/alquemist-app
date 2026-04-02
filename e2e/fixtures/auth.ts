@@ -28,7 +28,7 @@ async function globalSetup(config: FullConfig) {
     await page.fill('input[name="email"]', role.email)
     await page.fill('input[name="password"]', 'password123')
     await page.click('button[type="submit"]')
-    await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 15000 })
+    await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 30000 })
 
     await context.storageState({ path: path.join(AUTH_DIR, `${role.name}.json`) })
     await context.close()

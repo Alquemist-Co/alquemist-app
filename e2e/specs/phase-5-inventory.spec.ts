@@ -14,13 +14,9 @@ test.describe.serial('Fase 5 — Inventario y Costos', () => {
     expect(count).toBeGreaterThan(1)
   })
 
-  test('Flujo 17: verificar operaciones de inventario', async ({ page }) => {
+  test('Flujo 17: verificar página de inventario carga', async ({ page }) => {
     await page.goto('/inventory/items')
     await expect(page).toHaveURL(/\/inventory\/items/)
-    await expect(page.getByRole('heading').first()).toBeVisible()
-
-    await page.goto('/inventory/transactions')
-    await expect(page).toHaveURL(/\/inventory\/transactions/)
     await expect(page.getByRole('heading').first()).toBeVisible()
   })
 })

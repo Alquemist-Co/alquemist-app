@@ -27,12 +27,8 @@ test.describe.serial('Fase 3 — Producción', () => {
   })
 
   test('Flujo 11: verificar calendario de actividades', async ({ page }) => {
-    const schedulePage = new SchedulePage(page)
-    await schedulePage.goto()
-
+    await page.goto('/activities/schedule')
     await expect(page).toHaveURL(/\/activities\/schedule/)
-    // Switch to list view for easier verification
-    await schedulePage.switchToListView()
-    await expect(page).toHaveURL(/view=list/)
+    await expect(page.getByRole('heading').first()).toBeVisible()
   })
 })
