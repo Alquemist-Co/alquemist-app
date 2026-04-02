@@ -35,3 +35,9 @@ next-env.d.ts
 # serwist service worker output
 public/sw*
 public/swe-worker*
+
+# git worktrees
+.worktrees/
+
+# playwright auth state
+.auth/
