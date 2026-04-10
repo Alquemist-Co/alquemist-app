@@ -112,7 +112,7 @@ export default function SignupPage() {
         return
       }
 
-      router.push('/settings/company')
+      window.location.href = '/settings/company'
     } catch {
       toast.error('Error inesperado. Intenta nuevamente.')
     } finally {
