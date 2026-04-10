@@ -1,0 +1,318 @@
+<h2>Panel de Producción — Layout Propuesto</h2>
+<p class="subtitle">Revisa la estructura general. ¿Se siente bien la jerarquía de información?</p>
+
+<div class="mockup">
+  <div class="mockup-header">Panel de Producción</div>
+  <div class="mockup-body" style="padding: 0; background: #09090b; color: #fafafa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;">
+
+    <!-- Global KPIs -->
+    <div style="padding: 20px 24px 0;">
+      <h1 style="font-size: 20px; font-weight: 600; margin: 0 0 16px; letter-spacing: -0.02em;">Panel de Producción</h1>
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
+        <!-- KPI 1 -->
+        <div style="border: 1px solid #27272a; border-radius: 10px; padding: 14px 16px;">
+          <div style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Lotes activos</div>
+          <div style="font-size: 28px; font-weight: 700; margin-top: 4px; letter-spacing: -0.02em;">24</div>
+          <div style="font-size: 11px; color: #71717a; margin-top: 2px;">12,480 plantas</div>
+        </div>
+        <!-- KPI 2 -->
+        <div style="border: 1px solid #27272a; border-radius: 10px; padding: 14px 16px;">
+          <div style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">En transición</div>
+          <div style="font-size: 28px; font-weight: 700; margin-top: 4px; color: #eab308;">3</div>
+          <div style="font-size: 11px; color: #71717a; margin-top: 2px;">pendientes de avanzar</div>
+        </div>
+        <!-- KPI 3 -->
+        <div style="border: 1px solid #27272a; border-radius: 10px; padding: 14px 16px;">
+          <div style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">En espera</div>
+          <div style="font-size: 28px; font-weight: 700; margin-top: 4px; color: #ef4444;">2</div>
+          <div style="font-size: 11px; color: #71717a; margin-top: 2px;">requieren atención</div>
+        </div>
+        <!-- KPI 4 -->
+        <div style="border: 1px solid #27272a; border-radius: 10px; padding: 14px 16px;">
+          <div style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Completados (mes)</div>
+          <div style="font-size: 28px; font-weight: 700; margin-top: 4px; color: #22c55e;">8</div>
+          <div style="font-size: 11px; color: #71717a; margin-top: 2px;">abril 2026</div>
+        </div>
+        <!-- KPI 5 -->
+        <div style="border: 1px solid #27272a; border-radius: 10px; padding: 14px 16px;">
+          <div style="font-size: 11px; color: #71717a; text-transform: uppercase; letter-spacing: 0.05em;">Duración prom.</div>
+          <div style="font-size: 28px; font-weight: 700; margin-top: 4px;">67<span style="font-size: 14px; font-weight: 400; color: #71717a;"> días</span></div>
+          <div style="font-size: 11px; color: #71717a; margin-top: 2px;">ciclo completo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div style="padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <!-- Crop type dropdown -->
+        <div style="display: flex; align-items: center; gap: 8px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer;">
+          <span style="color: #71717a;">Tipo de cultivo:</span>
+          <span style="font-weight: 500;">Cannabis</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <!-- Filter button -->
+        <div style="display: flex; align-items: center; gap: 6px; background: #18181b; border: 1px solid #27272a; border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+          <span style="color: #a1a1aa;">Filtros</span>
+        </div>
+      </div>
+      <div style="font-size: 12px; color: #52525b;">24 lotes · 4 instalaciones</div>
+    </div>
+
+    <!-- Phase Stepper -->
+    <div style="padding: 20px 24px 24px;">
+
+      <!-- PHASE 1 — Propagación -->
+      <div style="display: flex; gap: 0; margin-bottom: 0;">
+        <!-- Stepper column -->
+        <div style="display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #166534; border: 2px solid #22c55e; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #22c55e;">1</div>
+          <div style="width: 2px; flex: 1; background: linear-gradient(to bottom, #22c55e, #27272a); min-height: 20px;"></div>
+        </div>
+        <!-- Phase card -->
+        <div style="flex: 1; margin-left: 12px; border: 1px solid #27272a; border-radius: 10px; overflow: hidden; margin-bottom: 12px;">
+          <!-- Phase header -->
+          <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1a1a1e;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #22c55e;"></div>
+              <span style="font-weight: 600; font-size: 14px;">Propagación</span>
+              <span style="background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 2px 8px; font-size: 11px; color: #a1a1aa;">PROP</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;">
+              <div><span style="color: #71717a;">Lotes </span><span style="font-weight: 600;">5</span></div>
+              <div><span style="color: #71717a;">Plantas </span><span style="font-weight: 600;">2,400</span></div>
+              <div><span style="color: #71717a;">Prom. </span><span style="font-weight: 600;">8</span><span style="color: #71717a;"> / 14 días</span></div>
+            </div>
+          </div>
+          <!-- Batch rows -->
+          <div>
+            <!-- Batch row 1 -->
+            <div style="padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #111114; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <div style="width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0;"></div>
+                <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-weight: 500; font-size: 12px;">BT-2026-0041</span>
+                <span style="color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Blue Dream</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 20px; flex-shrink: 0;">
+                <span style="color: #71717a; font-size: 12px;">480 🌱</span>
+                <span style="color: #71717a; font-size: 12px;">Zona A-1</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <span style="font-size: 12px; font-weight: 500;">5</span>
+                  <span style="color: #52525b; font-size: 11px;">/ 14 d</span>
+                </div>
+                <div style="width: 48px; height: 4px; background: #27272a; border-radius: 2px; overflow: hidden;">
+                  <div style="width: 36%; height: 100%; background: #22c55e; border-radius: 2px;"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Batch row 2 -->
+            <div style="padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #111114; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <div style="width: 7px; height: 7px; border-radius: 50%; background: #22c55e; flex-shrink: 0;"></div>
+                <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-weight: 500; font-size: 12px;">BT-2026-0039</span>
+                <span style="color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">OG Kush</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 20px; flex-shrink: 0;">
+                <span style="color: #71717a; font-size: 12px;">520 🌱</span>
+                <span style="color: #71717a; font-size: 12px;">Zona B-2</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <span style="font-size: 12px; font-weight: 500;">12</span>
+                  <span style="color: #52525b; font-size: 11px;">/ 14 d</span>
+                </div>
+                <div style="width: 48px; height: 4px; background: #27272a; border-radius: 2px; overflow: hidden;">
+                  <div style="width: 86%; height: 100%; background: #eab308; border-radius: 2px;"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Batch row 3 - collapsed indicator -->
+            <div style="padding: 6px 16px; text-align: center; font-size: 11px; color: #52525b; cursor: pointer;">
+              +3 lotes más
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 2 — Vegetativo -->
+      <div style="display: flex; gap: 0; margin-bottom: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #1e3a5f; border: 2px solid #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #3b82f6;">2</div>
+          <div style="width: 2px; flex: 1; background: linear-gradient(to bottom, #3b82f6, #27272a); min-height: 20px;"></div>
+        </div>
+        <div style="flex: 1; margin-left: 12px; border: 1px solid #27272a; border-radius: 10px; overflow: hidden; margin-bottom: 12px;">
+          <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #1a1a1e;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6;"></div>
+              <span style="font-weight: 600; font-size: 14px;">Vegetativo</span>
+              <span style="background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 2px 8px; font-size: 11px; color: #a1a1aa;">VEG</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;">
+              <div><span style="color: #71717a;">Lotes </span><span style="font-weight: 600;">8</span></div>
+              <div><span style="color: #71717a;">Plantas </span><span style="font-weight: 600;">4,160</span></div>
+              <div><span style="color: #71717a;">Prom. </span><span style="font-weight: 600;">18</span><span style="color: #71717a;"> / 21 días</span></div>
+            </div>
+          </div>
+          <!-- Batch rows -->
+          <div>
+            <div style="padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #111114; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <div style="width: 7px; height: 7px; border-radius: 50%; background: #eab308; flex-shrink: 0;"></div>
+                <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-weight: 500; font-size: 12px;">BT-2026-0032</span>
+                <span style="color: #a1a1aa;">White Widow</span>
+                <span style="background: #422006; color: #fbbf24; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 500;">TRANSICIÓN</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 20px; flex-shrink: 0;">
+                <span style="color: #71717a; font-size: 12px;">600 🌱</span>
+                <span style="color: #71717a; font-size: 12px;">Zona A-3</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <span style="font-size: 12px; font-weight: 500; color: #eab308;">21</span>
+                  <span style="color: #52525b; font-size: 11px;">/ 21 d</span>
+                </div>
+                <div style="width: 48px; height: 4px; background: #27272a; border-radius: 2px; overflow: hidden;">
+                  <div style="width: 100%; height: 100%; background: #eab308; border-radius: 2px;"></div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #111114; font-size: 13px;">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <div style="width: 7px; height: 7px; border-radius: 2px; background: #ef4444; flex-shrink: 0;"></div>
+                <span style="font-family: 'SF Mono', 'Fira Code', monospace; font-weight: 500; font-size: 12px;">BT-2026-0028</span>
+                <span style="color: #a1a1aa;">Amnesia Haze</span>
+                <span style="background: #450a0a; color: #f87171; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 500;">EN ESPERA</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 20px; flex-shrink: 0;">
+                <span style="color: #71717a; font-size: 12px;">320 🌱</span>
+                <span style="color: #71717a; font-size: 12px;">Zona C-1</span>
+                <div style="display: flex; align-items: center; gap: 4px;">
+                  <span style="font-size: 12px; font-weight: 500; color: #ef4444;">28</span>
+                  <span style="color: #52525b; font-size: 11px;">/ 21 d</span>
+                </div>
+                <div style="width: 48px; height: 4px; background: #27272a; border-radius: 2px; overflow: hidden;">
+                  <div style="width: 100%; height: 100%; background: #ef4444; border-radius: 2px;"></div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 6px 16px; text-align: center; font-size: 11px; color: #52525b; cursor: pointer;">
+              +6 lotes más
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 3 — Floración -->
+      <div style="display: flex; gap: 0; margin-bottom: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #581c87; border: 2px solid #a855f7; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #a855f7;">3</div>
+          <div style="width: 2px; flex: 1; background: linear-gradient(to bottom, #a855f7, #27272a); min-height: 20px;"></div>
+        </div>
+        <div style="flex: 1; margin-left: 12px; border: 1px solid #27272a; border-radius: 10px; overflow: hidden; margin-bottom: 12px;">
+          <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #a855f7;"></div>
+              <span style="font-weight: 600; font-size: 14px;">Floración</span>
+              <span style="background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 2px 8px; font-size: 11px; color: #a1a1aa;">FLO</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;">
+              <div><span style="color: #71717a;">Lotes </span><span style="font-weight: 600;">7</span></div>
+              <div><span style="color: #71717a;">Plantas </span><span style="font-weight: 600;">3,640</span></div>
+              <div><span style="color: #71717a;">Prom. </span><span style="font-weight: 600;">32</span><span style="color: #71717a;"> / 56 días</span></div>
+            </div>
+          </div>
+          <div style="padding: 8px 16px; font-size: 12px; color: #52525b; text-align: center; cursor: pointer; border-top: 1px solid #1a1a1e;">
+            ▸ Expandir 7 lotes
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 4 — Secado -->
+      <div style="display: flex; gap: 0; margin-bottom: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #713f12; border: 2px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #f59e0b;">4</div>
+          <div style="width: 2px; flex: 1; background: linear-gradient(to bottom, #f59e0b, #27272a); min-height: 20px;"></div>
+        </div>
+        <div style="flex: 1; margin-left: 12px; border: 1px solid #27272a; border-radius: 10px; overflow: hidden; margin-bottom: 12px;">
+          <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b;"></div>
+              <span style="font-weight: 600; font-size: 14px;">Secado</span>
+              <span style="background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 2px 8px; font-size: 11px; color: #a1a1aa;">SEC</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;">
+              <div><span style="color: #71717a;">Lotes </span><span style="font-weight: 600;">3</span></div>
+              <div><span style="color: #71717a;">Plantas </span><span style="font-weight: 600;">1,560</span></div>
+              <div><span style="color: #71717a;">Prom. </span><span style="font-weight: 600;">5</span><span style="color: #71717a;"> / 10 días</span></div>
+            </div>
+          </div>
+          <div style="padding: 8px 16px; font-size: 12px; color: #52525b; text-align: center; cursor: pointer; border-top: 1px solid #1a1a1e;">
+            ▸ Expandir 3 lotes
+          </div>
+        </div>
+      </div>
+
+      <!-- PHASE 5 — Curado -->
+      <div style="display: flex; gap: 0;">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0;">
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #1c1917; border: 2px solid #78716c; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #78716c;">5</div>
+        </div>
+        <div style="flex: 1; margin-left: 12px; border: 1px solid #27272a; border-radius: 10px; overflow: hidden;">
+          <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 8px; height: 8px; border-radius: 50%; background: #78716c;"></div>
+              <span style="font-weight: 600; font-size: 14px;">Curado</span>
+              <span style="background: #18181b; border: 1px solid #27272a; border-radius: 6px; padding: 2px 8px; font-size: 11px; color: #a1a1aa;">CUR</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; font-size: 12px;">
+              <div><span style="color: #71717a;">Lotes </span><span style="font-weight: 600;">1</span></div>
+              <div><span style="color: #71717a;">Plantas </span><span style="font-weight: 600;">720</span></div>
+              <div><span style="color: #71717a;">Prom. </span><span style="font-weight: 600;">18</span><span style="color: #71717a;"> / 28 días</span></div>
+            </div>
+          </div>
+          <div style="padding: 8px 16px; font-size: 12px; color: #52525b; text-align: center; cursor: pointer; border-top: 1px solid #1a1a1e;">
+            ▸ Expandir 1 lote
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 24px;">
+  <h3>Detalles del diseño</h3>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;">
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">📊 Sección Global (arriba)</h4>
+      <ul style="margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; color: #999;">
+        <li>5 KPIs: Activos, Transición, Espera, Completados, Duración prom.</li>
+        <li>Clickeables → navegan a la lista filtrada</li>
+        <li>Colores semánticos (verde/amarillo/rojo)</li>
+      </ul>
+    </div>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">🔧 Toolbar</h4>
+      <ul style="margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; color: #999;">
+        <li>Dropdown tipo de cultivo (cambia las fases visibles)</li>
+        <li>Botón filtros: instalación, estado, cultivar</li>
+        <li>Resumen contextual a la derecha</li>
+      </ul>
+    </div>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">📋 Phase Stepper</h4>
+      <ul style="margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; color: #999;">
+        <li>Línea vertical tipo stepper conectando fases</li>
+        <li>Cada fase = card con analytics en header</li>
+        <li>Lotes colapsables (2 visibles + "ver más")</li>
+        <li>Colores por fase del modelo de datos</li>
+      </ul>
+    </div>
+    <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px;">
+      <h4 style="margin: 0 0 8px; font-size: 14px;">🏷️ Fila de lote</h4>
+      <ul style="margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.8; color: #999;">
+        <li>Dot de estado (verde=ok, amarillo=transición, rojo=espera/vencido)</li>
+        <li>Código mono + cultivar + badge de estado si no es "activo"</li>
+        <li>Plantas, zona, días/esperados, mini barra de progreso</li>
+        <li>Click → navega a detalle del lote</li>
+      </ul>
+    </div>
+  </div>
+</div>
