@@ -10,9 +10,9 @@ test.describe.serial('Fase 2 — Infraestructura', () => {
     await expect(page).toHaveURL('/areas/facilities')
     await expect(page.getByRole('heading').first()).toBeVisible()
 
-    // Check zones page loads
-    await page.goto('/areas/zones')
-    await expect(page).toHaveURL(/\/areas\/zones/)
+    // Click first facility card to check detail page with zones tab
+    await page.locator('[class*="cursor-pointer"]').first().click()
+    await expect(page).toHaveURL(/\/areas\/facilities\//)
     await expect(page.getByRole('heading').first()).toBeVisible()
   })
 

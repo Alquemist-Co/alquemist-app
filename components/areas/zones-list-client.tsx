@@ -52,6 +52,12 @@ type Props = {
   pageSize: number
   currentPage: number
   filters: { facility: string; purpose: string; status: string; search: string }
+  /** Base path for zone URLs. Defaults to '/areas/zones'. */
+  basePath?: string
+  /** When true, hides facility column and facility filter (zones scoped to a single facility). */
+  scopedToFacility?: boolean
+  /** The facility ID to lock when creating/editing zones in scoped mode. */
+  lockedFacilityId?: string
 }
 
 export function ZonesListClient({
@@ -63,6 +69,9 @@ export function ZonesListClient({
   pageSize,
   currentPage,
   filters,
+  basePath = '/areas/zones',
+  scopedToFacility = false,
+  lockedFacilityId,
 }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -82,7 +91,7 @@ export function ZonesListClient({
         else params.delete(key)
       }
       if (!('page' in updates)) params.delete('page')
-      router.push(`/areas/zones?${params.toString()}`)
+      router.push(`${basePath}?${params.toString()}`)
     },
     [router, searchParams],
   )
@@ -129,7 +138,7 @@ export function ZonesListClient({
   }
 
   const activeFilterCount =
-    (filters.facility ? 1 : 0) +
+    (!scopedToFacility && filters.facility ? 1 : 0) +
     (filters.purpose ? 1 : 0) +
     (filters.status ? 1 : 0)
 
@@ -148,19 +157,21 @@ export function ZonesListClient({
         </div>
 
         <FilterPopover activeCount={activeFilterCount}>
-          <div>
-            <label className="mb-1 block text-xs font-medium">Instalación</label>
-            <select
-              value={filters.facility}
-              onChange={(e) => updateParams({ facility: e.target.value })}
-              className={selectClass}
-            >
-              <option value="">Todas</option>
-              {facilities.map((f) => (
-                <option key={f.id} value={f.id}>{f.name}</option>
-              ))}
-            </select>
-          </div>
+          {!scopedToFacility && (
+            <div>
+              <label className="mb-1 block text-xs font-medium">Instalación</label>
+              <select
+                value={filters.facility}
+                onChange={(e) => updateParams({ facility: e.target.value })}
+                className={selectClass}
+              >
+                <option value="">Todas</option>
+                {facilities.map((f) => (
+                  <option key={f.id} value={f.id}>{f.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label className="mb-1 block text-xs font-medium">Propósito</label>
             <select
@@ -211,7 +222,7 @@ export function ZonesListClient({
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Instalación</TableHead>
+                    {!scopedToFacility && <TableHead>Instalación</TableHead>}
                     <TableHead>Propósito</TableHead>
                     <TableHead>Ambiente</TableHead>
                     <TableHead className="text-right">Área (m²)</TableHead>
@@ -227,10 +238,10 @@ export function ZonesListClient({
                     <TableRow
                       key={z.id}
                       className="cursor-pointer"
-                      onClick={() => router.push(`/areas/zones/${z.id}`)}
+                      onClick={() => router.push(`${basePath}/${z.id}`)}
                     >
                       <TableCell className="font-medium">{z.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{z.facility_name}</TableCell>
+                      {!scopedToFacility && <TableCell className="text-muted-foreground">{z.facility_name}</TableCell>}
                       <TableCell>
                         <Badge variant="secondary" className={`text-xs ${purposeBadgeStyles[z.purpose] ?? ''}`}>
                           {purposeLabels[z.purpose] ?? z.purpose}
@@ -313,6 +324,7 @@ export function ZonesListClient({
         zone={editingZone}
         facilities={facilities}
         defaultFacilityId={filters.facility || undefined}
+        lockedFacilityId={lockedFacilityId}
         onSuccess={() => {
           setDialogOpen(false)
           setEditingZone(null)

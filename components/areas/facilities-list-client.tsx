@@ -140,7 +140,7 @@ export function FacilitiesListClient({ facilities, canWrite }: Props) {
               <Card
                 key={f.id}
                 className={`cursor-pointer transition-colors hover:border-muted-foreground/30 ${!f.is_active ? 'opacity-50' : ''}`}
-                onClick={() => router.push(`/areas/zones?facility=${f.id}`)}
+                onClick={() => router.push(`/areas/facilities/${f.id}`)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">

@@ -3,8 +3,12 @@ import { Page, Locator } from '@playwright/test'
 export class ZonesPage {
   constructor(private page: Page) {}
 
-  async goto() {
-    await this.page.goto('/areas/zones')
+  async goto(facilityId?: string) {
+    if (facilityId) {
+      await this.page.goto(`/areas/facilities/${facilityId}?tab=zones`)
+    } else {
+      await this.page.goto('/areas/facilities')
+    }
   }
 
   async getZoneRow(name: string): Promise<Locator> {

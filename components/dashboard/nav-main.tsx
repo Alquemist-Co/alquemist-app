@@ -53,6 +53,7 @@ const navItems: NavItem[] = [
     href: '/production',
     icon: Sprout,
     children: [
+      { label: 'Panel', href: '/production' },
       { label: 'Órdenes', href: '/production/orders' },
       { label: 'Lotes', href: '/production/batches' },
     ],
@@ -63,7 +64,6 @@ const navItems: NavItem[] = [
     icon: MapPin,
     children: [
       { label: 'Instalaciones', href: '/areas/facilities' },
-      { label: 'Zonas', href: '/areas/zones' },
     ],
   },
   {

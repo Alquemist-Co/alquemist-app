@@ -384,6 +384,7 @@ export function ZoneDialog({
   zone,
   facilities,
   defaultFacilityId,
+  lockedFacilityId,
   onSuccess,
 }: {
   open: boolean
@@ -391,6 +392,8 @@ export function ZoneDialog({
   zone: ZoneRow | null
   facilities: FacilityOption[]
   defaultFacilityId?: string
+  /** When set, facility is fixed and the select is disabled. */
+  lockedFacilityId?: string
   onSuccess: () => void
 }) {
   const [isLoading, setIsLoading] = useState(false)
@@ -413,7 +416,7 @@ export function ZoneDialog({
   const form = useForm<ZoneInput>({
     resolver: zodResolver(zoneSchema),
     values: {
-      facility_id: zone?.facility_id ?? defaultFacilityId ?? '',
+      facility_id: zone?.facility_id ?? lockedFacilityId ?? defaultFacilityId ?? '',
       name: zone?.name ?? '',
       purpose: (zone?.purpose as ZoneInput['purpose']) ?? 'vegetation',
       environment: (zone?.environment as ZoneInput['environment']) ?? 'indoor_controlled',
@@ -685,7 +688,7 @@ export function ZoneDialog({
                     <FormItem>
                       <FormLabel>Instalación</FormLabel>
                       <FormControl>
-                        <select value={field.value} onChange={field.onChange} className={selectClass}>
+                        <select value={field.value} onChange={field.onChange} className={selectClass} disabled={!!lockedFacilityId}>
                           <option value="">— Seleccionar —</option>
                           {facilities.map((f) => (
                             <option key={f.id} value={f.id}>{f.name}</option>
