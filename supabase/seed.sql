@@ -117,6 +117,9 @@ DECLARE
   v_order_5 UUID := '00000000-0000-0000-000a-000000000005';
   v_order_6 UUID := '00000000-0000-0000-000a-000000000006';
   v_order_7 UUID := '00000000-0000-0000-000a-000000000007';
+  v_order_8 UUID := '00000000-0000-0000-000a-000000000008';
+  v_order_9 UUID := '00000000-0000-0000-000a-000000000009';
+  v_order_10 UUID := '00000000-0000-0000-000a-000000000010';
 
   -- Batches (000b series)
   v_batch_1 UUID := '00000000-0000-0000-000b-000000000001';
@@ -128,6 +131,17 @@ DECLARE
   v_batch_7 UUID := '00000000-0000-0000-000b-000000000007';
   v_batch_8 UUID := '00000000-0000-0000-000b-000000000008';
   v_batch_9 UUID := '00000000-0000-0000-000b-000000000009';
+  v_batch_10 UUID := '00000000-0000-0000-000b-000000000010';
+  v_batch_11 UUID := '00000000-0000-0000-000b-000000000011';
+  v_batch_12 UUID := '00000000-0000-0000-000b-000000000012';
+  v_batch_13 UUID := '00000000-0000-0000-000b-000000000013';
+  v_batch_14 UUID := '00000000-0000-0000-000b-000000000014';
+  v_batch_15 UUID := '00000000-0000-0000-000b-000000000015';
+  v_batch_16 UUID := '00000000-0000-0000-000b-000000000016';
+  v_batch_17 UUID := '00000000-0000-0000-000b-000000000017';
+  v_batch_18 UUID := '00000000-0000-0000-000b-000000000018';
+  v_batch_19 UUID := '00000000-0000-0000-000b-000000000019';
+  v_batch_20 UUID := '00000000-0000-0000-000b-000000000020';
 
   -- Phytosanitary agents (000f series)
   v_agent_spider_mite UUID := '00000000-0000-0000-000f-000000000001';
@@ -1697,6 +1711,138 @@ INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_dur
   (v_order_7, v_pf_beneficio,   6, 5,   180, 90,  50,  'skipped', CURRENT_DATE + interval '750 days', CURRENT_DATE + interval '755 days'),
   (v_order_7, v_pf_secado_c,    7, 15,  90, 76.5, 85,  'skipped', CURRENT_DATE + interval '755 days', CURRENT_DATE + interval '770 days');
 
+-- Order 8: Cannabis Blue Dream, COMPLETED - ciclo completo con yields
+-- Shows a fully completed cannabis production cycle from germination to curing
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  expected_output_quantity, expected_output_unit_id,
+  zone_id, planned_start_date, planned_end_date,
+  assigned_to, status, priority, notes
+) VALUES (
+  v_order_8, v_company_id, 'OP-2025-0008', v_cult_blue_d,
+  v_pc_germ, v_pc_curado,
+  150, v_unit_und,
+  18540, v_unit_g,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+  CURRENT_DATE - interval '180 days',
+  CURRENT_DATE - interval '23 days',
+  v_user_supervisor, 'completed', 'high',
+  'Blue Dream premium — ciclo completo exitoso, rendimiento excepcional'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, zone_id, expected_input_qty, expected_output_qty, yield_pct, status, planned_start_date, planned_end_date, actual_start_date, actual_end_date) VALUES
+  (v_order_8, v_pc_germ,     1, 7,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+   150, 142, 95, 'completed', CURRENT_DATE - interval '180 days', CURRENT_DATE - interval '173 days', CURRENT_DATE - interval '180 days', CURRENT_DATE - interval '174 days'),
+  (v_order_8, v_pc_plantula, 2, 14,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+   142, 138, 97, 'completed', CURRENT_DATE - interval '173 days', CURRENT_DATE - interval '159 days', CURRENT_DATE - interval '174 days', CURRENT_DATE - interval '160 days'),
+  (v_order_8, v_pc_veg,      3, 35,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo B'),
+   138, 135, 98, 'completed', CURRENT_DATE - interval '159 days', CURRENT_DATE - interval '124 days', CURRENT_DATE - interval '160 days', CURRENT_DATE - interval '122 days'),
+  (v_order_8, v_pc_flor,     4, 63,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion A'),
+   135, 135, 100, 'completed', CURRENT_DATE - interval '124 days', CURRENT_DATE - interval '61 days', CURRENT_DATE - interval '122 days', CURRENT_DATE - interval '58 days'),
+  (v_order_8, v_pc_cosecha,  5, 3,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   135, 94.5, 70, 'completed', CURRENT_DATE - interval '61 days', CURRENT_DATE - interval '58 days', CURRENT_DATE - interval '58 days', CURRENT_DATE - interval '55 days'),
+  (v_order_8, v_pc_secado,   6, 14,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   94.5, 20.8, 22, 'completed', CURRENT_DATE - interval '58 days', CURRENT_DATE - interval '44 days', CURRENT_DATE - interval '55 days', CURRENT_DATE - interval '41 days'),
+  (v_order_8, v_pc_curado,   7, 21,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   20.8, 18.5, 89, 'completed', CURRENT_DATE - interval '44 days', CURRENT_DATE - interval '23 days', CURRENT_DATE - interval '41 days', CURRENT_DATE - interval '20 days');
+
+-- Order 9: Cannabis White Widow, IN_PROGRESS - 70% completado (en floración)
+-- Shows mid-cycle order with mixed phase statuses
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  expected_output_quantity, expected_output_unit_id,
+  zone_id, planned_start_date, planned_end_date,
+  assigned_to, status, priority, notes
+) VALUES (
+  v_order_9, v_company_id, 'OP-2026-0009', v_cult_white_w,
+  v_pc_germ, v_pc_curado,
+  80, v_unit_und,
+  9856, v_unit_g,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+  CURRENT_DATE - interval '95 days',
+  CURRENT_DATE + interval '62 days',
+  v_user_operador, 'in_progress', 'normal',
+  'White Widow — lote medicinal, seguimiento estricto de calidad'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, zone_id, expected_input_qty, expected_output_qty, yield_pct, status, planned_start_date, planned_end_date, actual_start_date, actual_end_date) VALUES
+  (v_order_9, v_pc_germ,     1, 7,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+   80, 76, 95, 'completed', CURRENT_DATE - interval '95 days', CURRENT_DATE - interval '88 days', CURRENT_DATE - interval '95 days', CURRENT_DATE - interval '89 days'),
+  (v_order_9, v_pc_plantula, 2, 14,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+   76, 74, 97, 'completed', CURRENT_DATE - interval '88 days', CURRENT_DATE - interval '74 days', CURRENT_DATE - interval '89 days', CURRENT_DATE - interval '75 days'),
+  (v_order_9, v_pc_veg,      3, 35,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo A'),
+   74, 72, 97, 'completed', CURRENT_DATE - interval '74 days', CURRENT_DATE - interval '39 days', CURRENT_DATE - interval '75 days', CURRENT_DATE - interval '38 days'),
+  (v_order_9, v_pc_flor,     4, 56,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion B'),
+   72, 72, 100, 'in_progress', CURRENT_DATE - interval '39 days', CURRENT_DATE + interval '17 days', CURRENT_DATE - interval '38 days', NULL),
+  (v_order_9, v_pc_cosecha,  5, 3,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   72, 50.4, 70, 'pending', CURRENT_DATE + interval '17 days', CURRENT_DATE + interval '20 days', NULL, NULL),
+  (v_order_9, v_pc_secado,   6, 14,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   50.4, 11.1, 22, 'pending', CURRENT_DATE + interval '20 days', CURRENT_DATE + interval '34 days', NULL, NULL),
+  (v_order_9, v_pc_curado,   7, 28,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   11.1, 9.9, 89, 'pending', CURRENT_DATE + interval '34 days', CURRENT_DATE + interval '62 days', NULL, NULL);
+
+-- Order 10: Cannabis OG Kush, IN_PROGRESS - 30% completado (en vegetativo temprano)
+-- Shows early-stage order for comparison
+INSERT INTO production_orders (
+  id, company_id, code, cultivar_id,
+  entry_phase_id, exit_phase_id,
+  initial_quantity, initial_unit_id,
+  expected_output_quantity, expected_output_unit_id,
+  zone_id, planned_start_date, planned_end_date,
+  assigned_to, status, priority, notes
+) VALUES (
+  v_order_10, v_company_id, 'OP-2026-0010', v_cult_og_kush,
+  v_pc_germ, v_pc_curado,
+  200, v_unit_und,
+  24640, v_unit_g,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+  CURRENT_DATE - interval '28 days',
+  CURRENT_DATE + interval '129 days',
+  v_user_gerente, 'in_progress', 'urgent',
+  'OG Kush premium — pedido urgente cliente mayorista'
+);
+
+INSERT INTO production_order_phases (order_id, phase_id, sort_order, planned_duration_days, zone_id, expected_input_qty, expected_output_qty, yield_pct, status, planned_start_date, planned_end_date, actual_start_date, actual_end_date) VALUES
+  (v_order_10, v_pc_germ,     1, 7,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+   200, 190, 95, 'completed', CURRENT_DATE - interval '28 days', CURRENT_DATE - interval '21 days', CURRENT_DATE - interval '28 days', CURRENT_DATE - interval '22 days'),
+  (v_order_10, v_pc_plantula, 2, 14,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis'),
+   190, 186, 98, 'completed', CURRENT_DATE - interval '21 days', CURRENT_DATE - interval '7 days', CURRENT_DATE - interval '22 days', CURRENT_DATE - interval '8 days'),
+  (v_order_10, v_pc_veg,      3, 35,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo B'),
+   186, 182, 98, 'in_progress', CURRENT_DATE - interval '7 days', CURRENT_DATE + interval '28 days', CURRENT_DATE - interval '8 days', NULL),
+  (v_order_10, v_pc_flor,     4, 56,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion A'),
+   182, 182, 100, 'pending', CURRENT_DATE + interval '28 days', CURRENT_DATE + interval '84 days', NULL, NULL),
+  (v_order_10, v_pc_cosecha,  5, 3,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   182, 127.4, 70, 'pending', CURRENT_DATE + interval '84 days', CURRENT_DATE + interval '87 days', NULL, NULL),
+  (v_order_10, v_pc_secado,   6, 14,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   127.4, 28.0, 22, 'pending', CURRENT_DATE + interval '87 days', CURRENT_DATE + interval '101 days', NULL, NULL),
+  (v_order_10, v_pc_curado,   7, 28,
+   (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado'),
+   28.0, 24.6, 88, 'pending', CURRENT_DATE + interval '101 days', CURRENT_DATE + interval '129 days', NULL, NULL);
+
 -- =============================================================
 -- 28. BATCHES
 -- =============================================================
@@ -1860,6 +2006,204 @@ INSERT INTO batches (
   v_pf_secado_c,
   300, CURRENT_DATE - interval '650 days',
   'on_hold', v_user_admin, v_user_admin
+);
+
+-- Batch 10: Cannabis OG Kush, phase_transition (plantula->vegetativo), 30 plants
+-- Shows zone change in progress for dashboard variety
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_10, 'LOT-OGK-260320-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis' AND f.company_id = v_company_id),
+  v_pc_plantula,
+  30, CURRENT_DATE - interval '18 days', CURRENT_DATE + interval '139 days',
+  'phase_transition', v_user_admin, v_user_admin
+);
+
+-- Batch 11: Cannabis Blue Dream, germinacion phase, active, 60 plants
+-- New order starting, fills germinacion column in kanban
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_11, 'LOT-BLD-260405-001', v_cult_blue_d,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis' AND f.company_id = v_company_id),
+  v_pc_germ,
+  60, CURRENT_DATE - interval '4 days', CURRENT_DATE + interval '153 days',
+  'active', v_user_admin, v_user_admin
+);
+
+-- Batch 12: Cannabis OG Kush, floracion phase, active, 45 plants
+-- Fills floracion column with more variety
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_12, 'LOT-OGK-260201-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion A' AND f.company_id = v_company_id),
+  v_pc_flor,
+  45, CURRENT_DATE - interval '67 days', CURRENT_DATE + interval '90 days',
+  'active', v_user_admin, v_user_admin
+);
+
+-- Batch 13: Cannabis White Widow, cosecha phase, active, 25 plants
+-- Fills cosecha column (currently empty)
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_13, 'LOT-WWD-260115-001', v_cult_white_w,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion B' AND f.company_id = v_company_id),
+  v_pc_cosecha,
+  25, CURRENT_DATE - interval '105 days', CURRENT_DATE + interval '52 days',
+  'active', v_user_admin, v_user_admin
+);
+
+-- Batch 14: Cannabis White Widow, floracion phase, on_hold, 35 plants
+-- Quality check pending - adds another on_hold for dashboard KPI
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_14, 'LOT-WWD-260215-001', v_cult_white_w,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion B' AND f.company_id = v_company_id),
+  v_pc_flor,
+  35, CURRENT_DATE - interval '52 days', CURRENT_DATE + interval '105 days',
+  'on_hold', v_user_admin, v_user_admin
+);
+
+-- Batch 15: Cannabis Blue Dream COMPLETED - linked to order 8
+-- Full cycle completed with yield data
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id, production_order_id,
+  plant_count, start_date, expected_end_date, status,
+  yield_wet_kg, yield_dry_kg, total_cost, created_by, updated_by
+) VALUES (
+  v_batch_15, 'LOT-BLD-251015-001', v_cult_blue_d,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado' AND f.company_id = v_company_id),
+  v_pc_curado, v_order_8,
+  135, CURRENT_DATE - interval '180 days', CURRENT_DATE - interval '20 days',
+  'completed',
+  94.5, 18.5, 12500.00, v_user_admin, v_user_admin
+);
+
+-- Link order 8 phases to batch 15
+UPDATE production_order_phases SET batch_id = v_batch_15 WHERE order_id = v_order_8;
+
+-- Batch 16: Cannabis White Widow - linked to order 9 (70% complete, in floracion)
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id, production_order_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_16, 'LOT-WWD-260105-001', v_cult_white_w,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Floracion B' AND f.company_id = v_company_id),
+  v_pc_flor, v_order_9,
+  72, CURRENT_DATE - interval '95 days', CURRENT_DATE + interval '62 days',
+  'active', v_user_admin, v_user_admin
+);
+
+-- Link order 9 phases to batch 16
+UPDATE production_order_phases SET batch_id = v_batch_16 WHERE order_id = v_order_9;
+
+-- Batch 17: Cannabis OG Kush - linked to order 10 (30% complete, in vegetativo)
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id, production_order_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_17, 'LOT-OGK-260312-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Vegetativo B' AND f.company_id = v_company_id),
+  v_pc_veg, v_order_10,
+  186, CURRENT_DATE - interval '28 days', CURRENT_DATE + interval '129 days',
+  'active', v_user_admin, v_user_admin
+);
+
+-- Link order 10 phases to batch 17
+UPDATE production_order_phases SET batch_id = v_batch_17 WHERE order_id = v_order_10;
+
+-- Batch 18: Cannabis OG Kush COMPLETED - another completed batch for KPI
+-- Older completed batch (2 months ago)
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status,
+  yield_wet_kg, yield_dry_kg, total_cost, created_by, updated_by
+) VALUES (
+  v_batch_18, 'LOT-OGK-250901-001', v_cult_og_kush,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado' AND f.company_id = v_company_id),
+  v_pc_curado,
+  90, CURRENT_DATE - interval '200 days', CURRENT_DATE - interval '43 days',
+  'completed',
+  63.0, 13.9, 5200.00, v_user_admin, v_user_admin
+);
+
+-- Batch 19: Cannabis Blue Dream - plantula phase, active (early stage)
+-- Fills plantula column in kanban
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status, created_by, updated_by
+) VALUES (
+  v_batch_19, 'LOT-BLD-260401-001', v_cult_blue_d,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Propagacion Cannabis' AND f.company_id = v_company_id),
+  v_pc_plantula,
+  55, CURRENT_DATE - interval '12 days', CURRENT_DATE + interval '145 days',
+  'active', v_user_admin, v_user_admin
+);
+
+-- Batch 20: Cannabis White Widow - curado phase, active (late stage)
+-- Shows batch in final curing stage
+INSERT INTO batches (
+  id, code, cultivar_id, zone_id, current_phase_id,
+  plant_count, start_date, expected_end_date, status,
+  yield_wet_kg, created_by, updated_by
+) VALUES (
+  v_batch_20, 'LOT-WWD-251201-001', v_cult_white_w,
+  (SELECT z.id FROM zones z JOIN facilities f ON f.id = z.facility_id WHERE z.name = 'Secado/Curado' AND f.company_id = v_company_id),
+  v_pc_curado,
+  38, CURRENT_DATE - interval '140 days', CURRENT_DATE + interval '17 days',
+  'active',
+  26.6, v_user_admin, v_user_admin
+);
+
+-- =============================================================
+-- 28c. BATCH LINEAGE (split/merge operations)
+-- =============================================================
+
+-- Split: Batch 1 (100 plants veg) was split from a larger parent batch
+-- This demonstrates lineage for traceability
+INSERT INTO batch_lineage (
+  operation, parent_batch_id, child_batch_id,
+  quantity_transferred, unit_id, reason,
+  performed_by, performed_at
+) VALUES (
+  'split', v_batch_18, v_batch_1,
+  100, v_unit_und,
+  'Division para optimizar espacio en Vegetativo A',
+  v_user_supervisor, CURRENT_DATE - interval '21 days'
+);
+
+-- Split: Batch 12 was also split from batch 18 (same parent, different zone)
+INSERT INTO batch_lineage (
+  operation, parent_batch_id, child_batch_id,
+  quantity_transferred, unit_id, reason,
+  performed_by, performed_at
+) VALUES (
+  'split', v_batch_18, v_batch_12,
+  45, v_unit_und,
+  'Division para zona de floracion separada',
+  v_user_supervisor, CURRENT_DATE - interval '67 days'
+);
+
+-- Merge: Batch 3 was created by merging two smaller batches
+-- (Using batch 13 as the child that was merged into batch 3)
+INSERT INTO batch_lineage (
+  operation, parent_batch_id, child_batch_id,
+  quantity_transferred, unit_id, reason,
+  performed_by, performed_at
+) VALUES (
+  'merge', v_batch_13, v_batch_3,
+  15, v_unit_und,
+  'Consolidacion de lotes para secado conjunto',
+  v_user_gerente, CURRENT_DATE - interval '70 days'
 );
 
 -- =============================================================

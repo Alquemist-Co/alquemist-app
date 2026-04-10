@@ -36,7 +36,7 @@ export default async function BatchDetailPage({
   const canTransition = ['admin', 'manager', 'supervisor'].includes(role)
   const canHoldCancel = ['admin', 'manager'].includes(role)
 
-  // Fetch batch + order phases + lineage + zones in parallel
+  // Fetch batch + zones in parallel
   const [batchRes, zonesRes] = await Promise.all([
     supabase
       .from('batches')
@@ -46,8 +46,7 @@ export default async function BatchDetailPage({
         phase:production_phases!batches_current_phase_id_fkey(id, name),
         zone:zones(id, name, facility:facilities(id, name)),
         product:products!batches_current_product_id_fkey(id, name, sku),
-        order:production_orders(id, code, status),
-        parent:batches!batches_parent_batch_id_fkey(id, code, status)
+        order:production_orders(id, code, status)
       `)
       .eq('id', id)
       .single(),
@@ -60,8 +59,15 @@ export default async function BatchDetailPage({
   const batch = batchRes.data
   if (!batch) notFound()
 
-  // Fetch order phases + lineage (depend on batch data)
-  const [phasesRes, lineageParentRes, lineageChildRes] = await Promise.all([
+  // Fetch parent batch, order phases + lineage (depend on batch data)
+  const [parentRes, phasesRes, lineageParentRes, lineageChildRes] = await Promise.all([
+    batch.parent_batch_id
+      ? supabase
+          .from('batches')
+          .select('id, code, status')
+          .eq('id', batch.parent_batch_id)
+          .single()
+      : Promise.resolve({ data: null }),
     batch.production_order_id
       ? supabase
           .from('production_order_phases')
@@ -89,8 +95,7 @@ export default async function BatchDetailPage({
   const zone = batch.zone as { id: string; name: string; facility: { id: string; name: string } | null } | null
   const product = batch.product as { id: string; name: string; sku: string } | null
   const order = batch.order as { id: string; code: string; status: string } | null
-  const parentArr = batch.parent as { id: string; code: string; status: string }[] | null
-  const parent = parentArr?.[0] ?? null
+  const parent = parentRes.data as { id: string; code: string; status: string } | null
 
   const batchData: BatchDetailData = {
     id: batch.id,

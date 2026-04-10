@@ -35,11 +35,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
-import {
-  orderPhaseStatusLabels,
-  orderPhaseStatusBadgeStyles,
-} from './orders-shared'
 import { batchStatusLabels, batchStatusBadgeStyles, selectClass } from './batches-shared'
+import { BatchPhaseCards } from './batch-phase-cards'
 
 // ---------- Types ----------
 
@@ -361,72 +358,7 @@ export function BatchDetailClient({
 
       {/* Section 2 — Phase Timeline */}
       {phases.length > 0 && (
-        <div className="rounded-lg border p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold">Timeline de fases</h3>
-            <span className="text-xs text-muted-foreground">
-              {phases.filter((p) => p.status === 'completed').length} de {phases.length} fases completadas
-            </span>
-          </div>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[40px]">#</TableHead>
-                  <TableHead>Fase</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Duración (días)</TableHead>
-                  <TableHead>Zona</TableHead>
-                  <TableHead>Inicio plan.</TableHead>
-                  <TableHead>Fin plan.</TableHead>
-                  <TableHead>Inicio real</TableHead>
-                  <TableHead>Fin real</TableHead>
-                  <TableHead className="text-right">Rend.%</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {phases.map((p) => {
-                  const isCurrent = p.phase_id === batch.phase_id
-                  return (
-                    <TableRow
-                      key={p.id}
-                      className={isCurrent ? 'bg-blue-50/50 dark:bg-blue-950/20' : undefined}
-                    >
-                      <TableCell className="text-xs text-muted-foreground">
-                        {p.sort_order}
-                      </TableCell>
-                      <TableCell className="font-medium text-sm">
-                        {p.phase_name}
-                        {isCurrent && (
-                          <span className="ml-1.5 text-xs text-blue-600 dark:text-blue-400">
-                            (actual)
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="secondary"
-                          className={`text-xs ${orderPhaseStatusBadgeStyles[p.status] ?? ''}`}
-                        >
-                          {orderPhaseStatusLabels[p.status] ?? p.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right text-sm">
-                        {p.planned_duration_days ?? '—'}
-                      </TableCell>
-                      <TableCell className="text-sm">{p.zone_name ?? '—'}</TableCell>
-                      <TableCell className="text-sm">{formatDate(p.planned_start_date)}</TableCell>
-                      <TableCell className="text-sm">{formatDate(p.planned_end_date)}</TableCell>
-                      <TableCell className="text-sm">{formatDate(p.actual_start_date)}</TableCell>
-                      <TableCell className="text-sm">{formatDate(p.actual_end_date)}</TableCell>
-                      <TableCell className="text-right text-sm">{fmtPct(p.yield_pct)}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+        <BatchPhaseCards phases={phases} currentPhaseId={batch.phase_id} />
       )}
 
       {/* Section 3 — Genealogy */}
