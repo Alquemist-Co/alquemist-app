@@ -1,21 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { ArrowLeft, ArrowRight, Pause, Play, X } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +29,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { batchStatusLabels, batchStatusBadgeStyles, selectClass } from './batches-shared'
-import { BatchPhaseCards } from './batch-phase-cards'
+import { GeneralTab, GenealogyTab, ActivitiesTab } from './batch-detail-tabs'
 
 // ---------- Types ----------
 
@@ -105,50 +98,84 @@ export type ZoneOption = {
   facility_name: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type JsonValue = any
+
+export type ScheduledActivityData = {
+  id: string
+  template_id: string | null
+  template_name: string | null
+  template_code: string | null
+  activity_type_name: string | null
+  triggers_phase_change_id: string | null
+  triggers_phase_change_name: string | null
+  planned_date: string
+  crop_day: number | null
+  phase_id: string | null
+  phase_name: string | null
+  status: string
+  template_snapshot: JsonValue
+}
+
+export type ActivityData = {
+  id: string
+  activity_type_id: string
+  activity_type_name: string
+  template_id: string | null
+  template_name: string | null
+  scheduled_activity_id: string | null
+  performed_at: string
+  performed_by: string
+  performer_name: string
+  duration_minutes: number | null
+  phase_id: string | null
+  phase_name: string | null
+  crop_day: number | null
+  status: string
+  measurement_data: JsonValue
+  notes: string | null
+  observations_count: number
+  has_high_severity: boolean
+  resources_count: number
+}
+
 type Props = {
   batch: BatchDetailData
   phases: OrderPhaseData[]
   lineage: LineageRecord[]
   zones: ZoneOption[]
+  scheduledActivities: ScheduledActivityData[]
+  activities: ActivityData[]
   canTransition: boolean
   canHoldCancel: boolean
+  defaultTab?: string
 }
 
 // ---------- Helpers ----------
-
-const formatDate = (d: string | null) => {
-  if (!d) return '—'
-  return new Date(d + 'T00:00:00').toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-const formatDateTime = (d: string) => {
-  return new Date(d).toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
 
 const fmtQty = (v: number | null) => {
   if (v == null) return '—'
   return Number(v).toLocaleString('es-CO')
 }
 
-const fmtPct = (v: number | null) => {
-  if (v == null) return '—'
-  return `${Number(v).toFixed(1)}%`
-}
-
 function daysInProduction(startDate: string): number {
   const start = new Date(startDate + 'T00:00:00')
   const now = new Date()
   return Math.max(1, Math.ceil((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+}
+
+// Tab values
+const TABS = ['general', 'activities', 'quality', 'regulatory', 'inventory', 'genealogy', 'environment'] as const
+type TabValue = (typeof TABS)[number]
+
+const TAB_LABELS: Record<TabValue, string> = {
+  general: 'General',
+  activities: 'Actividades',
+  quality: 'Calidad',
+  regulatory: 'Regulatorio',
+  inventory: 'Inventario',
+  genealogy: 'Genealogía',
+  environment: 'Ambiente',
 }
 
 // ---------- Component ----------
@@ -158,10 +185,20 @@ export function BatchDetailClient({
   phases,
   lineage,
   zones,
+  scheduledActivities,
+  activities,
   canTransition,
   canHoldCancel,
+  defaultTab = 'general',
 }: Props) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Validate defaultTab
+  const initialTab = TABS.includes(defaultTab as TabValue) ? (defaultTab as TabValue) : 'general'
+  const [activeTab, setActiveTab] = useState<TabValue>(initialTab)
+
   const [showTransitionDialog, setShowTransitionDialog] = useState(false)
   const [showHoldDialog, setShowHoldDialog] = useState(false)
   const [showReactivateDialog, setShowReactivateDialog] = useState(false)
@@ -177,6 +214,15 @@ export function BatchDetailClient({
   const nextPhase = currentPhaseIdx >= 0 && currentPhaseIdx < phases.length - 1
     ? phases[currentPhaseIdx + 1]
     : null
+
+  const handleTabChange = (value: string) => {
+    const newTab = value as TabValue
+    setActiveTab(newTab)
+    // Update URL with tab parameter
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', newTab)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }
 
   async function handleTransition() {
     setTransitioning(true)
@@ -267,6 +313,9 @@ export function BatchDetailClient({
               <Badge variant="outline" className="text-xs">
                 {batch.zone_name}
               </Badge>
+              <Badge variant="outline" className="text-xs">
+                Día {daysInProduction(batch.start_date)}
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
               {batch.cultivar_name} — {batch.crop_type_name}
@@ -309,112 +358,71 @@ export function BatchDetailClient({
         </div>
       </div>
 
-      {/* Section 1 — General Info */}
-      <div className="rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Información general</h3>
-        <div className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-          <InfoField label="Cultivar" value={`${batch.cultivar_name} (${batch.cultivar_code})`} />
-          <InfoField label="Tipo de cultivo" value={batch.crop_type_name} />
-          <InfoField label="Fase actual" value={batch.phase_name} />
-          <InfoField label="Zona" value={`${batch.zone_name} — ${batch.facility_name}`} />
-          <InfoField label="Plantas" value={batch.plant_count != null ? fmtQty(batch.plant_count) : '—'} />
-          {batch.area_m2 != null && (
-            <InfoField label="Área" value={`${batch.area_m2} m²`} />
-          )}
-          <InfoField
-            label="Producto actual"
-            value={batch.product_name ? `${batch.product_name} (${batch.product_sku})` : '—'}
-          />
-          <InfoField
-            label="Orden de producción"
-            value={batch.order_code ?? '—'}
-            link={batch.order_id ? `/production/orders/${batch.order_id}` : undefined}
-          />
-          {batch.parent_batch_id && (
-            <InfoField
-              label="Batch padre"
-              value={batch.parent_batch_code ?? '—'}
-              link={`/production/batches/${batch.parent_batch_id}`}
-            />
-          )}
-          <InfoField
-            label="Fecha inicio → fin esperado"
-            value={`${formatDate(batch.start_date)} → ${formatDate(batch.expected_end_date)}`}
-          />
-          <InfoField
-            label="Días en producción"
-            value={String(daysInProduction(batch.start_date))}
-          />
-          {batch.yield_wet_kg != null && (
-            <InfoField label="Yield húmedo" value={`${batch.yield_wet_kg} kg`} />
-          )}
-          {batch.yield_dry_kg != null && (
-            <InfoField label="Yield seco" value={`${batch.yield_dry_kg} kg`} />
-          )}
-          <InfoField label="Creado" value={formatDateTime(batch.created_at)} />
-          <InfoField label="Actualizado" value={formatDateTime(batch.updated_at)} />
-        </div>
-      </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList variant="line" className="w-full justify-start overflow-x-auto">
+          {TABS.map((tab) => (
+            <TabsTrigger key={tab} value={tab}>
+              {TAB_LABELS[tab]}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {/* Section 2 — Phase Timeline */}
-      {phases.length > 0 && (
-        <BatchPhaseCards phases={phases} currentPhaseId={batch.phase_id} />
-      )}
+        <TabsContent value="general" className="mt-6">
+          <GeneralTab batch={batch} phases={phases} />
+        </TabsContent>
 
-      {/* Section 3 — Genealogy */}
-      <div className="rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Genealogía</h3>
-        {lineage.length === 0 ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">
-            No hay historial de genealogía.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Operación</TableHead>
-                  <TableHead>Batch origen</TableHead>
-                  <TableHead>Batch destino</TableHead>
-                  <TableHead className="text-right">Cantidad</TableHead>
-                  <TableHead>Razón</TableHead>
-                  <TableHead>Fecha</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {lineage.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell>
-                      <Badge variant="secondary" className="text-xs">
-                        {l.operation}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                        onClick={() => router.push(`/production/batches/${l.parent_batch_id}`)}
-                      >
-                        {l.parent_batch_code}
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                        onClick={() => router.push(`/production/batches/${l.child_batch_id}`)}
-                      >
-                        {l.child_batch_code}
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-right text-sm">{fmtQty(l.quantity)}</TableCell>
-                    <TableCell className="text-sm max-w-[200px] truncate">{l.reason ?? '—'}</TableCell>
-                    <TableCell className="text-sm">{formatDateTime(l.created_at)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+        <TabsContent value="activities" className="mt-6">
+          <ActivitiesTab
+            phases={phases}
+            scheduledActivities={scheduledActivities}
+            activities={activities}
+            currentPhaseId={batch.phase_id}
+            batchId={batch.id}
+            batchStartDate={batch.start_date}
+            zoneId={batch.zone_id}
+            zones={zones}
+            canSchedule={canTransition}
+            canExecute={canTransition || isActive}
+          />
+        </TabsContent>
+
+        <TabsContent value="quality" className="mt-6">
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">
+              Tab de calidad — próximamente
+            </p>
           </div>
-        )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="regulatory" className="mt-6">
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">
+              Tab regulatorio — próximamente
+            </p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="inventory" className="mt-6">
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">
+              Tab de inventario — próximamente
+            </p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="genealogy" className="mt-6">
+          <GenealogyTab lineage={lineage} />
+        </TabsContent>
+
+        <TabsContent value="environment" className="mt-6">
+          <div className="rounded-lg border p-4">
+            <p className="text-sm text-muted-foreground">
+              Tab de ambiente — próximamente
+            </p>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Transition Dialog */}
       <Dialog open={showTransitionDialog} onOpenChange={setShowTransitionDialog}>
@@ -526,39 +534,6 @@ export function BatchDetailClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  )
-}
-
-// ---------- Helpers ----------
-
-function InfoField({
-  label,
-  value,
-  className,
-  link,
-}: {
-  label: string
-  value: string
-  className?: string
-  link?: string
-}) {
-  const router = useRouter()
-  return (
-    <div className={className}>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5">
-        {link ? (
-          <button
-            className="text-blue-600 hover:underline dark:text-blue-400"
-            onClick={() => router.push(link)}
-          >
-            {value}
-          </button>
-        ) : (
-          value
-        )}
-      </dd>
     </div>
   )
 }

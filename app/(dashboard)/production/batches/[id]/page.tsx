@@ -6,16 +6,23 @@ import {
   type OrderPhaseData,
   type LineageRecord,
   type ZoneOption,
+  type ScheduledActivityData,
+  type ActivityData,
 } from '@/components/production/batch-detail-client'
 
 type Params = Promise<{ id: string }>
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
 export default async function BatchDetailPage({
   params,
+  searchParams,
 }: {
   params: Params
+  searchParams: SearchParams
 }) {
   const { id } = await params
+  const resolvedSearchParams = await searchParams
+  const defaultTab = typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : 'general'
   const supabase = await createClient()
 
   const {
@@ -59,8 +66,8 @@ export default async function BatchDetailPage({
   const batch = batchRes.data
   if (!batch) notFound()
 
-  // Fetch parent batch, order phases + lineage (depend on batch data)
-  const [parentRes, phasesRes, lineageParentRes, lineageChildRes] = await Promise.all([
+  // Fetch parent batch, order phases, lineage, scheduled activities, and activities (depend on batch data)
+  const [parentRes, phasesRes, lineageParentRes, lineageChildRes, scheduledActivitiesRes, activitiesRes] = await Promise.all([
     batch.parent_batch_id
       ? supabase
           .from('batches')
@@ -87,6 +94,30 @@ export default async function BatchDetailPage({
       .from('batch_lineage')
       .select('*, parent:batches!batch_lineage_parent_batch_id_fkey(id, code, status), child:batches!batch_lineage_child_batch_id_fkey(id, code, status)')
       .eq('child_batch_id', id),
+    // Scheduled activities with template and phase info
+    supabase
+      .from('scheduled_activities')
+      .select(`
+        *,
+        template:activity_templates(id, name, code, activity_type:activity_types(name), triggers_phase_change:production_phases!activity_templates_triggers_phase_change_id_fkey(id, name)),
+        phase:production_phases(id, name)
+      `)
+      .eq('batch_id', id)
+      .order('planned_date'),
+    // Executed activities with related data
+    supabase
+      .from('activities')
+      .select(`
+        *,
+        activity_type:activity_types(id, name),
+        template:activity_templates(id, name, code),
+        performer:users(id, full_name),
+        phase:production_phases(id, name),
+        observations:activity_observations(id, severity),
+        resources:activity_resources(id)
+      `)
+      .eq('batch_id', id)
+      .order('performed_at', { ascending: false }),
   ])
 
   // Cast joined relations
@@ -178,14 +209,75 @@ export default async function BatchDetailPage({
     }
   })
 
+  // Transform scheduled activities
+  const scheduledActivities: ScheduledActivityData[] = (scheduledActivitiesRes.data ?? []).map((sa) => {
+    const template = sa.template as {
+      id: string
+      name: string
+      code: string
+      activity_type: { name: string } | null
+      triggers_phase_change: { id: string; name: string } | null
+    } | null
+    const saPhase = sa.phase as { id: string; name: string } | null
+    return {
+      id: sa.id,
+      template_id: sa.template_id,
+      template_name: template?.name ?? null,
+      template_code: template?.code ?? null,
+      activity_type_name: template?.activity_type?.name ?? null,
+      triggers_phase_change_id: template?.triggers_phase_change?.id ?? null,
+      triggers_phase_change_name: template?.triggers_phase_change?.name ?? null,
+      planned_date: sa.planned_date,
+      crop_day: sa.crop_day,
+      phase_id: sa.phase_id,
+      phase_name: saPhase?.name ?? null,
+      status: sa.status,
+      template_snapshot: sa.template_snapshot,
+    }
+  })
+
+  // Transform executed activities
+  const activities: ActivityData[] = (activitiesRes.data ?? []).map((a) => {
+    const activityType = a.activity_type as { id: string; name: string } | null
+    const aTemplate = a.template as { id: string; name: string; code: string } | null
+    const performer = a.performer as { id: string; full_name: string } | null
+    const aPhase = a.phase as { id: string; name: string } | null
+    const observations = a.observations as { id: string; severity: string }[] | null
+    const resources = a.resources as { id: string }[] | null
+    return {
+      id: a.id,
+      activity_type_id: a.activity_type_id,
+      activity_type_name: activityType?.name ?? '',
+      template_id: a.template_id,
+      template_name: aTemplate?.name ?? null,
+      scheduled_activity_id: a.scheduled_activity_id,
+      performed_at: a.performed_at,
+      performed_by: a.performed_by,
+      performer_name: performer?.full_name ?? '',
+      duration_minutes: a.duration_minutes,
+      phase_id: a.phase_id,
+      phase_name: aPhase?.name ?? null,
+      crop_day: a.crop_day,
+      status: a.status,
+      measurement_data: a.measurement_data,
+      notes: a.notes,
+      observations_count: observations?.length ?? 0,
+      has_high_severity: observations?.some((o) => ['high', 'critical'].includes(o.severity)) ?? false,
+      resources_count: resources?.length ?? 0,
+    }
+  })
+
   return (
     <BatchDetailClient
       batch={batchData}
       phases={phases}
       lineage={lineage}
       zones={zonesData}
+      scheduledActivities={scheduledActivities}
+      activities={activities}
       canTransition={canTransition}
       canHoldCancel={canHoldCancel}
+      defaultTab={defaultTab}
     />
   )
 }
