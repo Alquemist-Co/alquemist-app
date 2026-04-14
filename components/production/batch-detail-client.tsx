@@ -19,7 +19,19 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { batchStatusLabels, batchStatusBadgeStyles, selectClass } from './batches-shared'
-import { GeneralTab, GenealogyTab, ActivitiesTab, BatchStatusDialog } from './batch-detail-tabs'
+import {
+  GeneralTab,
+  GenealogyTab,
+  ActivitiesTab,
+  QualityTab,
+  BatchStatusDialog,
+  type QualityTestData as QualityTestDataImport,
+  type QualityTestResultData as QualityTestResultDataImport,
+} from './batch-detail-tabs'
+
+// Re-export quality types for page.tsx
+export type QualityTestData = QualityTestDataImport
+export type QualityTestResultData = QualityTestResultDataImport
 
 // ---------- Types ----------
 
@@ -136,8 +148,12 @@ type Props = {
   zones: ZoneOption[]
   scheduledActivities: ScheduledActivityData[]
   activities: ActivityData[]
+  qualityTests: QualityTestData[]
   canTransition: boolean
   canHoldCancel: boolean
+  canCreateTest: boolean
+  canCaptureResults: boolean
+  canRejectTest: boolean
   defaultTab?: string
 }
 
@@ -177,8 +193,12 @@ export function BatchDetailClient({
   zones,
   scheduledActivities,
   activities,
+  qualityTests,
   canTransition,
   canHoldCancel,
+  canCreateTest,
+  canCaptureResults,
+  canRejectTest,
   defaultTab = 'general',
 }: Props) {
   const router = useRouter()
@@ -355,11 +375,15 @@ export function BatchDetailClient({
         </TabsContent>
 
         <TabsContent value="quality" className="mt-6">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">
-              Tab de calidad — próximamente
-            </p>
-          </div>
+          <QualityTab
+            phases={phases.map((p) => ({ id: p.phase_id, name: p.phase_name, sort_order: p.sort_order }))}
+            tests={qualityTests}
+            batchId={batch.id}
+            currentPhaseId={batch.phase_id}
+            canCreate={canCreateTest}
+            canCapture={canCaptureResults}
+            canReject={canRejectTest}
+          />
         </TabsContent>
 
         <TabsContent value="regulatory" className="mt-6">

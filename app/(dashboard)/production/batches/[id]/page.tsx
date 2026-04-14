@@ -8,6 +8,7 @@ import {
   type ZoneOption,
   type ScheduledActivityData,
   type ActivityData,
+  type QualityTestData,
 } from '@/components/production/batch-detail-client'
 
 type Params = Promise<{ id: string }>
@@ -66,8 +67,8 @@ export default async function BatchDetailPage({
   const batch = batchRes.data
   if (!batch) notFound()
 
-  // Fetch parent batch, order phases, lineage, scheduled activities, and activities (depend on batch data)
-  const [parentRes, phasesRes, lineageParentRes, lineageChildRes, scheduledActivitiesRes, activitiesRes] = await Promise.all([
+  // Fetch parent batch, order phases, lineage, scheduled activities, activities, and quality tests (depend on batch data)
+  const [parentRes, phasesRes, lineageParentRes, lineageChildRes, scheduledActivitiesRes, activitiesRes, qualityTestsRes] = await Promise.all([
     batch.parent_batch_id
       ? supabase
           .from('batches')
@@ -118,6 +119,17 @@ export default async function BatchDetailPage({
       `)
       .eq('batch_id', id)
       .order('performed_at', { ascending: false }),
+    // Quality tests with results and phase info
+    supabase
+      .from('quality_tests')
+      .select(`
+        *,
+        phase:production_phases(id, name),
+        performer:users(id, full_name),
+        results:quality_test_results(id, parameter, value, numeric_value, unit, min_threshold, max_threshold, passed)
+      `)
+      .eq('batch_id', id)
+      .order('sample_date', { ascending: false }),
   ])
 
   // Cast joined relations
@@ -267,6 +279,52 @@ export default async function BatchDetailPage({
     }
   })
 
+  // Transform quality tests
+  const qualityTests: QualityTestData[] = (qualityTestsRes.data ?? []).map((qt) => {
+    const qtPhase = qt.phase as { id: string; name: string } | null
+    const qtPerformer = qt.performer as { id: string; full_name: string } | null
+    const qtResults = qt.results as Array<{
+      id: string
+      parameter: string
+      value: string
+      numeric_value: number | null
+      unit: string | null
+      min_threshold: number | null
+      max_threshold: number | null
+      passed: boolean | null
+    }> | null
+    return {
+      id: qt.id,
+      test_type: qt.test_type,
+      lab_name: qt.lab_name,
+      lab_reference: qt.lab_reference,
+      sample_date: qt.sample_date,
+      result_date: qt.result_date,
+      status: qt.status,
+      overall_pass: qt.overall_pass,
+      notes: qt.notes,
+      performed_by: qt.performed_by,
+      performer_name: qtPerformer?.full_name ?? null,
+      phase_id: qt.phase_id,
+      phase_name: qtPhase?.name ?? null,
+      results: (qtResults ?? []).map((r) => ({
+        id: r.id,
+        parameter: r.parameter,
+        value: r.value,
+        numeric_value: r.numeric_value != null ? Number(r.numeric_value) : null,
+        unit: r.unit,
+        min_threshold: r.min_threshold != null ? Number(r.min_threshold) : null,
+        max_threshold: r.max_threshold != null ? Number(r.max_threshold) : null,
+        passed: r.passed,
+      })),
+    }
+  })
+
+  // Determine quality permissions based on role
+  const canCreateTest = ['admin', 'manager', 'supervisor', 'operator'].includes(role)
+  const canCaptureResults = ['admin', 'manager', 'supervisor', 'operator'].includes(role)
+  const canRejectTest = ['admin', 'manager'].includes(role)
+
   return (
     <BatchDetailClient
       batch={batchData}
@@ -275,8 +333,12 @@ export default async function BatchDetailPage({
       zones={zonesData}
       scheduledActivities={scheduledActivities}
       activities={activities}
+      qualityTests={qualityTests}
       canTransition={canTransition}
       canHoldCancel={canHoldCancel}
+      canCreateTest={canCreateTest}
+      canCaptureResults={canCaptureResults}
+      canRejectTest={canRejectTest}
       defaultTab={defaultTab}
     />
   )
