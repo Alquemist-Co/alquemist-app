@@ -10,16 +10,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -29,7 +19,7 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { batchStatusLabels, batchStatusBadgeStyles, selectClass } from './batches-shared'
-import { GeneralTab, GenealogyTab, ActivitiesTab } from './batch-detail-tabs'
+import { GeneralTab, GenealogyTab, ActivitiesTab, BatchStatusDialog } from './batch-detail-tabs'
 
 // ---------- Types ----------
 
@@ -200,9 +190,7 @@ export function BatchDetailClient({
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab)
 
   const [showTransitionDialog, setShowTransitionDialog] = useState(false)
-  const [showHoldDialog, setShowHoldDialog] = useState(false)
-  const [showReactivateDialog, setShowReactivateDialog] = useState(false)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [statusAction, setStatusAction] = useState<'on_hold' | 'cancelled' | 'active' | null>(null)
   const [transitioning, setTransitioning] = useState(false)
   const [selectedZoneId, setSelectedZoneId] = useState('')
 
@@ -261,27 +249,6 @@ export function BatchDetailClient({
     router.refresh()
   }
 
-  async function handleStatusChange(newStatus: 'on_hold' | 'active' | 'cancelled') {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('batches')
-      .update({ status: newStatus as 'on_hold' | 'active' | 'cancelled' })
-      .eq('id', batch.id)
-    if (error) {
-      toast.error('Error al actualizar el estado.')
-    } else {
-      const msgs: Record<string, string> = {
-        on_hold: 'Batch puesto en espera.',
-        active: 'Batch reactivado.',
-        cancelled: 'Batch cancelado.',
-      }
-      toast.success(msgs[newStatus])
-      router.refresh()
-    }
-    setShowHoldDialog(false)
-    setShowReactivateDialog(false)
-    setShowCancelDialog(false)
-  }
 
   return (
     <div className="space-y-6">
@@ -334,7 +301,7 @@ export function BatchDetailClient({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowHoldDialog(true)}
+                onClick={() => setStatusAction('on_hold')}
               >
                 <Pause className="mr-1 h-3.5 w-3.5" />
                 En espera
@@ -342,7 +309,7 @@ export function BatchDetailClient({
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => setShowCancelDialog(true)}
+                onClick={() => setStatusAction('cancelled')}
               >
                 <X className="mr-1 h-3.5 w-3.5" />
                 Cancelar lote
@@ -350,7 +317,7 @@ export function BatchDetailClient({
             </>
           )}
           {isOnHold && canHoldCancel && (
-            <Button size="sm" onClick={() => setShowReactivateDialog(true)}>
+            <Button size="sm" onClick={() => setStatusAction('active')}>
               <Play className="mr-1 h-3.5 w-3.5" />
               Reactivar
             </Button>
@@ -478,62 +445,18 @@ export function BatchDetailClient({
         </DialogContent>
       </Dialog>
 
-      {/* Hold Dialog */}
-      <AlertDialog open={showHoldDialog} onOpenChange={setShowHoldDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Poner en espera</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Poner el batch {batch.code} en espera? Podrás reactivarlo después.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleStatusChange('on_hold')}>
-              Poner en espera
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Reactivate Dialog */}
-      <AlertDialog open={showReactivateDialog} onOpenChange={setShowReactivateDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reactivar batch</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Reactivar el batch {batch.code}? Volverá al estado activo.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleStatusChange('active')}>
-              Reactivar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Cancel Dialog */}
-      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancelar batch</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Cancelar el batch {batch.code}? Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => handleStatusChange('cancelled')}
-            >
-              Cancelar batch
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Batch Status Dialog (Hold/Cancel/Reactivate) */}
+      {statusAction && (
+        <BatchStatusDialog
+          open={true}
+          onOpenChange={(open) => !open && setStatusAction(null)}
+          action={statusAction}
+          batchId={batch.id}
+          batchCode={batch.code}
+          zoneId={batch.zone_id}
+          phaseId={batch.phase_id}
+        />
+      )}
     </div>
   )
 }
