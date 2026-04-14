@@ -44,7 +44,8 @@ export default async function BatchDetailPage({
   if (!currentUser) redirect('/login')
 
   const role = currentUser.role as string
-  const canTransition = ['admin', 'manager', 'supervisor'].includes(role)
+  const canScheduleActivities = ['admin', 'manager', 'supervisor'].includes(role)
+  const canExecuteActivities = ['admin', 'manager', 'supervisor', 'operator'].includes(role)
   const canHoldCancel = ['admin', 'manager'].includes(role)
 
   // Fetch batch + zones in parallel
@@ -422,7 +423,8 @@ export default async function BatchDetailPage({
       regulatoryDocs={regulatoryDocs}
       inventoryTransactions={inventoryTransactions}
       envReadings={envReadings}
-      canTransition={canTransition}
+      canScheduleActivities={canScheduleActivities}
+      canExecuteActivities={canExecuteActivities}
       canHoldCancel={canHoldCancel}
       canCreateTest={canCreateTest}
       canCaptureResults={canCaptureResults}

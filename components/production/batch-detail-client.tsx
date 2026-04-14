@@ -2,23 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
-import { ArrowLeft, ArrowRight, Pause, Play, X } from 'lucide-react'
+import { ArrowLeft, Pause, Play, X } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { batchStatusLabels, batchStatusBadgeStyles, selectClass } from './batches-shared'
+import { batchStatusLabels, batchStatusBadgeStyles } from './batches-shared'
 import {
   GeneralTab,
   GenealogyTab,
@@ -161,7 +150,8 @@ type Props = {
   regulatoryDocs: RegulatoryDocData[]
   inventoryTransactions: InventoryTransactionData[]
   envReadings: EnvironmentalReadingData[]
-  canTransition: boolean
+  canScheduleActivities: boolean
+  canExecuteActivities: boolean
   canHoldCancel: boolean
   canCreateTest: boolean
   canCaptureResults: boolean
@@ -170,11 +160,6 @@ type Props = {
 }
 
 // ---------- Helpers ----------
-
-const fmtQty = (v: number | null) => {
-  if (v == null) return '—'
-  return Number(v).toLocaleString('es-CO')
-}
 
 function daysInProduction(startDate: string): number {
   const start = new Date(startDate + 'T00:00:00')
@@ -209,7 +194,8 @@ export function BatchDetailClient({
   regulatoryDocs,
   inventoryTransactions,
   envReadings,
-  canTransition,
+  canScheduleActivities,
+  canExecuteActivities,
   canHoldCancel,
   canCreateTest,
   canCaptureResults,
@@ -224,19 +210,10 @@ export function BatchDetailClient({
   const initialTab = TABS.includes(defaultTab as TabValue) ? (defaultTab as TabValue) : 'general'
   const [activeTab, setActiveTab] = useState<TabValue>(initialTab)
 
-  const [showTransitionDialog, setShowTransitionDialog] = useState(false)
   const [statusAction, setStatusAction] = useState<'on_hold' | 'cancelled' | 'active' | null>(null)
-  const [transitioning, setTransitioning] = useState(false)
-  const [selectedZoneId, setSelectedZoneId] = useState('')
 
   const isActive = batch.status === 'active'
   const isOnHold = batch.status === 'on_hold'
-
-  // Determine next phase name from phases array
-  const currentPhaseIdx = phases.findIndex((p) => p.phase_id === batch.phase_id)
-  const nextPhase = currentPhaseIdx >= 0 && currentPhaseIdx < phases.length - 1
-    ? phases[currentPhaseIdx + 1]
-    : null
 
   const handleTabChange = (value: string) => {
     const newTab = value as TabValue
@@ -246,44 +223,6 @@ export function BatchDetailClient({
     params.set('tab', newTab)
     router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
-
-  async function handleTransition() {
-    setTransitioning(true)
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/transition-batch-phase`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          batch_id: batch.id,
-          zone_id: selectedZoneId || null,
-        }),
-      },
-    )
-
-    const result = await response.json()
-    setTransitioning(false)
-    setShowTransitionDialog(false)
-
-    if (!response.ok) {
-      toast.error(result.error ?? 'Error al transicionar fase.')
-      return
-    }
-
-    if (result.is_final) {
-      toast.success('Produccion completada.')
-    } else {
-      toast.success(`Batch avanzó a fase ${result.new_phase_name}.`)
-    }
-    router.refresh()
-  }
-
 
   return (
     <div className="space-y-6">
@@ -325,12 +264,6 @@ export function BatchDetailClient({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isActive && canTransition && (
-            <Button size="sm" onClick={() => setShowTransitionDialog(true)}>
-              <ArrowRight className="mr-1 h-3.5 w-3.5" />
-              Transicionar fase
-            </Button>
-          )}
           {isActive && canHoldCancel && (
             <>
               <Button
@@ -384,8 +317,8 @@ export function BatchDetailClient({
             batchStartDate={batch.start_date}
             zoneId={batch.zone_id}
             zones={zones}
-            canSchedule={canTransition}
-            canExecute={canTransition || isActive}
+            canSchedule={canScheduleActivities}
+            canExecute={canExecuteActivities}
           />
         </TabsContent>
 
@@ -424,60 +357,6 @@ export function BatchDetailClient({
           />
         </TabsContent>
       </Tabs>
-
-      {/* Transition Dialog */}
-      <Dialog open={showTransitionDialog} onOpenChange={setShowTransitionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Transicionar fase</DialogTitle>
-            <DialogDescription>
-              El batch avanzará a la siguiente fase de producción.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <p>
-                <strong>Fase actual:</strong> {batch.phase_name}
-              </p>
-              <p>
-                <strong>Siguiente fase:</strong>{' '}
-                {nextPhase ? nextPhase.phase_name : 'Última fase — producción se completará'}
-              </p>
-              <p>
-                <strong>Plantas:</strong> {fmtQty(batch.plant_count)}
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="transition-zone">Zona (opcional)</Label>
-              <select
-                id="transition-zone"
-                value={selectedZoneId}
-                onChange={(e) => setSelectedZoneId(e.target.value)}
-                className={selectClass + ' mt-1.5'}
-              >
-                <option value="">Mantener zona actual ({batch.zone_name})</option>
-                {zones.map((z) => (
-                  <option key={z.id} value={z.id}>
-                    {z.name} ({z.facility_name})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowTransitionDialog(false)}
-              disabled={transitioning}
-            >
-              Cancelar
-            </Button>
-            <Button onClick={handleTransition} disabled={transitioning}>
-              {transitioning ? 'Transicionando...' : 'Confirmar transición'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Batch Status Dialog (Hold/Cancel/Reactivate) */}
       {statusAction && (
