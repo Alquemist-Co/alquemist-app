@@ -24,14 +24,23 @@ import {
   GenealogyTab,
   ActivitiesTab,
   QualityTab,
+  RegulatoryTab,
+  InventoryTab,
+  EnvironmentTab,
   BatchStatusDialog,
   type QualityTestData as QualityTestDataImport,
   type QualityTestResultData as QualityTestResultDataImport,
+  type RegulatoryDocData as RegulatoryDocDataImport,
+  type InventoryTransactionData as InventoryTransactionDataImport,
+  type EnvironmentalReadingData as EnvironmentalReadingDataImport,
 } from './batch-detail-tabs'
 
-// Re-export quality types for page.tsx
+// Re-export types for page.tsx
 export type QualityTestData = QualityTestDataImport
 export type QualityTestResultData = QualityTestResultDataImport
+export type RegulatoryDocData = RegulatoryDocDataImport
+export type InventoryTransactionData = InventoryTransactionDataImport
+export type EnvironmentalReadingData = EnvironmentalReadingDataImport
 
 // ---------- Types ----------
 
@@ -149,6 +158,9 @@ type Props = {
   scheduledActivities: ScheduledActivityData[]
   activities: ActivityData[]
   qualityTests: QualityTestData[]
+  regulatoryDocs: RegulatoryDocData[]
+  inventoryTransactions: InventoryTransactionData[]
+  envReadings: EnvironmentalReadingData[]
   canTransition: boolean
   canHoldCancel: boolean
   canCreateTest: boolean
@@ -194,6 +206,9 @@ export function BatchDetailClient({
   scheduledActivities,
   activities,
   qualityTests,
+  regulatoryDocs,
+  inventoryTransactions,
+  envReadings,
   canTransition,
   canHoldCancel,
   canCreateTest,
@@ -387,19 +402,14 @@ export function BatchDetailClient({
         </TabsContent>
 
         <TabsContent value="regulatory" className="mt-6">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">
-              Tab regulatorio — próximamente
-            </p>
-          </div>
+          <RegulatoryTab documents={regulatoryDocs} />
         </TabsContent>
 
         <TabsContent value="inventory" className="mt-6">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">
-              Tab de inventario — próximamente
-            </p>
-          </div>
+          <InventoryTab
+            phases={phases.map((p) => ({ id: p.phase_id, name: p.phase_name, sort_order: p.sort_order }))}
+            transactions={inventoryTransactions}
+          />
         </TabsContent>
 
         <TabsContent value="genealogy" className="mt-6">
@@ -407,11 +417,11 @@ export function BatchDetailClient({
         </TabsContent>
 
         <TabsContent value="environment" className="mt-6">
-          <div className="rounded-lg border p-4">
-            <p className="text-sm text-muted-foreground">
-              Tab de ambiente — próximamente
-            </p>
-          </div>
+          <EnvironmentTab
+            readings={envReadings}
+            zoneName={batch.zone_name}
+            hasZone={!!batch.zone_id}
+          />
         </TabsContent>
       </Tabs>
 

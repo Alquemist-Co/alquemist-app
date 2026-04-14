@@ -9,6 +9,9 @@ import {
   type ScheduledActivityData,
   type ActivityData,
   type QualityTestData,
+  type RegulatoryDocData,
+  type InventoryTransactionData,
+  type EnvironmentalReadingData,
 } from '@/components/production/batch-detail-client'
 
 type Params = Promise<{ id: string }>
@@ -67,8 +70,8 @@ export default async function BatchDetailPage({
   const batch = batchRes.data
   if (!batch) notFound()
 
-  // Fetch parent batch, order phases, lineage, scheduled activities, activities, and quality tests (depend on batch data)
-  const [parentRes, phasesRes, lineageParentRes, lineageChildRes, scheduledActivitiesRes, activitiesRes, qualityTestsRes] = await Promise.all([
+  // Fetch parent batch, order phases, lineage, activities, quality tests, regulatory docs, inventory tx, and env readings (depend on batch data)
+  const [parentRes, phasesRes, lineageParentRes, lineageChildRes, scheduledActivitiesRes, activitiesRes, qualityTestsRes, regulatoryDocsRes, inventoryTxRes, envReadingsRes] = await Promise.all([
     batch.parent_batch_id
       ? supabase
           .from('batches')
@@ -130,6 +133,37 @@ export default async function BatchDetailPage({
       `)
       .eq('batch_id', id)
       .order('sample_date', { ascending: false }),
+    // Regulatory documents with doc type info
+    supabase
+      .from('regulatory_documents')
+      .select(`
+        *,
+        doc_type:regulatory_doc_types(id, name, category),
+        verifier:users!regulatory_documents_verified_by_fkey(id, full_name)
+      `)
+      .eq('batch_id', id)
+      .order('issue_date', { ascending: false }),
+    // Inventory transactions with product and user info
+    supabase
+      .from('inventory_transactions')
+      .select(`
+        *,
+        inventory_item:inventory_items!inventory_transactions_inventory_item_id_fkey(id, product:products(id, name, sku)),
+        unit:units_of_measure!inventory_transactions_unit_id_fkey(id, code),
+        user:users!inventory_transactions_user_id_fkey(id, full_name)
+      `)
+      .eq('batch_id', id)
+      .order('timestamp', { ascending: false }),
+    // Environmental readings for the batch's zone (last 30 days)
+    batch.zone_id
+      ? supabase
+          .from('environmental_readings')
+          .select('id, parameter, value, unit, timestamp')
+          .eq('zone_id', batch.zone_id)
+          .gte('timestamp', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+          .order('timestamp', { ascending: false })
+          .limit(1000)
+      : Promise.resolve({ data: null }),
   ])
 
   // Cast joined relations
@@ -325,6 +359,57 @@ export default async function BatchDetailPage({
   const canCaptureResults = ['admin', 'manager', 'supervisor', 'operator'].includes(role)
   const canRejectTest = ['admin', 'manager'].includes(role)
 
+  // Transform regulatory documents
+  const regulatoryDocs: RegulatoryDocData[] = (regulatoryDocsRes.data ?? []).map((rd) => {
+    const docType = rd.doc_type as { id: string; name: string; category: string } | null
+    const verifier = rd.verifier as { id: string; full_name: string } | null
+    return {
+      id: rd.id,
+      doc_type_id: rd.doc_type_id,
+      doc_type_name: docType?.name ?? '',
+      doc_type_category: docType?.category ?? 'other',
+      document_number: rd.document_number,
+      issue_date: rd.issue_date,
+      expiry_date: rd.expiry_date,
+      status: rd.status,
+      file_path: rd.file_path,
+      field_data: (rd.field_data as Record<string, unknown>) ?? {},
+      verified_by: rd.verified_by,
+      verifier_name: verifier?.full_name ?? null,
+    }
+  })
+
+  // Transform inventory transactions
+  const inventoryTransactions: InventoryTransactionData[] = (inventoryTxRes.data ?? []).map((tx) => {
+    const invItem = tx.inventory_item as { id: string; product: { id: string; name: string; sku: string | null } | null } | null
+    const txUnit = tx.unit as { id: string; code: string } | null
+    const txUser = tx.user as { id: string; full_name: string } | null
+    return {
+      id: tx.id,
+      type: tx.type,
+      quantity: Number(tx.quantity),
+      unit_abbreviation: txUnit?.code ?? '',
+      timestamp: tx.timestamp,
+      product_name: invItem?.product?.name ?? '',
+      product_sku: invItem?.product?.sku ?? null,
+      cost_total: tx.cost_total != null ? Number(tx.cost_total) : null,
+      activity_id: tx.activity_id,
+      phase_id: tx.phase_id,
+      phase_name: null, // phase_id comes from activity, not direct relation
+      user_name: txUser?.full_name ?? '',
+      reason: tx.reason,
+    }
+  })
+
+  // Transform environmental readings
+  const envReadings: EnvironmentalReadingData[] = (envReadingsRes.data ?? []).map((er) => ({
+    id: er.id,
+    parameter: er.parameter,
+    value: Number(er.value),
+    unit: er.unit,
+    timestamp: er.timestamp,
+  }))
+
   return (
     <BatchDetailClient
       batch={batchData}
@@ -334,6 +419,9 @@ export default async function BatchDetailPage({
       scheduledActivities={scheduledActivities}
       activities={activities}
       qualityTests={qualityTests}
+      regulatoryDocs={regulatoryDocs}
+      inventoryTransactions={inventoryTransactions}
+      envReadings={envReadings}
       canTransition={canTransition}
       canHoldCancel={canHoldCancel}
       canCreateTest={canCreateTest}
