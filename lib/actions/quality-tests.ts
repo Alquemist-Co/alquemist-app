@@ -1,46 +1,55 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+
+// ---------- Zod Schemas ----------
+
+const createTestSchema = z.object({
+  batchId: z.string().uuid(),
+  testType: z.string().min(1).max(100),
+  phaseId: z.string().uuid().nullable(),
+  labName: z.string().max(200).nullable(),
+  labReference: z.string().max(100).nullable(),
+  sampleDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  notes: z.string().max(2000).nullable(),
+})
+
+const testResultSchema = z.object({
+  id: z.string().uuid().nullable(),
+  parameter: z.string().min(1).max(200),
+  value: z.string().min(1).max(200),
+  numeric_value: z.number().nullable(),
+  unit: z.string().max(50).nullable(),
+  min_threshold: z.number().nullable(),
+  max_threshold: z.number().nullable(),
+})
+
+const captureResultsSchema = z.object({
+  testId: z.string().uuid(),
+  batchId: z.string().uuid(),
+  resultDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  results: z.array(testResultSchema).max(100),
+})
+
+const completeTestSchema = z.object({
+  testId: z.string().uuid(),
+  batchId: z.string().uuid(),
+})
+
+const rejectTestSchema = z.object({
+  testId: z.string().uuid(),
+  batchId: z.string().uuid(),
+})
 
 // ---------- Types ----------
 
-type CreateTestInput = {
-  batchId: string
-  testType: string
-  phaseId: string | null
-  labName: string | null
-  labReference: string | null
-  sampleDate: string
-  notes: string | null
-}
-
-type TestResultInput = {
-  id: string | null
-  parameter: string
-  value: string
-  numeric_value: number | null
-  unit: string | null
-  min_threshold: number | null
-  max_threshold: number | null
-}
-
-type CaptureResultsInput = {
-  testId: string
-  batchId: string
-  resultDate: string
-  results: TestResultInput[]
-}
-
-type CompleteTestInput = {
-  testId: string
-  batchId: string
-}
-
-type RejectTestInput = {
-  testId: string
-  batchId: string
-}
+type CreateTestInput = z.infer<typeof createTestSchema>
+type TestResultInput = z.infer<typeof testResultSchema>
+type CaptureResultsInput = z.infer<typeof captureResultsSchema>
+type CompleteTestInput = z.infer<typeof completeTestSchema>
+type RejectTestInput = z.infer<typeof rejectTestSchema>
 
 // ---------- Helpers ----------
 
@@ -64,6 +73,13 @@ async function verifyRole(allowedRoles: string[]): Promise<{ userId: string; rol
 // ---------- Actions ----------
 
 export async function createQualityTest(input: CreateTestInput): Promise<{ success: boolean; error?: string; testId?: string }> {
+  // Validate input
+  const parsed = createTestSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   // Operators can create tests per spec
   const auth = await verifyRole(['admin', 'manager', 'supervisor', 'operator'])
   if (!auth) {
@@ -72,16 +88,16 @@ export async function createQualityTest(input: CreateTestInput): Promise<{ succe
 
   const supabase = await createClient()
 
-  const { data, error } = await supabase
+  const { data: insertedData, error } = await supabase
     .from('quality_tests')
     .insert({
-      batch_id: input.batchId,
-      test_type: input.testType,
-      phase_id: input.phaseId,
-      lab_name: input.labName,
-      lab_reference: input.labReference,
-      sample_date: input.sampleDate,
-      notes: input.notes,
+      batch_id: data.batchId,
+      test_type: data.testType,
+      phase_id: data.phaseId,
+      lab_name: data.labName,
+      lab_reference: data.labReference,
+      sample_date: data.sampleDate,
+      notes: data.notes,
       status: 'pending',
       performed_by: auth.userId,
       created_by: auth.userId,
@@ -95,11 +111,18 @@ export async function createQualityTest(input: CreateTestInput): Promise<{ succe
     return { success: false, error: 'Error al crear el test de calidad' }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
-  return { success: true, testId: data.id }
+  revalidatePath(`/production/batches/${data.batchId}`)
+  return { success: true, testId: insertedData.id }
 }
 
 export async function captureTestResults(input: CaptureResultsInput): Promise<{ success: boolean; error?: string }> {
+  // Validate input
+  const parsed = captureResultsSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   // Operators can capture results per spec
   const auth = await verifyRole(['admin', 'manager', 'supervisor', 'operator'])
   if (!auth) {
@@ -113,10 +136,10 @@ export async function captureTestResults(input: CaptureResultsInput): Promise<{ 
     .from('quality_tests')
     .update({
       status: 'in_progress',
-      result_date: input.resultDate,
+      result_date: data.resultDate,
       updated_by: auth.userId,
     })
-    .eq('id', input.testId)
+    .eq('id', data.testId)
 
   if (updateError) {
     console.error('Error updating test:', updateError)
@@ -124,23 +147,24 @@ export async function captureTestResults(input: CaptureResultsInput): Promise<{ 
   }
 
   // Delete existing results that are not in the new list
-  const existingIds = input.results.filter((r) => r.id).map((r) => r.id)
+  // IDs are validated as UUIDs by Zod schema, preventing SQL injection
+  const existingIds = data.results.filter((r) => r.id).map((r) => r.id as string)
   if (existingIds.length > 0) {
     await supabase
       .from('quality_test_results')
       .delete()
-      .eq('test_id', input.testId)
+      .eq('test_id', data.testId)
       .not('id', 'in', `(${existingIds.join(',')})`)
   } else {
     // Delete all existing if no IDs preserved
     await supabase
       .from('quality_test_results')
       .delete()
-      .eq('test_id', input.testId)
+      .eq('test_id', data.testId)
   }
 
   // Upsert results
-  for (const result of input.results) {
+  for (const result of data.results) {
     // Calculate passed based on thresholds
     let passed: boolean | null = null
     if (result.numeric_value !== null) {
@@ -163,7 +187,7 @@ export async function captureTestResults(input: CaptureResultsInput): Promise<{ 
           passed,
           updated_by: auth.userId,
         })
-        .eq('id', result.id)
+        .eq('id', result.id as string)
 
       if (error) {
         console.error('Error updating result:', error)
@@ -174,7 +198,7 @@ export async function captureTestResults(input: CaptureResultsInput): Promise<{ 
       const { error } = await supabase
         .from('quality_test_results')
         .insert({
-          test_id: input.testId,
+          test_id: data.testId,
           parameter: result.parameter,
           value: result.value,
           numeric_value: result.numeric_value,
@@ -193,11 +217,18 @@ export async function captureTestResults(input: CaptureResultsInput): Promise<{ 
     }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
+  revalidatePath(`/production/batches/${data.batchId}`)
   return { success: true }
 }
 
 export async function completeQualityTest(input: CompleteTestInput): Promise<{ success: boolean; error?: string; overallPass?: boolean }> {
+  // Validate input
+  const parsed = completeTestSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   // Operators can complete tests per spec
   const auth = await verifyRole(['admin', 'manager', 'supervisor', 'operator'])
   if (!auth) {
@@ -210,7 +241,7 @@ export async function completeQualityTest(input: CompleteTestInput): Promise<{ s
   const { data: results, error: resultsError } = await supabase
     .from('quality_test_results')
     .select('passed')
-    .eq('test_id', input.testId)
+    .eq('test_id', data.testId)
 
   if (resultsError) {
     console.error('Error fetching results:', resultsError)
@@ -221,8 +252,7 @@ export async function completeQualityTest(input: CompleteTestInput): Promise<{ s
     return { success: false, error: 'El test no tiene resultados capturados' }
   }
 
-  // Calculate overall pass: all must pass (where passed is not null)
-  const overallPass = results.every((r) => r.passed === true || r.passed === null)
+  // Calculate overall pass: hasFailed if any result explicitly failed
   const hasFailed = results.some((r) => r.passed === false)
   const finalStatus = hasFailed ? 'failed' : 'completed'
 
@@ -233,18 +263,25 @@ export async function completeQualityTest(input: CompleteTestInput): Promise<{ s
       overall_pass: !hasFailed,
       updated_by: auth.userId,
     })
-    .eq('id', input.testId)
+    .eq('id', data.testId)
 
   if (updateError) {
     console.error('Error completing test:', updateError)
     return { success: false, error: 'Error al completar el test' }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
+  revalidatePath(`/production/batches/${data.batchId}`)
   return { success: true, overallPass: !hasFailed }
 }
 
 export async function rejectQualityTest(input: RejectTestInput): Promise<{ success: boolean; error?: string }> {
+  // Validate input
+  const parsed = rejectTestSchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   // Only admin/manager can reject per spec
   const auth = await verifyRole(['admin', 'manager'])
   if (!auth) {
@@ -259,13 +296,13 @@ export async function rejectQualityTest(input: RejectTestInput): Promise<{ succe
       status: 'rejected',
       updated_by: auth.userId,
     })
-    .eq('id', input.testId)
+    .eq('id', data.testId)
 
   if (error) {
     console.error('Error rejecting test:', error)
     return { success: false, error: 'Error al rechazar el test' }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
+  revalidatePath(`/production/batches/${data.batchId}`)
   return { success: true }
 }

@@ -83,6 +83,10 @@ SELECT create_batch_status_activity_types();
 
 -- =============================================================
 -- 2. Extended fn_execute_activity with batch_status_action support
+-- Preserves CRIT-02 + CRIT-09 fixes from migration 26:
+--   - Inventory sufficiency check with FOR UPDATE lock
+--   - Correct column names: inventory_item_id, user_id, reason
+--   - Required columns: company_id, unit_id, zone_id
 -- =============================================================
 
 CREATE OR REPLACE FUNCTION fn_execute_activity(
@@ -115,6 +119,7 @@ DECLARE
   v_template_triggers_phase UUID;
   v_batch_status_action TEXT;
   v_combined_data JSONB;
+  v_item RECORD;
 BEGIN
   -- 1. Lock and verify scheduled_activity
   SELECT sa.*, at2.triggers_phase_change_id, at2.metadata
@@ -172,15 +177,29 @@ BEGIN
     -- Generate inventory_transaction (consumption)
     v_transaction_id := NULL;
     IF v_resource.inventory_item_id IS NOT NULL AND v_resource.quantity_actual > 0 THEN
+      -- CRIT-09: Check inventory sufficiency before consuming
+      SELECT * INTO v_item
+      FROM inventory_items
+      WHERE id = v_resource.inventory_item_id
+      FOR UPDATE;
+
+      IF v_item.quantity_available < v_resource.quantity_actual THEN
+        RAISE EXCEPTION 'Insufficient inventory for item %', v_item.product_id;
+      END IF;
+
+      -- CRIT-02: Fixed column names to match inventory_transactions schema
       INSERT INTO inventory_transactions (
-        item_id, type, quantity, performed_by, notes, created_by
+        company_id, type, inventory_item_id, quantity, unit_id,
+        zone_id, user_id, reason
       ) VALUES (
-        v_resource.inventory_item_id,
+        v_item.company_id,
         'consumption',
+        v_resource.inventory_item_id,
         v_resource.quantity_actual,
+        COALESCE(v_resource.unit_id, v_item.unit_id),
+        v_item.zone_id,
         p_performed_by,
-        'Consumo por actividad ' || v_activity_id::text,
-        p_performed_by
+        'Consumo por actividad ' || v_activity_id::text
       )
       RETURNING id INTO v_transaction_id;
 
@@ -325,3 +344,8 @@ CREATE TRIGGER trg_company_batch_status_types
   AFTER INSERT ON companies
   FOR EACH ROW
   EXECUTE FUNCTION trigger_create_company_batch_status_types();
+
+-- =============================================================
+-- 4. Clean up helper function (no longer needed after seeding)
+-- =============================================================
+DROP FUNCTION IF EXISTS create_batch_status_activity_types();

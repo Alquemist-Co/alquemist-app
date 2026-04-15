@@ -1,7 +1,28 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+
+// ---------- Zod Schemas ----------
+
+const scheduleActivitySchema = z.object({
+  batchId: z.string().uuid(),
+  templateId: z.string().uuid(),
+  plannedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  phaseId: z.string().uuid(),
+})
+
+const rescheduleActivitySchema = z.object({
+  scheduledActivityId: z.string().uuid(),
+  batchId: z.string().uuid(),
+  plannedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})
+
+const skipActivitySchema = z.object({
+  scheduledActivityId: z.string().uuid(),
+  batchId: z.string().uuid(),
+})
 
 // ---------- Types ----------
 
@@ -9,29 +30,22 @@ type ActionResult<T = void> =
   | { success: true; data: T }
   | { success: false; error: string }
 
-type ScheduleActivityInput = {
-  batchId: string
-  templateId: string
-  plannedDate: string
-  phaseId: string
-}
-
-type RescheduleActivityInput = {
-  scheduledActivityId: string
-  batchId: string
-  plannedDate: string
-}
-
-type SkipActivityInput = {
-  scheduledActivityId: string
-  batchId: string
-}
+type ScheduleActivityInput = z.infer<typeof scheduleActivitySchema>
+type RescheduleActivityInput = z.infer<typeof rescheduleActivitySchema>
+type SkipActivityInput = z.infer<typeof skipActivitySchema>
 
 // ---------- Actions ----------
 
 export async function scheduleActivity(
   input: ScheduleActivityInput
 ): Promise<ActionResult<{ id: string }>> {
+  // Validate input
+  const parsed = scheduleActivitySchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   const supabase = await createClient()
 
   // Get current user
@@ -55,7 +69,7 @@ export async function scheduleActivity(
   const { data: batch } = await supabase
     .from('batches')
     .select('start_date')
-    .eq('id', input.batchId)
+    .eq('id', data.batchId)
     .single()
 
   if (!batch) {
@@ -64,7 +78,7 @@ export async function scheduleActivity(
 
   // Calculate crop_day
   const startDate = new Date(batch.start_date + 'T00:00:00')
-  const plannedDate = new Date(input.plannedDate + 'T00:00:00')
+  const plannedDate = new Date(data.plannedDate + 'T00:00:00')
   const cropDay = Math.ceil((plannedDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
 
   // Get template snapshot
@@ -76,7 +90,7 @@ export async function scheduleActivity(
       checklist:activity_template_checklist(step_order, instruction, is_critical, requires_photo, expected_value, tolerance),
       resources:activity_template_resources(product_id, quantity, quantity_basis, is_optional, sort_order, notes)
     `)
-    .eq('id', input.templateId)
+    .eq('id', data.templateId)
     .single()
 
   if (!template) {
@@ -102,11 +116,11 @@ export async function scheduleActivity(
   const { data: scheduled, error } = await supabase
     .from('scheduled_activities')
     .insert({
-      batch_id: input.batchId,
-      template_id: input.templateId,
-      planned_date: input.plannedDate,
+      batch_id: data.batchId,
+      template_id: data.templateId,
+      planned_date: data.plannedDate,
       crop_day: cropDay,
-      phase_id: input.phaseId,
+      phase_id: data.phaseId,
       template_snapshot: templateSnapshot,
       status: 'pending',
     })
@@ -118,13 +132,20 @@ export async function scheduleActivity(
     return { success: false, error: 'Error al programar la actividad' }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
+  revalidatePath(`/production/batches/${data.batchId}`)
   return { success: true, data: { id: scheduled.id } }
 }
 
 export async function rescheduleActivity(
   input: RescheduleActivityInput
 ): Promise<ActionResult> {
+  // Validate input
+  const parsed = rescheduleActivitySchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   const supabase = await createClient()
 
   // Get current user
@@ -148,7 +169,7 @@ export async function rescheduleActivity(
   const { data: scheduled } = await supabase
     .from('scheduled_activities')
     .select('status, batch_id')
-    .eq('id', input.scheduledActivityId)
+    .eq('id', data.scheduledActivityId)
     .single()
 
   if (!scheduled) {
@@ -172,31 +193,38 @@ export async function rescheduleActivity(
 
   // Calculate new crop_day
   const startDate = new Date(batch.start_date + 'T00:00:00')
-  const plannedDate = new Date(input.plannedDate + 'T00:00:00')
+  const plannedDate = new Date(data.plannedDate + 'T00:00:00')
   const cropDay = Math.ceil((plannedDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
 
   // Update scheduled activity
   const { error } = await supabase
     .from('scheduled_activities')
     .update({
-      planned_date: input.plannedDate,
+      planned_date: data.plannedDate,
       crop_day: cropDay,
       status: 'pending', // Reset to pending if was overdue
     })
-    .eq('id', input.scheduledActivityId)
+    .eq('id', data.scheduledActivityId)
 
   if (error) {
     console.error('Error rescheduling activity:', error)
     return { success: false, error: 'Error al re-agendar la actividad' }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
+  revalidatePath(`/production/batches/${data.batchId}`)
   return { success: true, data: undefined }
 }
 
 export async function skipActivity(
   input: SkipActivityInput
 ): Promise<ActionResult> {
+  // Validate input
+  const parsed = skipActivitySchema.safeParse(input)
+  if (!parsed.success) {
+    return { success: false, error: 'Datos inválidos' }
+  }
+  const data = parsed.data
+
   const supabase = await createClient()
 
   // Get current user
@@ -220,7 +248,7 @@ export async function skipActivity(
   const { data: scheduled } = await supabase
     .from('scheduled_activities')
     .select('status')
-    .eq('id', input.scheduledActivityId)
+    .eq('id', data.scheduledActivityId)
     .single()
 
   if (!scheduled) {
@@ -235,13 +263,13 @@ export async function skipActivity(
   const { error } = await supabase
     .from('scheduled_activities')
     .update({ status: 'skipped' })
-    .eq('id', input.scheduledActivityId)
+    .eq('id', data.scheduledActivityId)
 
   if (error) {
     console.error('Error skipping activity:', error)
     return { success: false, error: 'Error al omitir la actividad' }
   }
 
-  revalidatePath(`/production/batches/${input.batchId}`)
+  revalidatePath(`/production/batches/${data.batchId}`)
   return { success: true, data: undefined }
 }

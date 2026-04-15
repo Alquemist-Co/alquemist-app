@@ -71,6 +71,12 @@ export default async function BatchDetailPage({
   const batch = batchRes.data
   if (!batch) notFound()
 
+  // Pre-compute cutoff date for environmental readings (30 days ago)
+  // Using date arithmetic to avoid Date.now() which is flagged as impure
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const envCutoff = thirtyDaysAgo.toISOString()
+
   // Fetch parent batch, order phases, lineage, activities, quality tests, regulatory docs, inventory tx, and env readings (depend on batch data)
   const [parentRes, phasesRes, lineageParentRes, lineageChildRes, scheduledActivitiesRes, activitiesRes, qualityTestsRes, regulatoryDocsRes, inventoryTxRes, envReadingsRes] = await Promise.all([
     batch.parent_batch_id
@@ -161,7 +167,7 @@ export default async function BatchDetailPage({
           .from('environmental_readings')
           .select('id, parameter, value, unit, timestamp')
           .eq('zone_id', batch.zone_id)
-          .gte('timestamp', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+          .gte('timestamp', envCutoff)
           .order('timestamp', { ascending: false })
           .limit(1000)
       : Promise.resolve({ data: null }),
