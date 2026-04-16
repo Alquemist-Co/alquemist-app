@@ -4093,6 +4093,7 @@ export type Database = {
         }
         Returns: Json
       }
+      create_batch_status_activity_types: { Args: never; Returns: undefined }
       fn_adjust_inventory: {
         Args: {
           p_item_id: string

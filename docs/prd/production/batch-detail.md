@@ -118,12 +118,10 @@ Página dentro del layout de dashboard con sidebar.
     - Parámetros: temperatura, humedad, CO2, luz, VPD
     - Comparación con optimal_conditions del cultivar (líneas de referencia en gráficos)
     - Lista de sensores activos en la zona
-- **Dialog: Transición de fase** — Modal para avanzar a siguiente fase
-  - Info: fase actual → siguiente fase (auto-determinada por sort_order)
-  - Select: Nueva zona (opt, pre-llenada si la order_phase tiene zone_id asignada)
-  - Input: Cantidad de plantas/producto que pasan (req, default=plant_count actual)
-  - Input: Notas (opt)
-  - Botón "Confirmar transición" (variant="primary")
+- **Transición de fase** — Las transiciones de fase se ejecutan automáticamente cuando se completa una actividad que tiene `triggers_phase_change_id` configurado. No hay dialog standalone de transición.
+  - El usuario ejecuta actividades normales desde el tab de Actividades
+  - Si la actividad tiene un template con `triggers_phase_change_id`, al completarse se dispara la transición
+  - La Edge Function `execute-activity` maneja la transición transaccionalmente
 - **Dialog: Split de batch** — Modal para separar plantas
   - Info: batch actual con plant_count
   - Input: Cantidad a separar (req, number, max=plant_count-1, min=1)
@@ -151,13 +149,12 @@ Página dentro del layout de dashboard con sidebar.
     - Input: Plantas cosechadas (default=plant_count, editable para cosecha parcial)
     - Checkbox: "Confirmo los datos de cosecha"
     - Botón "Ejecutar cosecha" (variant="primary")
-- **Dialog: Poner en espera / Reactivar** — Modal simple
-  - Input: Razón (req para poner en espera)
-  - Botón "Poner en espera" / "Reactivar"
-- **Dialog: Cancelar batch** — Modal con advertencia
-  - Advertencia: "Cancelar el batch es irreversible. Las actividades programadas se cancelarán."
-  - Input: Razón (req)
-  - Botón "Cancelar batch" (variant="destructive")
+- **Dialog: Control de estado de batch** — Modal para pausar/cancelar/reactivar
+  - Las acciones de control de estado (Hold/Cancel/Reactivate) se ejecutan como actividades especiales
+  - Templates: BATCH_HOLD, BATCH_CANCEL, BATCH_REACTIVATE con `metadata.batch_status_action`
+  - Input: Razón (req para pausar/cancelar)
+  - Al ejecutar, la actividad actualiza `batches.status` automáticamente vía `fn_execute_activity`
+  - Solo admin/manager/supervisor pueden ejecutar estas acciones
 
 **Responsive**: Layout de información general en una columna en móvil. Tabs con scroll horizontal. Timeline vertical en móvil. Dialogs full-screen en móvil.
 
@@ -286,14 +283,14 @@ Página dentro del layout de dashboard con sidebar.
   9. Retorna: `{ items_created, next_phase_name, quality_test_id }`
 - **RF-12**: Tras cosecha exitosa, toast "Cosecha registrada: {peso}kg. Batch avanzó a {fase}" + invalidar caches
 
-### Poner en espera / Reactivar
+### Control de estado (Poner en espera / Reactivar / Cancelar)
 
-- **RF-13**: Poner en espera: `supabase.from('batches').update({ status: 'on_hold' }).eq('id', batchId)`. Solo admin/manager. Registrar razón en notas o campo adicional
-- **RF-14**: Reactivar: `supabase.from('batches').update({ status: 'active' }).eq('id', batchId)`. Solo admin/manager
-
-### Cancelar batch
-
-- **RF-15**: Cancelar: `supabase.from('batches').update({ status: 'cancelled' }).eq('id', batchId)`. Solo admin/manager. Las scheduled_activities pendientes se marcan como skipped (via trigger o en la misma operación)
+- **RF-13**: Las acciones de control de estado se ejecutan como actividades especiales usando templates con `metadata.batch_status_action`:
+  - Template BATCH_HOLD → `batch_status_action: 'on_hold'`
+  - Template BATCH_CANCEL → `batch_status_action: 'cancelled'`
+  - Template BATCH_REACTIVATE → `batch_status_action: 'active'`
+- **RF-14**: Flujo: crear scheduled_activity → ejecutar via `execute-activity` Edge Function → la función detecta `batch_status_action` en el template y actualiza `batches.status` automáticamente
+- **RF-15**: Solo admin/manager/supervisor pueden ejecutar estas acciones (canHoldCancel permission)
 
 ### Datos calculados
 

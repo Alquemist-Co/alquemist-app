@@ -1,42 +1,35 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
-import { ArrowLeft, ArrowRight, Pause, Play, X } from 'lucide-react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { ArrowLeft, Pause, Play, X } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { batchStatusLabels, batchStatusBadgeStyles } from './batches-shared'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { batchStatusLabels, batchStatusBadgeStyles, selectClass } from './batches-shared'
-import { BatchPhaseCards } from './batch-phase-cards'
+  GeneralTab,
+  GenealogyTab,
+  ActivitiesTab,
+  QualityTab,
+  RegulatoryTab,
+  InventoryTab,
+  EnvironmentTab,
+  BatchStatusDialog,
+  type QualityTestData as QualityTestDataImport,
+  type QualityTestResultData as QualityTestResultDataImport,
+  type RegulatoryDocData as RegulatoryDocDataImport,
+  type InventoryTransactionData as InventoryTransactionDataImport,
+  type EnvironmentalReadingData as EnvironmentalReadingDataImport,
+} from './batch-detail-tabs'
+
+// Re-export types for page.tsx
+export type QualityTestData = QualityTestDataImport
+export type QualityTestResultData = QualityTestResultDataImport
+export type RegulatoryDocData = RegulatoryDocDataImport
+export type InventoryTransactionData = InventoryTransactionDataImport
+export type EnvironmentalReadingData = EnvironmentalReadingDataImport
 
 // ---------- Types ----------
 
@@ -105,50 +98,87 @@ export type ZoneOption = {
   facility_name: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type JsonValue = any
+
+export type ScheduledActivityData = {
+  id: string
+  template_id: string | null
+  template_name: string | null
+  template_code: string | null
+  activity_type_name: string | null
+  triggers_phase_change_id: string | null
+  triggers_phase_change_name: string | null
+  planned_date: string
+  crop_day: number | null
+  phase_id: string | null
+  phase_name: string | null
+  status: string
+  template_snapshot: JsonValue
+}
+
+export type ActivityData = {
+  id: string
+  activity_type_id: string
+  activity_type_name: string
+  template_id: string | null
+  template_name: string | null
+  scheduled_activity_id: string | null
+  performed_at: string
+  performed_by: string
+  performer_name: string
+  duration_minutes: number | null
+  phase_id: string | null
+  phase_name: string | null
+  crop_day: number | null
+  status: string
+  measurement_data: JsonValue
+  notes: string | null
+  observations_count: number
+  has_high_severity: boolean
+  resources_count: number
+}
+
 type Props = {
   batch: BatchDetailData
   phases: OrderPhaseData[]
   lineage: LineageRecord[]
   zones: ZoneOption[]
-  canTransition: boolean
+  scheduledActivities: ScheduledActivityData[]
+  activities: ActivityData[]
+  qualityTests: QualityTestData[]
+  regulatoryDocs: RegulatoryDocData[]
+  inventoryTransactions: InventoryTransactionData[]
+  envReadings: EnvironmentalReadingData[]
+  canScheduleActivities: boolean
+  canExecuteActivities: boolean
   canHoldCancel: boolean
+  canCreateTest: boolean
+  canCaptureResults: boolean
+  canRejectTest: boolean
+  defaultTab?: string
 }
 
 // ---------- Helpers ----------
-
-const formatDate = (d: string | null) => {
-  if (!d) return '—'
-  return new Date(d + 'T00:00:00').toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-const formatDateTime = (d: string) => {
-  return new Date(d).toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-const fmtQty = (v: number | null) => {
-  if (v == null) return '—'
-  return Number(v).toLocaleString('es-CO')
-}
-
-const fmtPct = (v: number | null) => {
-  if (v == null) return '—'
-  return `${Number(v).toFixed(1)}%`
-}
 
 function daysInProduction(startDate: string): number {
   const start = new Date(startDate + 'T00:00:00')
   const now = new Date()
   return Math.max(1, Math.ceil((now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)))
+}
+
+// Tab values
+const TABS = ['general', 'activities', 'quality', 'regulatory', 'inventory', 'genealogy', 'environment'] as const
+type TabValue = (typeof TABS)[number]
+
+const TAB_LABELS: Record<TabValue, string> = {
+  general: 'General',
+  activities: 'Actividades',
+  quality: 'Calidad',
+  regulatory: 'Regulatorio',
+  inventory: 'Inventario',
+  genealogy: 'Genealogía',
+  environment: 'Ambiente',
 }
 
 // ---------- Component ----------
@@ -158,83 +188,40 @@ export function BatchDetailClient({
   phases,
   lineage,
   zones,
-  canTransition,
+  scheduledActivities,
+  activities,
+  qualityTests,
+  regulatoryDocs,
+  inventoryTransactions,
+  envReadings,
+  canScheduleActivities,
+  canExecuteActivities,
   canHoldCancel,
+  canCreateTest,
+  canCaptureResults,
+  canRejectTest,
+  defaultTab = 'general',
 }: Props) {
   const router = useRouter()
-  const [showTransitionDialog, setShowTransitionDialog] = useState(false)
-  const [showHoldDialog, setShowHoldDialog] = useState(false)
-  const [showReactivateDialog, setShowReactivateDialog] = useState(false)
-  const [showCancelDialog, setShowCancelDialog] = useState(false)
-  const [transitioning, setTransitioning] = useState(false)
-  const [selectedZoneId, setSelectedZoneId] = useState('')
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Validate defaultTab
+  const initialTab = TABS.includes(defaultTab as TabValue) ? (defaultTab as TabValue) : 'general'
+  const [activeTab, setActiveTab] = useState<TabValue>(initialTab)
+
+  const [statusAction, setStatusAction] = useState<'on_hold' | 'cancelled' | 'active' | null>(null)
 
   const isActive = batch.status === 'active'
   const isOnHold = batch.status === 'on_hold'
 
-  // Determine next phase name from phases array
-  const currentPhaseIdx = phases.findIndex((p) => p.phase_id === batch.phase_id)
-  const nextPhase = currentPhaseIdx >= 0 && currentPhaseIdx < phases.length - 1
-    ? phases[currentPhaseIdx + 1]
-    : null
-
-  async function handleTransition() {
-    setTransitioning(true)
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/transition-batch-phase`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          batch_id: batch.id,
-          zone_id: selectedZoneId || null,
-        }),
-      },
-    )
-
-    const result = await response.json()
-    setTransitioning(false)
-    setShowTransitionDialog(false)
-
-    if (!response.ok) {
-      toast.error(result.error ?? 'Error al transicionar fase.')
-      return
-    }
-
-    if (result.is_final) {
-      toast.success('Produccion completada.')
-    } else {
-      toast.success(`Batch avanzó a fase ${result.new_phase_name}.`)
-    }
-    router.refresh()
-  }
-
-  async function handleStatusChange(newStatus: 'on_hold' | 'active' | 'cancelled') {
-    const supabase = createClient()
-    const { error } = await supabase
-      .from('batches')
-      .update({ status: newStatus as 'on_hold' | 'active' | 'cancelled' })
-      .eq('id', batch.id)
-    if (error) {
-      toast.error('Error al actualizar el estado.')
-    } else {
-      const msgs: Record<string, string> = {
-        on_hold: 'Batch puesto en espera.',
-        active: 'Batch reactivado.',
-        cancelled: 'Batch cancelado.',
-      }
-      toast.success(msgs[newStatus])
-      router.refresh()
-    }
-    setShowHoldDialog(false)
-    setShowReactivateDialog(false)
-    setShowCancelDialog(false)
+  const handleTabChange = (value: string) => {
+    const newTab = value as TabValue
+    setActiveTab(newTab)
+    // Update URL with tab parameter
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('tab', newTab)
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   return (
@@ -267,6 +254,9 @@ export function BatchDetailClient({
               <Badge variant="outline" className="text-xs">
                 {batch.zone_name}
               </Badge>
+              <Badge variant="outline" className="text-xs">
+                Día {daysInProduction(batch.start_date)}
+              </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
               {batch.cultivar_name} — {batch.crop_type_name}
@@ -274,18 +264,12 @@ export function BatchDetailClient({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {isActive && canTransition && (
-            <Button size="sm" onClick={() => setShowTransitionDialog(true)}>
-              <ArrowRight className="mr-1 h-3.5 w-3.5" />
-              Transicionar fase
-            </Button>
-          )}
           {isActive && canHoldCancel && (
             <>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowHoldDialog(true)}
+                onClick={() => setStatusAction('on_hold')}
               >
                 <Pause className="mr-1 h-3.5 w-3.5" />
                 En espera
@@ -293,7 +277,7 @@ export function BatchDetailClient({
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => setShowCancelDialog(true)}
+                onClick={() => setStatusAction('cancelled')}
               >
                 <X className="mr-1 h-3.5 w-3.5" />
                 Cancelar lote
@@ -301,7 +285,7 @@ export function BatchDetailClient({
             </>
           )}
           {isOnHold && canHoldCancel && (
-            <Button size="sm" onClick={() => setShowReactivateDialog(true)}>
+            <Button size="sm" onClick={() => setStatusAction('active')}>
               <Play className="mr-1 h-3.5 w-3.5" />
               Reactivar
             </Button>
@@ -309,256 +293,83 @@ export function BatchDetailClient({
         </div>
       </div>
 
-      {/* Section 1 — General Info */}
-      <div className="rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Información general</h3>
-        <div className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-          <InfoField label="Cultivar" value={`${batch.cultivar_name} (${batch.cultivar_code})`} />
-          <InfoField label="Tipo de cultivo" value={batch.crop_type_name} />
-          <InfoField label="Fase actual" value={batch.phase_name} />
-          <InfoField label="Zona" value={`${batch.zone_name} — ${batch.facility_name}`} />
-          <InfoField label="Plantas" value={batch.plant_count != null ? fmtQty(batch.plant_count) : '—'} />
-          {batch.area_m2 != null && (
-            <InfoField label="Área" value={`${batch.area_m2} m²`} />
-          )}
-          <InfoField
-            label="Producto actual"
-            value={batch.product_name ? `${batch.product_name} (${batch.product_sku})` : '—'}
-          />
-          <InfoField
-            label="Orden de producción"
-            value={batch.order_code ?? '—'}
-            link={batch.order_id ? `/production/orders/${batch.order_id}` : undefined}
-          />
-          {batch.parent_batch_id && (
-            <InfoField
-              label="Batch padre"
-              value={batch.parent_batch_code ?? '—'}
-              link={`/production/batches/${batch.parent_batch_id}`}
-            />
-          )}
-          <InfoField
-            label="Fecha inicio → fin esperado"
-            value={`${formatDate(batch.start_date)} → ${formatDate(batch.expected_end_date)}`}
-          />
-          <InfoField
-            label="Días en producción"
-            value={String(daysInProduction(batch.start_date))}
-          />
-          {batch.yield_wet_kg != null && (
-            <InfoField label="Yield húmedo" value={`${batch.yield_wet_kg} kg`} />
-          )}
-          {batch.yield_dry_kg != null && (
-            <InfoField label="Yield seco" value={`${batch.yield_dry_kg} kg`} />
-          )}
-          <InfoField label="Creado" value={formatDateTime(batch.created_at)} />
-          <InfoField label="Actualizado" value={formatDateTime(batch.updated_at)} />
-        </div>
-      </div>
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={handleTabChange}>
+        <TabsList variant="line" className="w-full justify-start overflow-x-auto">
+          {TABS.map((tab) => (
+            <TabsTrigger key={tab} value={tab}>
+              {TAB_LABELS[tab]}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {/* Section 2 — Phase Timeline */}
-      {phases.length > 0 && (
-        <BatchPhaseCards phases={phases} currentPhaseId={batch.phase_id} />
+        <TabsContent value="general" className="mt-6">
+          <GeneralTab batch={batch} phases={phases} />
+        </TabsContent>
+
+        <TabsContent value="activities" className="mt-6">
+          <ActivitiesTab
+            phases={phases}
+            scheduledActivities={scheduledActivities}
+            activities={activities}
+            currentPhaseId={batch.phase_id}
+            batchId={batch.id}
+            batchStartDate={batch.start_date}
+            zoneId={batch.zone_id}
+            zones={zones}
+            canSchedule={canScheduleActivities}
+            canExecute={canExecuteActivities}
+          />
+        </TabsContent>
+
+        <TabsContent value="quality" className="mt-6">
+          <QualityTab
+            phases={phases.map((p) => ({ id: p.phase_id, name: p.phase_name, sort_order: p.sort_order }))}
+            tests={qualityTests}
+            batchId={batch.id}
+            currentPhaseId={batch.phase_id}
+            canCreate={canCreateTest}
+            canCapture={canCaptureResults}
+            canReject={canRejectTest}
+          />
+        </TabsContent>
+
+        <TabsContent value="regulatory" className="mt-6">
+          <RegulatoryTab documents={regulatoryDocs} />
+        </TabsContent>
+
+        <TabsContent value="inventory" className="mt-6">
+          <InventoryTab
+            phases={phases.map((p) => ({ id: p.phase_id, name: p.phase_name, sort_order: p.sort_order }))}
+            transactions={inventoryTransactions}
+          />
+        </TabsContent>
+
+        <TabsContent value="genealogy" className="mt-6">
+          <GenealogyTab lineage={lineage} />
+        </TabsContent>
+
+        <TabsContent value="environment" className="mt-6">
+          <EnvironmentTab
+            readings={envReadings}
+            zoneName={batch.zone_name}
+            hasZone={!!batch.zone_id}
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* Batch Status Dialog (Hold/Cancel/Reactivate) */}
+      {statusAction && (
+        <BatchStatusDialog
+          open={true}
+          onOpenChange={(open) => !open && setStatusAction(null)}
+          action={statusAction}
+          batchId={batch.id}
+          batchCode={batch.code}
+          zoneId={batch.zone_id}
+          phaseId={batch.phase_id}
+        />
       )}
-
-      {/* Section 3 — Genealogy */}
-      <div className="rounded-lg border p-4">
-        <h3 className="mb-3 text-sm font-semibold">Genealogía</h3>
-        {lineage.length === 0 ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">
-            No hay historial de genealogía.
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Operación</TableHead>
-                  <TableHead>Batch origen</TableHead>
-                  <TableHead>Batch destino</TableHead>
-                  <TableHead className="text-right">Cantidad</TableHead>
-                  <TableHead>Razón</TableHead>
-                  <TableHead>Fecha</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {lineage.map((l) => (
-                  <TableRow key={l.id}>
-                    <TableCell>
-                      <Badge variant="secondary" className="text-xs">
-                        {l.operation}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                        onClick={() => router.push(`/production/batches/${l.parent_batch_id}`)}
-                      >
-                        {l.parent_batch_code}
-                      </button>
-                    </TableCell>
-                    <TableCell>
-                      <button
-                        className="text-sm text-blue-600 hover:underline dark:text-blue-400"
-                        onClick={() => router.push(`/production/batches/${l.child_batch_id}`)}
-                      >
-                        {l.child_batch_code}
-                      </button>
-                    </TableCell>
-                    <TableCell className="text-right text-sm">{fmtQty(l.quantity)}</TableCell>
-                    <TableCell className="text-sm max-w-[200px] truncate">{l.reason ?? '—'}</TableCell>
-                    <TableCell className="text-sm">{formatDateTime(l.created_at)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
-
-      {/* Transition Dialog */}
-      <Dialog open={showTransitionDialog} onOpenChange={setShowTransitionDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Transicionar fase</DialogTitle>
-            <DialogDescription>
-              El batch avanzará a la siguiente fase de producción.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="rounded-md bg-muted/50 p-3 text-sm">
-              <p>
-                <strong>Fase actual:</strong> {batch.phase_name}
-              </p>
-              <p>
-                <strong>Siguiente fase:</strong>{' '}
-                {nextPhase ? nextPhase.phase_name : 'Última fase — producción se completará'}
-              </p>
-              <p>
-                <strong>Plantas:</strong> {fmtQty(batch.plant_count)}
-              </p>
-            </div>
-            <div>
-              <Label htmlFor="transition-zone">Zona (opcional)</Label>
-              <select
-                id="transition-zone"
-                value={selectedZoneId}
-                onChange={(e) => setSelectedZoneId(e.target.value)}
-                className={selectClass + ' mt-1.5'}
-              >
-                <option value="">Mantener zona actual ({batch.zone_name})</option>
-                {zones.map((z) => (
-                  <option key={z.id} value={z.id}>
-                    {z.name} ({z.facility_name})
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowTransitionDialog(false)}
-              disabled={transitioning}
-            >
-              Cancelar
-            </Button>
-            <Button onClick={handleTransition} disabled={transitioning}>
-              {transitioning ? 'Transicionando...' : 'Confirmar transición'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Hold Dialog */}
-      <AlertDialog open={showHoldDialog} onOpenChange={setShowHoldDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Poner en espera</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Poner el batch {batch.code} en espera? Podrás reactivarlo después.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleStatusChange('on_hold')}>
-              Poner en espera
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Reactivate Dialog */}
-      <AlertDialog open={showReactivateDialog} onOpenChange={setShowReactivateDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reactivar batch</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Reactivar el batch {batch.code}? Volverá al estado activo.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver</AlertDialogCancel>
-            <AlertDialogAction onClick={() => handleStatusChange('active')}>
-              Reactivar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Cancel Dialog */}
-      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Cancelar batch</AlertDialogTitle>
-            <AlertDialogDescription>
-              ¿Cancelar el batch {batch.code}? Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Volver</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              onClick={() => handleStatusChange('cancelled')}
-            >
-              Cancelar batch
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  )
-}
-
-// ---------- Helpers ----------
-
-function InfoField({
-  label,
-  value,
-  className,
-  link,
-}: {
-  label: string
-  value: string
-  className?: string
-  link?: string
-}) {
-  const router = useRouter()
-  return (
-    <div className={className}>
-      <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className="mt-0.5">
-        {link ? (
-          <button
-            className="text-blue-600 hover:underline dark:text-blue-400"
-            onClick={() => router.push(link)}
-          >
-            {value}
-          </button>
-        ) : (
-          value
-        )}
-      </dd>
     </div>
   )
 }

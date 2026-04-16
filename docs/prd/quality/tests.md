@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Ruta**: `/quality/tests`
-- **Roles con acceso**: admin (lectura + crear + editar + eliminar borrador), manager (lectura + crear + editar), supervisor (lectura + crear), operator (solo lectura), viewer (solo lectura)
+- **Roles con acceso**: admin (lectura + crear + editar + eliminar borrador), manager (lectura + crear + editar), supervisor (lectura + crear), operator (lectura + crear), viewer (solo lectura)
 - **Tipo componente**: Mixto (Server Component para listado, Client Component para formulario de creación y filtros)
 - **Edge Functions**: Ninguna — operaciones CRUD directas via PostgREST
 

@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Ruta**: `/quality/tests/[id]`
-- **Roles con acceso**: admin (lectura + capturar resultados + cambiar status), manager (lectura + capturar resultados + cambiar status), supervisor (lectura + capturar resultados), operator (solo lectura), viewer (solo lectura)
+- **Roles con acceso**: admin (lectura + capturar resultados + cambiar status + rechazar), manager (lectura + capturar resultados + cambiar status + rechazar), supervisor (lectura + capturar resultados), operator (lectura + capturar resultados), viewer (solo lectura)
 - **Tipo componente**: Mixto (Server Component para carga inicial, Client Component para formulario de resultados)
 - **Edge Functions**: Ninguna — operaciones CRUD directas via PostgREST
 
