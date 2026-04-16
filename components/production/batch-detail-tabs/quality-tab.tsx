@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { Fragment, useState, useMemo } from 'react'
 import { ChevronDown, ChevronRight, Plus, FlaskConical, FileText, CheckCircle2, XCircle, Clock, AlertTriangle } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { toast } from 'sonner'
+import { rejectQualityTest } from '@/lib/actions/quality-tests'
 import { CreateTestDialog } from './create-test-dialog'
 import { CaptureResultsDialog } from './capture-results-dialog'
 
@@ -314,10 +316,11 @@ export function QualityTab({
                     {phaseTests.map((test) => {
                       const isTestExpanded = expandedTests.has(test.id)
                       const canCaptureThis = canCapture && ['pending', 'in_progress'].includes(test.status)
+                      const canRejectThis = canReject && ['pending', 'in_progress'].includes(test.status)
 
                       return (
-                        <>
-                          <TableRow key={test.id} className="group">
+                        <Fragment key={test.id}>
+                          <TableRow className="group">
                             <TableCell>
                               {test.results.length > 0 && (
                                 <button
@@ -356,6 +359,24 @@ export function QualityTab({
                                   >
                                     <FileText className="mr-1 h-3.5 w-3.5" />
                                     Capturar
+                                  </Button>
+                                )}
+                                {canRejectThis && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive"
+                                    onClick={async () => {
+                                      const res = await rejectQualityTest({ testId: test.id, batchId })
+                                      if (res.success) {
+                                        toast.success('Test rechazado')
+                                      } else {
+                                        toast.error(res.error ?? 'Error al rechazar')
+                                      }
+                                    }}
+                                  >
+                                    <XCircle className="mr-1 h-3.5 w-3.5" />
+                                    Rechazar
                                   </Button>
                                 )}
                               </div>
@@ -409,7 +430,7 @@ export function QualityTab({
                               </TableCell>
                             </TableRow>
                           )}
-                        </>
+                        </Fragment>
                       )
                     })}
                   </TableBody>

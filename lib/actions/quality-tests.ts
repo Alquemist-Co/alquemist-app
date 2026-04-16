@@ -46,7 +46,6 @@ const rejectTestSchema = z.object({
 // ---------- Types ----------
 
 type CreateTestInput = z.infer<typeof createTestSchema>
-type TestResultInput = z.infer<typeof testResultSchema>
 type CaptureResultsInput = z.infer<typeof captureResultsSchema>
 type CompleteTestInput = z.infer<typeof completeTestSchema>
 type RejectTestInput = z.infer<typeof rejectTestSchema>

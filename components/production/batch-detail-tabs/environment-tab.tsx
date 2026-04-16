@@ -75,11 +75,12 @@ export function EnvironmentTab({ readings, zoneName, hasZone }: Props) {
 
   // Filter readings by time range
   const filteredReadings = useMemo(() => {
-    const now = Date.now()
+    const cutoff = new Date()
     const rangeMs = getTimeRangeMs(timeRange)
-    const cutoff = now - rangeMs
+    cutoff.setTime(cutoff.getTime() - rangeMs)
+    const cutoffMs = cutoff.getTime()
 
-    return readings.filter((r) => new Date(r.timestamp).getTime() >= cutoff)
+    return readings.filter((r) => new Date(r.timestamp).getTime() >= cutoffMs)
   }, [readings, timeRange])
 
   // Group readings by parameter and calculate stats
